@@ -1,6 +1,4 @@
-// src/models/Login.ts
-
-import { Document, Schema, model, Types } from 'mongoose';
+import mongoose,{ Document, Schema, model, Types } from 'mongoose';
 
 interface Login extends Document {
   userId: Types.ObjectId;
@@ -8,10 +6,10 @@ interface Login extends Document {
   password: string;
 }
 
-const loginSchema = new Schema<Login>({
+const LoginSchema = new Schema<Login>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
 });
 
-export default model<Login>('Login', loginSchema);
+const UserModel = (mongoose.models.User as mongoose.Model<Login>) || mongoose.model<Login>("Login", LoginSchema)
