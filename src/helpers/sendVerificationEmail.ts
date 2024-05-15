@@ -25,3 +25,4 @@ export async function sendVerificationEmail(
         return {success: false, message: "failed to send verification email"}
      }
 }
+
