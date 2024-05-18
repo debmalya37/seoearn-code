@@ -88,7 +88,7 @@ const TasksPage: FC = () => {
 
   return (
     <>
-     <Nav/>
+      <Nav/> 
      <div className="flex"> 
       {/* <div className="w-1/4 border-r p-4">
         {/* Left navbar */}

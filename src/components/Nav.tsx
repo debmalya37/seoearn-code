@@ -1,11 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import {getServerSession} from "next-auth";
-import { options } from "@/app/api/auth/[...nextauth]/options";
 
-const Nav = async () => {
 
-  const session = await getServerSession(options);
+const Nav =  () => {
   return (
     <header className="bg-pink-700 text-gray-100">
       <nav className="flex justify-between items-center w-full px-10 py-4">
@@ -17,10 +14,7 @@ const Nav = async () => {
           <Link href="/ClientMember">Referral</Link>
           <Link href="/Member">Profile</Link>
           {/* You can add more links here */}
-          {session? (<Link href="api/auth/signout?callbackUrl=/">Log Out</Link>)
-          :
-          (<Link href="api/auth/signin">Log In</Link>)
-        }
+          
         </div>
       </nav>
     </header>
