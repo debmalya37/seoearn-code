@@ -1,17 +1,20 @@
 import dbConnect from "@/lib/dbConnect";
-
 import UserModel from "@/models/userModel";
 import bcrypt from "bcryptjs";
-
-
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 import { Types } from "mongoose";
+import { date } from "zod";
+
+
 
 export async function POST(request: Request) {
     await dbConnect()
     
     try {
         const {username, phoneNumber, email, password, gender, age} =  await request.json()
+       
+       
+       
         // existing user by username
         const existingUserVerifiedByUsername = await UserModel.findOne({username, isVerified: true})
     
@@ -21,12 +24,16 @@ export async function POST(request: Request) {
             message: "Username is already taken"
         }, {status: 400})
     }
+    
+    
+    
+    
     // existing user by email
-    const  existingUserByEmail = UserModel.findOne({email});
+    const  existingUserByEmail = await UserModel.findOne({email});
     
     
     // existing user by phoneNumber
-    const existingUserByPhoneNumber = UserModel.findOne({phoneNumber});
+    const existingUserByPhoneNumber = await UserModel.findOne({phoneNumber});
     
     
     // verify code generation
@@ -34,7 +41,18 @@ export async function POST(request: Request) {
     
     
     if(existingUserByEmail && existingUserByPhoneNumber) {
-        true // todo back here
+        if(existingUserByEmail.isVerified) {
+            return Response.json({
+                success: false,
+                message: "User already exists with this email",
+            }, {status: 400})
+        } else {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            existingUserByEmail.password = hashedPassword;
+            existingUserByEmail.verifyCode = verifyCode;
+            existingUserByEmail.verifyCodeExpiry= new Date(Date.now() + 3600000)
+            await existingUserByEmail.save()
+        }
     } 
     else {
         const hashedPassword = await bcrypt.hash(password, 10)
@@ -71,13 +89,18 @@ export async function POST(request: Request) {
             verifyCode
         )
         
-        if(emailResponse.success) {
+        if(!emailResponse.success) {
             return Response.json({
                 success: false,
                 message: emailResponse.message,
             }, {status: 500})
         }
         
+        return Response.json({
+            success: true,
+            message: "User registered successfully. Please verify email",
+        }, {status: 201})
+     
     
     } catch (error) {
         console.log("Error registering user", error);
