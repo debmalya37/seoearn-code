@@ -6,6 +6,7 @@ export interface Task extends Document {
     description: string;
     rating: number;
     category: string;
+    reward: Number;
     status: 'pending' | 'in-progress' | 'completed';
     duration: number; // Duration in minutes or hours
     createdAt: Date
@@ -15,6 +16,7 @@ export interface Task extends Document {
     title: { type: String, required: true },
     description: { type: String, required: true },
     category: { type: String, required: true },
+    reward: {type: Number, required: true},
     rating: { type: Number, required: true },
     status: { type: String, enum: ['pending', 'in-progress', 'completed'], default: 'pending' },
     duration: { type: Number, required: true },

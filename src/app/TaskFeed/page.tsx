@@ -13,7 +13,7 @@ export interface TaskData {
   category: string;
   duration: string;
   createdBy: string;
-  rewardPrice: number;
+  reward: number;
 }
 
 const mockTasks: TaskData[] = [
@@ -24,7 +24,7 @@ const mockTasks: TaskData[] = [
     category: 'Category 1',
     duration: '1 hour',
     createdBy: 'User 1',
-    rewardPrice: 10,
+    reward: 10,
   },
   {
     title: 'Task 2',
@@ -33,7 +33,7 @@ const mockTasks: TaskData[] = [
     category: 'youtube',
     duration: '1 hour',
     createdBy: 'User 1',
-    rewardPrice: 100,
+    reward: 100,
   },
   {
     title: 'Task 2',
@@ -42,7 +42,7 @@ const mockTasks: TaskData[] = [
     category: 'youtube',
     duration: '1 hour',
     createdBy: 'User 1',
-    rewardPrice: 100,
+    reward: 100,
   },
   {
     title: 'Task 2',
@@ -51,7 +51,7 @@ const mockTasks: TaskData[] = [
     category: 'youtube',
     duration: '1 hour',
     createdBy: 'User 1',
-    rewardPrice: 100,
+    reward: 100,
   },
   {
     title: 'Task 2',
@@ -60,7 +60,7 @@ const mockTasks: TaskData[] = [
     category: 'youtube',
     duration: '1 hour',
     createdBy: 'User 1',
-    rewardPrice: 100,
+    reward: 100,
   },
   // Add more tasks as needed
 ];
@@ -111,7 +111,7 @@ const TasksPage: FC = () => {
           ))}
         </div>
       </div>
-      <div className="w-1/4 p-4 bg-purple-400 mt-3 rounded-md">
+      <div className="w-1/4 p-4 bg-purple-400 mt-3 rounded-md display">
         {/* Task details */}
         <TaskDetails task={selectedTask} />
       </div>

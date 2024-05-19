@@ -9,11 +9,11 @@ interface TaskProps {
   category: string;
   duration: string;
   createdBy: string;
-  rewardPrice: number;
+  reward: number;
   onClick: () => void;
 }
 
-const TaskCard: FC<TaskProps> = ({ title, description, rating, category, duration, createdBy, rewardPrice, onClick }) => {
+const TaskCard: FC<TaskProps> = ({ title, description, rating, category, duration, createdBy, reward, onClick }) => {
   return (
     <div className="border rounded p-4 mb-4 cursor-pointer bg-pink-200" onClick={onClick}>
       <h3 className="text-lg font-semibold">{title}</h3>
@@ -22,7 +22,7 @@ const TaskCard: FC<TaskProps> = ({ title, description, rating, category, duratio
       <p className="text-sm">Category: {category}</p>
       <p className="text-sm">Duration: {duration}</p>
       <p className="text-sm">Created by: {createdBy}</p>
-      <p className="text-sm">Reward Price: {rewardPrice}</p>
+      <p className="text-sm">Reward: {reward}</p>
     </div>
   );
 };

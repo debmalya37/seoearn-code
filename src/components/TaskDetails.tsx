@@ -10,13 +10,13 @@ interface TaskDetailsProps {
     category: string;
     duration: string;
     createdBy: string;
-    rewardPrice: number;
+    reward: number;
   } | null;
 }
 
 const TaskDetails: FC<TaskDetailsProps> = ({ task }) => {
   return (
-    <div className="border rounded p-4">
+    <div className="border rounded p-4 fixed">
       {task ? (
         <>
           <h3 className="text-lg font-semibold">{task.title}</h3>
@@ -25,7 +25,7 @@ const TaskDetails: FC<TaskDetailsProps> = ({ task }) => {
           <p className="text-sm">Category: {task.category}</p>
           <p className="text-sm">Duration: {task.duration}</p>
           <p className="text-sm">Created by: {task.createdBy}</p>
-          <p className="text-sm">Reward Price: {task.rewardPrice}</p>
+          <p className="text-sm">Reward: {task.reward}</p>
         </>
       ) : (
         <p className="text-sm">Select a task to view details</p>

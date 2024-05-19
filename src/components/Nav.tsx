@@ -10,8 +10,9 @@ const Nav =  () => {
         <div className="flex gap-10 ml-2">
           <Link href="/">Home</Link>
           <Link href="/TaskFeed">TaskFeed</Link>
-          <Link href="/CreateAdvertisement">Create Advertisement</Link>
-          <Link href="/ClientMember">Referral</Link>
+          <Link href="/CreateAdvertisement">Advertisement</Link>
+          <Link href="/Payment">Payment</Link>
+          <Link href="/Referral">Referral</Link>
           <Link href="/Member">Profile</Link>
           {/* You can add more links here */}
           
