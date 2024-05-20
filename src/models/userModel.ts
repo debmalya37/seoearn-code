@@ -1,6 +1,6 @@
 import mongoose, { Document, Model, model, Types, Schema } from 'mongoose';
-
-
+import  {TaskSchema}  from '@/models/taskModel';
+import Task from '@/models/taskModel';
 export interface Message extends Document {
   content: string;
   createdAt: Date;
@@ -30,58 +30,31 @@ export interface User extends Document {
   verifyCodeExpiry: Date;
   gender: string;
   age: number;
+  profilePicture: string;
+  paymentPreference: string;
+  paymentGateway: string;
   messages: Message[];
-  tasks: Tasks[];
+  tasks: typeof Task[];
   referredBy: Types.ObjectId;
-
 }
 
 const UserSchema = new Schema<User>({
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    unique: true,
-    match: [/.+\@.+\..+/, 'Please use a valid email address'],
-  },
-  username: {
-    type: String,
-    required: [true, 'Username is required'],
-    trim: true,
-    unique: true,
-  },
+  email: { type: String, required: true, unique: true, match: [/.+\@.+\..+/, 'Please use a valid email address'] },
+  username: { type: String, required: true, trim: true, unique: true },
   phoneNumber: { type: String, required: true },
-  password: {
-    type: String,
-    required: [true, "Password is required"],
-  },
+  password: { type: String, required: true },
   gender: { type: String, enum: ['male', 'female', 'other'], required: true },
   age: { type: Number, required: true },
-  verifyCode: {
-    type: String,
-    required: [true, 'Verify Code is required'],
-  },
-
-  verifyCodeExpiry: {
-    type: Date,
-    required: [true, 'Verify Code Expiry is required'],
-  },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
-  isAcceptingMessages: {
-    type: Boolean,
-    default: true,
-  },
+  profilePicture: { type: String, required: false },
+  paymentPreference: { type: String, required: true },
+  paymentGateway: { type: String, required: true },
+  verifyCode: { type: String, required: true },
+  verifyCodeExpiry: { type: Date, required: true },
+  isVerified: { type: Boolean, default: false },
+  isAcceptingMessages: { type: Boolean, default: true },
   messages: [MessageSchema],
   tasks: [TaskSchema],
-
-
-  referredBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-
-  }
+  referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 
 const UserModel = (mongoose.models.User as mongoose.Model<User>) || mongoose.model<User>("User", UserSchema)
