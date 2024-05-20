@@ -12,4 +12,4 @@ const LoginSchema = new Schema<Login>({
   password: { type: String, required: true },
 });
 
-const UserModel = (mongoose.models.User as mongoose.Model<Login>) || mongoose.model<Login>("Login", LoginSchema);
+const LoginModel = (mongoose.models.User as mongoose.Model<Login>) || mongoose.model<Login>("Login", LoginSchema);
