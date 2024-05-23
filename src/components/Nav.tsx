@@ -4,6 +4,8 @@ import Link from "next/link";
 
 const Nav =  () => {
   return (
+    
+
     <header className="bg-pink-700 text-gray-100">
       <nav className="flex justify-between items-center w-full px-10 py-4">
         <div className="flex-ml-1">LOGO(seo)</div>
@@ -20,6 +22,7 @@ const Nav =  () => {
         </div>
       </nav>
     </header>
+    
   );
 };
 

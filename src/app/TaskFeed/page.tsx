@@ -27,6 +27,36 @@ const mockTasks: TaskData[] = [
     reward: 100,
     status: 'Pending',
   },
+  {
+    title: 'web development task',
+    description: 'Web development code this website and deploy the website of a food delivery quick commerce.',
+    rating: 3,
+    category: 'Web Development',
+    duration: '1 week',
+    createdBy: 'username',
+    reward: 100,
+    status: 'Pending',
+  },
+  {
+    title: 'watch videos',
+    description: 'watch netflix and run from the bed room and code this website and deploy the website of a food delivery quick commerce.',
+    rating: 3,
+    category: 'Web Development',
+    duration: '1 week',
+    createdBy: 'username',
+    reward: 100,
+    status: 'Pending',
+  },
+  {
+    title: 'game play task',
+    description: 'play games and enjoy the evening.',
+    rating: 3,
+    category: 'Web Development',
+    duration: '1 week',
+    createdBy: 'username',
+    reward: 100,
+    status: 'Pending',
+  },
   // Add more tasks as needed
 ];
 
@@ -53,11 +83,14 @@ const TasksPage: FC = () => {
 
   return (
     <>
-      <Nav />
+      {/* <div className='flex justify-between w-full items-center'> */}
+
+      <Nav/>
+        {/* </div> */}
       <div className="flex h-screen">
         {/* Sidebar */}
-        <div className="w-1/5 bg-yellow-100 p-4 flex flex-col justify-between">
-          <div>
+        <div className="w-1/5 bg-yellow-100 p-4 flex flex-col justify-between ">
+          <div className='fixed'>
             <div className="text-xl font-bold mb-6">Username</div>
             <nav className="space-y-4">
               <a href="#" className="block">Advertisement</a>
@@ -69,8 +102,8 @@ const TasksPage: FC = () => {
               <a href="#" className="block">Status</a>
               <a href="#" className="block">About Us</a>
             </nav>
-          </div>
           <button className="bg-orange-400 text-white py-2 px-4 rounded-md">Sign Out</button>
+          </div>
         </div>
 
         {/* Task List */}
@@ -84,7 +117,7 @@ const TasksPage: FC = () => {
               <TaskCard key={index} {...task} onClick={() => handleTaskClick(task)} />
             ))}
           </div>
-          <div className="flex justify-between items-center mt-4">
+          <div className="flex justify-between items-center mt-4 pb-6">
             <button className="text-purple-700">Previous</button>
             <div className="space-x-2">
               <button className="text-purple-700">1</button>
@@ -100,7 +133,7 @@ const TasksPage: FC = () => {
         </div>
 
         {/* Task Details */}
-        <div className="w-1/5 bg-yellow-50 p-4">
+        <div className="w-2/5 bg-yellow-50 p-4">
           <TaskDetails task={selectedTask} />
         </div>
 
@@ -108,7 +141,7 @@ const TasksPage: FC = () => {
           onClick={handleOpenAddTaskModal}
           className="fixed bottom-4 right-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
         >
-          + Create New Task
+          Add New Task
         </button>
         <AddTaskModal
           isOpen={isAddTaskModalOpen}
