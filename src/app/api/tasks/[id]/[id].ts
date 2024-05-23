@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/dbConnect';
-import Task from '../../../models/taskModel';
+import Task from '../../../../models/taskModel';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   await dbConnect();
@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(404).json({ success: false, error: 'Task not found' });
         }
         res.status(200).json({ success: true, data: task });
-      } catch (error) {
+      } catch (error:any) {
         res.status(400).json({ success: false, error: error.message });
       }
       break;
@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(404).json({ success: false, error: 'Task not found' });
         }
         res.status(200).json({ success: true, data: task });
-      } catch (error) {
+      } catch (error:any) {
         res.status(400).json({ success: false, error: error.message });
       }
       break;
@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(404).json({ success: false, error: 'Task not found' });
         }
         res.status(200).json({ success: true, data: {} });
-      } catch (error) {
+      } catch (error:any) {
         res.status(400).json({ success: false, error: error.message });
       }
       break;

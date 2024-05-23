@@ -14,6 +14,7 @@ const Nav =  () => {
           <Link href="/Payment">Payment</Link>
           <Link href="/Referral">Referral</Link>
           <Link href="/Profile">Profile</Link>
+          
           {/* You can add more links here */}
           
         </div>
