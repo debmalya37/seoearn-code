@@ -1,28 +1,29 @@
-// components/Task.tsx
+import React from 'react';
+import { TaskData } from '@/app/TaskFeed/page';
 
-import React, { FC } from 'react';
-
-interface TaskProps {
-  title: string;
-  description: string;
-  rating: number;
-  category: string;
-  duration: string;
-  createdBy: string;
-  reward: number;
+interface TaskCardProps extends TaskData {
   onClick: () => void;
 }
 
-const TaskCard: FC<TaskProps> = ({ title, description, rating, category, duration, createdBy, reward, onClick }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ title, description, rating, category, status, onClick }) => {
   return (
-    <div className="border rounded p-4 mb-4 cursor-pointer bg-pink-200" onClick={onClick}>
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="text-sm text-gray-600 mb-2">{description}</p>
-      <p className="text-sm">Rating: {rating}</p>
-      <p className="text-sm">Category: {category}</p>
-      <p className="text-sm">Duration: {duration}</p>
-      <p className="text-sm">Created by: {createdBy}</p>
-      <p className="text-sm">Reward: {reward}</p>
+    <div className="bg-white p-4 rounded-lg shadow-md cursor-pointer" onClick={onClick}>
+      <h2 className="text-xl font-bold mb-2">{title}</h2>
+      <p className="text-gray-600">{description}</p>
+      <div className="mt-2">
+        <span className="text-purple-700 font-bold">Category: </span>
+        {category}
+      </div>
+      <div className="mt-2">
+        <span className="text-purple-700 font-bold">Status: </span>
+        <span className={status === 'Completed' ? 'text-green-600' : status === 'Pending' ? 'text-red-600' : 'text-yellow-600'}>
+          {status}
+        </span>
+      </div>
+      <div className="mt-2 flex items-center">
+        <span className="text-purple-700 font-bold">Rating: </span>
+        <span className="ml-2">{rating} ⭐</span>
+      </div>
     </div>
   );
 };

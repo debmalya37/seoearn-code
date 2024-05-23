@@ -1,35 +1,38 @@
-// components/TaskDetails.tsx
-
-import React, { FC } from 'react';
+import React from 'react';
+import { TaskData } from '@/app/TaskFeed/page';
 
 interface TaskDetailsProps {
-  task: {
-    title: string;
-    description: string;
-    rating: number;
-    category: string;
-    duration: string;
-    createdBy: string;
-    reward: number;
-  } | null;
+  task: TaskData | null;
 }
 
-const TaskDetails: FC<TaskDetailsProps> = ({ task }) => {
+const TaskDetails: React.FC<TaskDetailsProps> = ({ task }) => {
+  if (!task) {
+    return <div className="text-center text-gray-500">Select a task to see the details</div>;
+  }
+
   return (
-    <div className="border rounded p-4 fixed">
-      {task ? (
-        <>
-          <h3 className="text-lg font-semibold">{task.title}</h3>
-          <p className="text-sm text-gray-600 mb-2">{task.description}</p>
-          <p className="text-sm">Rating: {task.rating}</p>
-          <p className="text-sm">Category: {task.category}</p>
-          <p className="text-sm">Duration: {task.duration}</p>
-          <p className="text-sm">Created by: {task.createdBy}</p>
-          <p className="text-sm">Reward: {task.reward}</p>
-        </>
-      ) : (
-        <p className="text-sm">Select a task to view details</p>
-      )}
+    <div className="bg-white p-4 rounded-lg shadow-md">
+      <h2 className="text-xl font-bold mb-2">{task.title}</h2>
+      <p className="text-gray-600 mb-2">{task.description}</p>
+      <div className="mb-2">
+        <span className="text-purple-700 font-bold">Category: </span>
+        {task.category}
+      </div>
+      <div className="mb-2">
+        <span className="text-purple-700 font-bold">Duration: </span>
+        {task.duration}
+      </div>
+      <div className="mb-2">
+        <span className="text-purple-700 font-bold">Created By: </span>
+        {task.createdBy}
+      </div>
+      <div className="mb-2">
+        <span className="text-purple-700 font-bold">Reward: </span>
+        ${task.reward}
+      </div>
+      <div className="mt-4">
+        <button className="bg-orange-400 text-white py-2 px-4 rounded-md">Submit</button>
+      </div>
     </div>
   );
 };

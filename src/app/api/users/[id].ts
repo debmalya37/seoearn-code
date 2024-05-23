@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(404).json({ success: false, message: 'User not found' });
         }
         res.status(200).json({ success: true, data: user });
-      } catch (error) {
+      } catch (error:any) {
         res.status(400).json({ success: false, error: error.message });
       }
       break;
