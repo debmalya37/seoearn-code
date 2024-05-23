@@ -14,6 +14,7 @@ export interface TaskData {
   createdBy: string;
   reward: number;
   status: string;
+  createdAt: string;
 }
 
 const mockTasks: TaskData[] = [
@@ -26,6 +27,7 @@ const mockTasks: TaskData[] = [
     createdBy: 'username',
     reward: 100,
     status: 'Pending',
+    createdAt: new Date().toISOString(),
   },
   {
     title: 'web development task',
@@ -36,6 +38,7 @@ const mockTasks: TaskData[] = [
     createdBy: 'username',
     reward: 100,
     status: 'Pending',
+    createdAt: new Date().toISOString(),
   },
   {
     title: 'watch videos',
@@ -46,6 +49,7 @@ const mockTasks: TaskData[] = [
     createdBy: 'username',
     reward: 100,
     status: 'Pending',
+    createdAt: new Date().toISOString(),
   },
   {
     title: 'game play task',
@@ -56,6 +60,7 @@ const mockTasks: TaskData[] = [
     createdBy: 'username',
     reward: 100,
     status: 'Pending',
+    createdAt: new Date().toISOString(),
   },
   // Add more tasks as needed
 ];

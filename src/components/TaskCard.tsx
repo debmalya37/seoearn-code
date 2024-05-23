@@ -5,7 +5,7 @@ interface TaskCardProps extends TaskData {
   onClick: () => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ title, description, rating, category, status, onClick }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ title, description, rating, category, status, createdAt, onClick }) => {
   return (
     <div className="bg-white p-4 rounded-lg shadow-md cursor-pointer" onClick={onClick}>
       <h2 className="text-xl font-bold mb-2">{title}</h2>
@@ -23,6 +23,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ title, description, rating, categor
       <div className="mt-2 flex items-center">
         <span className="text-purple-700 font-bold">Rating: </span>
         <span className="ml-2">{rating} ⭐</span>
+      </div>
+      <div className="mt-2">
+        <span className="text-purple-700 font-bold">Created At: </span>
+        {new Date(createdAt).toLocaleString()}
       </div>
     </div>
   );

@@ -30,6 +30,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task }) => {
         <span className="text-purple-700 font-bold">Reward: </span>
         ${task.reward}
       </div>
+      <div className="mb-2">
+        <span className="text-purple-700 font-bold">Created At: </span>
+        {new Date(task.createdAt).toLocaleString()}
+      </div>
       <div className="mt-4">
         <button className="bg-orange-400 text-white py-2 px-4 rounded-md">Details</button>
       </div>

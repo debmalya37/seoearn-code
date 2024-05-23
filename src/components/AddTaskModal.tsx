@@ -1,5 +1,3 @@
-// components/AddTaskModal.tsx
-
 import React, { FC, useState } from 'react';
 import { TaskData } from '@/types/task';
 
@@ -130,11 +128,11 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="rewardPrice" className="block mb-1">Reward Price:</label>
+                <label htmlFor="reward" className="block mb-1">Reward:</label>
                 <input
                   type="number"
-                  id="rewardPrice"
-                  name="rewardPrice"
+                  id="reward"
+                  name="reward"
                   value={taskData.rewardPrice}
                   onChange={handleChange}
                   className="border p-2 w-full"
