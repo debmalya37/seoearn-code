@@ -5,6 +5,8 @@ import TaskDetails from '@/components/TaskDetails';
 import AddTaskModal from '@/components/AddTaskModal';
 import Nav from '@/components/Nav';
 
+
+
 export interface TaskData {
   title: string;
   description: string;
