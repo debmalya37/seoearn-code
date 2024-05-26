@@ -10,7 +10,7 @@ interface ITask extends Document {
   reward: number;
 }
 
-const TaskSchema: Schema = new Schema({
+ export const TaskSchema: Schema = new Schema({
   title: {
     type: String,
     required: true,
