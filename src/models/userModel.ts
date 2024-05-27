@@ -30,12 +30,12 @@ export interface User extends Document {
   verifyCodeExpiry: Date;
   gender: string;
   age: number;
-  profilePicture: string;
-  paymentPreference: string;
-  paymentGateway: string;
+  profilePicture?: string;
+  paymentPreference?: string;
+  paymentGateway?: string;
   messages: Message[];
-  tasks: typeof Task[];
-  referredBy: Types.ObjectId;
+  tasks?: typeof Task[];
+  referredBy?: Types.ObjectId;
 }
 
 const UserSchema = new Schema<User>({
@@ -46,8 +46,8 @@ const UserSchema = new Schema<User>({
   gender: { type: String, enum: ['male', 'female', 'other'], required: true },
   age: { type: Number, required: true },
   profilePicture: { type: String, required: false },
-  paymentPreference: { type: String, required: true },
-  paymentGateway: { type: String, required: true },
+  paymentPreference: { type: String, required: false }, // Changed to optional
+  paymentGateway: { type: String, required: false },    // Changed to optional
   verifyCode: { type: String, required: true },
   verifyCodeExpiry: { type: Date, required: true },
   isVerified: { type: Boolean, default: false },
@@ -57,6 +57,6 @@ const UserSchema = new Schema<User>({
   referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 
-const UserModel = (mongoose.models.User as mongoose.Model<User>) || mongoose.model<User>("User", UserSchema)
+const UserModel = (mongoose.models.User as mongoose.Model<User>) || mongoose.model<User>("User", UserSchema);
 
 export default UserModel;

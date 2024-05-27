@@ -1,35 +1,104 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import dbConnect from '@/lib/dbConnect';
-import Task from '../../../models/taskModel';
+import dbConnect from "@/lib/dbConnect";
+import UserModel from "@/models/userModel";
+import bcrypt from "bcryptjs";
+import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
+import { Types } from "mongoose";
 
-// Connect to the database
-await dbConnect();
-
-// GET method handler
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    const tasks = await Task.find({});
-    res.status(200).json({ success: true, data: tasks });
-  } catch (error: any) {
-    console.error('Error fetching tasks:', error);
-    res.status(400).json({ success: false, error: error.message });
-  }
-}
-
-// POST method handler
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    console.log('Request body:', req.body); // Log the request body to debug
-    const task = await Task.create(req.body);
-    res.status(201).json({ success: true, data: task });
-  } catch (error: any) {
-    console.error('Error creating task:', error);
-    res.status(400).json({ success: false, error: error.message });
-  }
-}
-
-// Default handler for unsupported methods
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  res.setHeader('Allow', ['GET', 'POST']);
-  res.status(405).end(`Method ${req.method} Not Allowed`);
-}
+export async function POST(request: Request) {
+    await dbConnect();
+    
+    try {
+        const { username, phoneNumber, email, password, gender, age, paymentPreference, paymentGateway, referredBy } = await request.json();
+       
+        // existing user by username
+        const existingUserVerifiedByUsername = await UserModel.findOne({ username, isVerified: true });
+    
+        if (existingUserVerifiedByUsername) {
+            return new Response(JSON.stringify({
+                success: false,
+                message: "Username is already taken"
+            }), { status: 400 });
+        }
+    
+        // existing user by email
+        const existingUserByEmail = await UserModel.findOne({ email });
+        
+        // existing user by phoneNumber
+        const existingUserByPhoneNumber = await UserModel.findOne({ phoneNumber });
+        
+        // verify code generation
+        const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        if (existingUserByEmail && existingUserByPhoneNumber) {
+            if (existingUserByEmail.isVerified) {
+                return new Response(JSON.stringify({
+                    success: false,
+                    message: "User already exists with this email",
+                }), { status: 400 });
+            } else {
+                const hashedPassword = await bcrypt.hash(password, 10);
+                existingUserByEmail.password = hashedPassword;
+                existingUserByEmail.verifyCode = verifyCode;
+                existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
+                await existingUserByEmail.save();
+            }
+        } else {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const expiryDate = new Date();
+            expiryDate.setHours(expiryDate.getHours() + 1);
+            
+            // todo here the referredByObejectId is being depreciated , need to fix or write a new logic for that 
+            // Handle referredBy properly
+            let referredByObjectId = null;
+            if (referredBy && Types.ObjectId.isValid(referredBy)) {
+                referredByObjectId = new Types.ObjectId(referredBy);
+            }
+            
+            // newUser model created 
+            const newUser = new UserModel({
+                email,
+                username,
+                phoneNumber,
+                password: hashedPassword,
+                isVerified: false,
+                isAcceptingMessages: true,
+                verifyCode,
+                verifyCodeExpiry: expiryDate,
+                gender,
+                age,
+                paymentPreference: paymentPreference || "defaultPreference", // Default value if not provided
+                paymentGateway: paymentGateway || "defaultGateway",         // Default value if not provided
+                referredBy: referredByObjectId, // Ensure valid ObjectId or null
+                messages: [],
+                tasks: [],
+            });
+            await newUser.save();
+        }
+        
+        // send verification email and verification otp in phone
+        const emailResponse = await sendVerificationEmail(email, username, verifyCode);
+        
+        if (!emailResponse.success) {
+            return new Response(JSON.stringify({
+                success: false,
+                message: emailResponse.message,
+            }), { status: 500 });
+        }
+        
+        return new Response(JSON.stringify({
+            success: true,
+            message: "User registered successfully. Please verify email",
+        }), { status: 201 });
+    } catch (error) {
+      console.log("Error registering user", error);
+      return new Response(
+      JSON.stringify({
+      success: false,
+      message: "Error registering user",
+      }),
+      { status: 500 }
+      );
+      }
+      }
+      
+      
