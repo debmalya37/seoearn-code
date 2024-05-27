@@ -10,14 +10,15 @@ const UsernameQuerySchema = z.object({
 
 export async function GET(request: Request) {
 
-    // todo use this in all other routes
-    if(request.method!== 'GET') {
-        return Response.json({
-            success: false,
-            message: "method not allowed",
-        }, {status: 405}
-        )
-    }
+    // code not needed due to nextjs updated already by itself to recognise these issues
+    // // todo use this in all other routes
+    // if(request.method!== 'GET') {
+    //     return Response.json({
+    //         success: false,
+    //         message: "method not allowed",
+    //     }, {status: 405}
+    //     )
+    // }
 
     await dbConnect()
 
