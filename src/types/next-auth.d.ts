@@ -8,6 +8,7 @@ declare module 'next-auth' {
         isVerified?: boolean;
         isAcceptingMessages?: boolean;
         username?: string;
+        messages?: [];
     }
     interface Session {
         user: {
@@ -15,6 +16,8 @@ declare module 'next-auth' {
             isVerified?: boolean;
             isAcceptingMessages?: boolean;
             username?: string;
+            messages?: [];
+            
         } & DefaultSession['user']
     }
 }
@@ -26,5 +29,6 @@ declare module 'next-auth/jwt' {
         isVerified?: boolean;
         isAcceptingMessages?: boolean;
         username?: string;
+        messages?: [];
     }
 }

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-interface ITask extends Document {
+export interface ITask extends Document {
   title: string;
   description: string;
   rating: number;
@@ -10,7 +10,7 @@ interface ITask extends Document {
   reward: number;
 }
 
- export const TaskSchema: Schema = new Schema({
+ export const TaskSchema: Schema<ITask> = new Schema({
   title: {
     type: String,
     required: true,

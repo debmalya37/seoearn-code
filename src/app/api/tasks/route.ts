@@ -1,19 +1,126 @@
 import dbConnect from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
 import Task from "@/models/taskModel";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/options";
+import UserModel from "@/models/userModel";
+import { User } from "next-auth";
+import mongoose from "mongoose";
+import  { ITask } from "@/models/taskModel";
 
 
-export async function POST(request: any) {
+
+
+export async function POST(request: Request) {
   const {title, description, rating, category, duration, createdBy, reward} = await request.json();
   await dbConnect();
-  await Task.create({title, description, rating, category, duration, createdBy, reward});
-  return NextResponse.json({message: "Task Created"}, {status: 201});
+
+  // before adding task, we need to check if the user is authenticated or not to prevent spam tasks and server loading
+  const session = await getServerSession(authOptions);
+  const user: User = session?.user as User;
+
+// getting the session authenticated user 
+  if (!session || !session.user) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Not Authenticated"
+      }, {status: 401}
+    )
+  }
+
+  const userId = user._id
+  
+  try {
+    const newTask = {title, description, rating, category, duration, createdBy, reward};
+    // create the task with required parameters
+    await Task.create({title, description, rating, category, duration, createdBy, reward});
+    user.messages?.push(newTask as ITask)
+
+
+
+    return NextResponse.json({message: "Task Created"}, {status: 201});
+
+  } 
+  // error handling if it fails to add new task
+  catch (error) {
+    console.log("failed to add new task")
+    return NextResponse.json(
+      {
+        success: false,
+        message: "failed to add task"
+      }, {status: 401}
+    )
+  }
+  
 }
 
-export async function GET(request:any) {
+export async function GET(request: Request) {
   await dbConnect();
-  const tasks = await Task.find();
-  return NextResponse.json({ tasks }); 
+
+  // before adding task, we need to check if the user is authenticated or not to prevent spam tasks and server loading
+  const session = await getServerSession(authOptions);
+  const user: User = session?.user as User;
+
+// getting the session authenticated user 
+  if (!session || !session.user) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Not Authenticated"
+      }, {status: 401}
+    )
+  }
+
+  // const userId = user._id;
+  const userId = new mongoose.Types.ObjectId(user._id);
+  try {
+    const user = await UserModel.aggregate([
+      { $match: {id: userId}},
+      {$unwind: '$tasks'},
+      {$sort: {'tasks.createdAt': -1}},
+      {$group: {_id: '$_id', messages: {$push: '$tasks'}}}
+    ])
+
+    if(!user || user.length === 0) {
+      return Response.json(
+        {
+          success: false,
+          message: "User not found"
+        }, {status: 404}
+      )
+    }
+
+  {
+    const tasks = await Task.find();
+    
+    if(!tasks) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Tasks not Found"
+        }, {status: 404}
+        )
+      }
+        return NextResponse.json(
+          {
+            success: true,
+            tasks: user[0].tasks
+          }, {status: 200}
+        ); 
+        
+  }
+}
+
+catch (error) {
+  console.log("failed to Fetch Tasks")
+  return NextResponse.json(
+    {
+        success: false,
+        message: "failed to Fetch task"
+      }, {status: 401}
+    )
+  }
 }
 
 // export async function DELETE(request:any) {
