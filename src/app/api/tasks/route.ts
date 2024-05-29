@@ -1,15 +1,14 @@
 import dbConnect from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
 import Task from "@/models/taskModel";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/options";
 import UserModel, { IUser } from "@/models/userModel";
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
 
 export async function POST(request: Request) {
-  const { title, description, rating, category, duration, createdBy, reward } = await request.json();
   await dbConnect();
-
+  
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
@@ -35,10 +34,11 @@ export async function POST(request: Request) {
   }
 
   try {
+    const { title, description, rating, category, duration, reward } = await request.json();
     const newTask = await Task.create({ title, description, rating, category, duration, createdBy: user._id, reward });
 
     if (!user.tasks) {
-      user.tasks = new mongoose.Types.Array<Types.ObjectId>();
+      user.tasks = new mongoose.Types.Array<mongoose.Types.ObjectId>();
     }
     user.tasks.push(newTask._id);
     await user.save();
