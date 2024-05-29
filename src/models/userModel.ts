@@ -1,12 +1,12 @@
-import mongoose, { Document, Model, model, Types, Schema } from 'mongoose';
-import  {TaskSchema}  from '@/models/taskModel';
-import Task from '@/models/taskModel';
-export interface Message extends Document {
+import mongoose, { Document, Schema, Types } from 'mongoose';
+import { ITask, TaskSchema } from '@/models/taskModel';
+
+export interface IMessage extends Document {
   content: string;
   createdAt: Date;
 }
 
-const MessageSchema: Schema<Message> = new mongoose.Schema({
+const MessageSchema: Schema<IMessage> = new mongoose.Schema({
   content: {
     type: String,
     required: true,
@@ -18,8 +18,7 @@ const MessageSchema: Schema<Message> = new mongoose.Schema({
   },
 });
 
-
-export interface User extends Document {
+export interface IUser extends Document {
   email: string;
   username: string;
   phoneNumber: string;
@@ -33,12 +32,12 @@ export interface User extends Document {
   profilePicture?: string;
   paymentPreference?: string;
   paymentGateway?: string;
-  messages: Message[];
-  tasks?: typeof Task[];
+  messages: IMessage[];
+  tasks?: Types.Array<Types.ObjectId>; // Update tasks to be an array of ObjectId
   referredBy?: Types.ObjectId;
 }
 
-const UserSchema = new Schema<User>({
+const UserSchema = new Schema<IUser>({
   email: { type: String, required: true, unique: true, match: [/.+\@.+\..+/, 'Please use a valid email address'] },
   username: { type: String, required: true, trim: true, unique: true },
   phoneNumber: { type: String, required: true },
@@ -46,17 +45,17 @@ const UserSchema = new Schema<User>({
   gender: { type: String, enum: ['male', 'female', 'other'], required: true },
   age: { type: Number, required: true },
   profilePicture: { type: String, required: false },
-  paymentPreference: { type: String, required: false }, // Changed to optional
-  paymentGateway: { type: String, required: false },    // Changed to optional
+  paymentPreference: { type: String, required: false },
+  paymentGateway: { type: String, required: false },
   verifyCode: { type: String, required: true },
   verifyCodeExpiry: { type: Date, required: true },
   isVerified: { type: Boolean, default: false },
   isAcceptingMessages: { type: Boolean, default: true },
   messages: [MessageSchema],
-  tasks: [TaskSchema],
+  tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
   referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 
-const UserModel = (mongoose.models.User as mongoose.Model<User>) || mongoose.model<User>("User", UserSchema);
+const UserModel = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 
 export default UserModel;
