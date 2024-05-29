@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     user.tasks.push(newTask._id);
     await user.save();
 
-    return NextResponse.json({ message: "Task Created" }, { status: 201 });
+    return NextResponse.json({ success: true, message: "Task Created" }, { status: 201 });
   } catch (error) {
     console.log("Failed to add new task", error);
     return NextResponse.json(

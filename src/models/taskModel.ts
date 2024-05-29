@@ -8,6 +8,7 @@ export interface ITask extends Document {
   duration: number;
   createdBy: string;
   reward: number;
+  createdAt: Date;
 }
 
  export const TaskSchema: Schema<ITask> = new Schema({
@@ -39,6 +40,11 @@ export interface ITask extends Document {
     type: Number,
     required: true,
   },
+  createdAt: {
+    type: Date,
+    required: true,
+    default: Date.now,
+  }
 });
 
 const Task =  mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);
