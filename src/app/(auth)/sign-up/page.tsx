@@ -1,32 +1,30 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z  from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDebounceCallback } from "usehooks-ts";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { signUpSchema } from "@/schemas/signUpSchema";
-import axios, {AxiosError} from "axios";
+import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2, Loader2Icon } from "lucide-react";
+
 function Page() {
   const [username, setUsername] = useState('');
   const [usernameMessage, setUsernameMessage] = useState('');
   const [isCheckingUsername, setisCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const debounced =  useDebounceCallback(setUsername, 300);
-  const {toast} = useToast()
-  const router = useRouter()
-
-
-// zod implimentation 
+  const debounced = useDebounceCallback(setUsername, 300);
+  const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -34,64 +32,64 @@ function Page() {
       username: '',
       email: '',
       password: '',
-      phoneNumber: 91 as number,
+      phoneNumber: 91,
       gender: '',
-      age: 0 as number,
+      age: 0,
       referredBy: '',
+    },
+  });
 
-    }
-  })
-
-
-  useEffect(()=> {
-    const checkUsernameUnique = async ()=> {
-      if(username) {
-        setisCheckingUsername(true)
-        setUsernameMessage("")
+  useEffect(() => {
+    const checkUsernameUnique = async () => {
+      if (username) {
+        setisCheckingUsername(true);
+        setUsernameMessage('');
 
         try {
-          const response = await axios.get(`/api/check-username-unique?username=${username}`)
+          const response = await axios.get(`/api/check-username-unique?username=${username}`);
           let message = response.data.message;
-          console.log(message);
           setUsernameMessage(message);
         } catch (error) {
           const axiosError = error as AxiosError<ApiResponse>;
-          setUsernameMessage(axiosError.response?.data.message ?? "Error checking username");
-          
+          setUsernameMessage(axiosError.response?.data.message ?? 'Error checking username');
         } finally {
           setisCheckingUsername(false);
         }
       }
-    }
+    };
 
-    checkUsernameUnique()
-  }, [username])
+    checkUsernameUnique();
+  }, [username]);
 
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
-      const response =  await axios.post<ApiResponse>('/api/sign-up', data);
+      const response = await axios.post<ApiResponse>('/api/sign-up', {
+        ...data,
+        phoneNumber: Number(data.phoneNumber),
+        age: Number(data.age),
+      });
       toast({
-        title: "Success",
-        description:  response.data.message
-      })
-      router.replace(`/verify/${username}`)
+        title: 'Success',
+        description: response.data.message,
+      });
+      router.replace(`/verify/${data.username}`);
     } catch (error) {
-      console.error("Error in signup in user", error)
       const axiosError = error as AxiosError<ApiResponse>;
-      let errorMessage = axiosError.response?.data.message
+      let errorMessage = axiosError.response?.data.message;
       toast({
-        title: "Signup failed",
+        title: 'Signup failed',
         description: errorMessage,
-        variant: "destructive"
-      })
-      setIsSubmitting(false);      
+        variant: 'destructive',
+      });
+      setIsSubmitting(false);
     }
-  }
-  return ( 
+  };
+
+  return (
     <div className="flex items-center justify-center min-h-screen py-2 bg-gray-100">
-      <div  className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
             Welcome to SEO EARNING SPACE
@@ -100,193 +98,136 @@ function Page() {
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-          name="username"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="Username" 
-                {...field} 
-                onChange={(e) => {
-                  field.onChange(e)
-                  debounced(e.target.value)
-                }}
-                />
-              </FormControl>
-                {isCheckingUsername && <Loader2Icon className="animate-spin" />}
-                <p className={`text-sm ${usernameMessage === Response.message? 'text-green-500' : 'text-red-500'}`}> {username} {" "}{usernameMessage}</p>
-              <FormDescription>
-                This is your public display name: <span className="font-bold">{username}</span>
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-          <FormField
-          name="email"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>email</FormLabel>
-              <FormControl>
-                <Input placeholder="email" 
-                {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-          <FormField
-          name="phoneNumber"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>phone Number</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="phone Number" 
-                {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-          <FormField
-          name="password"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="password" 
-                {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-          <FormField
-          name="gender"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>gender</FormLabel>
-              <FormControl>
-                <Input type="text" 
-                {...field}
-                />
+            <FormField
+              name="username"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Username"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        debounced(e.target.value);
+                      }}
+                    />
+                  </FormControl>
+                  {isCheckingUsername && <Loader2Icon className="animate-spin" />}
+                  <p className={`text-sm ${usernameMessage === Response.message ? 'text-green-500' : 'text-red-500'}`}>
+                    {username} {usernameMessage}
+                  </p>
+                  <FormDescription>
+                    This is your public display name: <span className="font-bold">{username}</span>
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="email"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="phoneNumber"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="Phone Number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="password"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="gender"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gender</FormLabel>
+                  <FormControl>
+                    <Input type="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="age"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Age</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="Age" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="referredBy"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Referred By</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Referred By" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-          <FormField
-          name="age"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>age</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="age" 
-                {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-          <FormField
-          name="referredBy"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>referredBy</FormLabel>
-              <FormControl>
-                <Input placeholder="referredBy" 
-                {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <Button type="submit" disabled={isSubmitting}>{
-          isSubmitting ? (<>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please Wait
-          </>) :  ("sign Up")
-        }</Button>
-
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please Wait
+                </>
+              ) : (
+                'Sign Up'
+              )}
+            </Button>
           </form>
         </Form>
 
         <p>
           Already a member?{' '}
-          <Link href={"/sign-in"} className="text-blue-600">
+          <Link href="/sign-in" className="text-blue-600">
             Sign In
           </Link>
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 export default Page;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { useSession, signIn, signOut } from "next-auth/react"
-
-// export default function Component() {
-//   const { data: session } = useSession()
-//   if (session) {
-//     return (
-//       <>
-//         Signed in as {session.user.email} <br />
-//         <button onClick={() => signOut()}>Sign out</button>
-//       </>
-//     )
-//   }
-//   return (
-//     <>
-//       Not signed in <br />
-//       <button  className="bg-orange-500 px-3 py-1 mx-4 rounded" onClick={() => signIn()}>Sign in</button>
-//     </>
-//   )
-// }
-
 
 
 
