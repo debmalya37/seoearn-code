@@ -32,9 +32,9 @@ function Page() {
       username: '',
       email: '',
       password: '',
-      phoneNumber: 91,
+      phoneNumber: '',
       gender: '',
-      age: 0,
+      age: '',
       referredBy: '',
     },
   });
@@ -65,11 +65,7 @@ function Page() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post<ApiResponse>('/api/sign-up', {
-        ...data,
-        phoneNumber: Number(data.phoneNumber),
-        age: Number(data.age),
-      });
+      const response = await axios.post<ApiResponse>('/api/sign-up', data);
       toast({
         title: 'Success',
         description: response.data.message,
@@ -145,7 +141,7 @@ function Page() {
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Phone Number" {...field} />
+                    <Input type="text" placeholder="Phone Number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -184,7 +180,7 @@ function Page() {
                 <FormItem>
                   <FormLabel>Age</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Age" {...field} />
+                    <Input type="text" placeholder="Age" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
