@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import profilepicDemo from "../../../public/rcb pic logo.jpeg";
 import Nav from '@/components/Nav';
+
 export default function Profile() {
   const router = useRouter();
   const { register, handleSubmit, setValue } = useForm();
@@ -14,44 +15,69 @@ export default function Profile() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | ArrayBuffer | null>(null);
+  const [referredBy, setReferredBy] = useState<{ username: string, email: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
+  
   useEffect(() => {
-    // Fetch user data and set form values (commented out code for fetching user data)
-    // You can uncomment and adjust based on your logic
-    // if (session && session.user && session.user.email) {
-    //   axios.get(`/api/next-auth/auth/getUser?email=${session.user.email}`)
-    //     .then(response => {
-    //       const user = response.data.user;
-    //       setValue('userId', user._id);
-    //       setValue('email', user.email);
-    //       setValue('username', user.username);
-    //       setValue('phoneNumber', user.phoneNumber);
-    //       setValue('gender', user.gender);
-    //       setValue('age', user.age);
-    //       setValue('paymentPreference', user.paymentPreference);
-    //       setValue('paymentGateway', user.paymentGateway);
-    //       setValue('profilePicture', user.profilePicture);
-    //     })
-    //     .catch(err => {
-    //       setError('Failed to fetch user data');
-    //     });
-    // }
+    const fetchUserProfile = async () => {
+      try {
+        // const token = localStorage.getItem('token'); // Adjust according to your auth logic
+        const response = await axios.get('/api/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {
+          const user = response.data.data;
+          setValue('email', user.email);
+          setValue('username', user.username);
+          setValue('phoneNumber', user.phoneNumber);
+          setValue('gender', user.gender);
+          setValue('age', user.age);
+          setValue('paymentPreference', user.paymentPreference);
+          setValue('paymentGateway', user.paymentGateway);
+          setValue('profilePicture', user.profilePicture);
+          if (user.referredBy) {
+            setReferredBy(user.referredBy);
+          }
+        } else {
+          setError('Failed to fetch user data');
+        }
+      } catch (error) {
+        console.error(error);
+        setError('Failed to fetch user data');
+      }
+    };
+
+    fetchUserProfile();
   }, [setValue]);
 
   const onSubmit = async (data: any) => {
     setLoading(true);
-    try {
-      const response = await axios.post('/api/auth/updateProfile', data);
-      if (response.status === 200) {
-        setSuccess('Profile updated successfully');
-      } else {
-        setError('Failed to update profile');
-      }
-    } catch (error) {
-      setError('Something went wrong. Please try again later.');
+    setError('');
+  setSuccess('');
+
+  try {
+    const response = await fetch('/api/updateProfile', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
     }
+
+    const result = await response.json();
+    setSuccess('Profile updated successfully');
+  } catch (error) {
+    setError('Failed to update profile');
+  } finally {
     setLoading(false);
+  }
   };
 
   const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,155 +97,184 @@ export default function Profile() {
 
   return (
     <>
-    <Nav/>
-    <div className="flex flex-col items-center mt-10">
-      <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-4xl">
-        <h1 className="text-2xl font-bold mb-6 text-center">User Profile</h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="flex flex-col md:flex-row">
-            <div className="flex-grow mr-6">
-              <div className="flex flex-col space-y-4">
-                <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium text-gray-700">Email:</label>
-                  <input 
-                    type="email" 
-                    {...register('email', { required: true })} 
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
-                    placeholder="Enter your email address"
-                  />
-                  <button type="button" className="ml-2 text-white bg-pink-700 hover:bg-pink-800 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm px-4 py-2">Verify email with OTP</button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium text-gray-700">Phone Number:</label>
-                  <input 
-                    type="text" 
-                    {...register('phoneNumber', { required: true })} 
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
-                    placeholder="+91"
-                  />
-                  <button type="button" className="ml-2 text-white bg-pink-700 hover:bg-pink-800 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm px-4 py-2">Verify mobile with OTP</button>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Name:</label>
-                  <input 
-                    type="text" 
-                    {...register('username', { required: true })} 
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
-                    placeholder="Enter your name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Age:</label>
-                  <input 
-                    type="number" 
-                    {...register('age', { required: true })} 
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Gender:</label>
-                  <div className="mt-1">
-                    <label className="inline-flex items-center">
-                      <input 
-                        type="radio" 
-                        {...register('gender', { required: true })} 
-                        value="male" 
-                        className="form-radio"
-                      />
-                      <span className="ml-2">Male</span>
-                    </label>
-                    <label className="inline-flex items-center ml-6">
-                      <input 
-                        type="radio" 
-                        {...register('gender', { required: true })} 
-                        value="female" 
-                        className="form-radio"
-                      />
-                      <span className="ml-2">Female</span>
-                    </label>
-                    <label className="inline-flex items-center ml-6">
-                      <input 
-                        type="radio" 
-                        {...register('gender', { required: true })} 
-                        value="other" 
-                        className="form-radio"
-                      />
-                      <span className="ml-2">Other</span>
-                    </label>
+      <Nav />
+      <div className="flex flex-col items-center mt-10">
+        <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-4xl">
+          <h1 className="text-2xl font-bold mb-6 text-center">User Profile</h1>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="flex flex-col md:flex-row">
+              <div className="flex-grow mr-6">
+                <div className="flex flex-col space-y-4">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700">Email:</label>
+                    <input 
+                      type="email" 
+                      {...register('email', { required: true })} 
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
+                      placeholder="Enter your email address"
+                    />
+                    <button type="button" className="ml-2 text-white bg-pink-700 hover:bg-pink-800 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm px-4 py-2">Verify email with OTP</button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700">Username:</label>
+                    <input 
+                      type="text" 
+                      {...register('username', { required: true })} 
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
+                      placeholder="Enter your username"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700">Phone Number:</label>
+                    <input 
+                      type="text" 
+                      {...register('phoneNumber', { required: true })} 
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
+                      placeholder="Enter your phone number"
+                    />
+                    <button type="button" className="ml-2 text-white bg-pink-700 hover:bg-pink-800 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm px-4 py-2">Verify phone number with OTP</button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700">Gender:</label>
+                    <select 
+                      {...register('gender', { required: true })} 
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
+                    >
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700">Age:</label>
+                    <input 
+                      type="number" 
+                      {...register('age', { required: true })} 
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
+                      placeholder="Enter your age"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700">Payment Preference:</label>
+                    <input 
+                      type="text" 
+                      {...register('paymentPreference', { required: true })} 
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
+                      placeholder="Enter your payment preference"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700">Payment Gateway:</label>
+                    <input 
+                      type="text" 
+                      {...register('paymentGateway', { required: true })} 
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
+                      placeholder="Enter your payment gateway"
+                    />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Date of Birth:</label>
-                  <input 
-                    type="date" 
-                    {...register('dob', { required: true })} 
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Payment Reference:</label>
-                  <input 
-                    type="text" 
-                    {...register('paymentPreference', { required: true })} 
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Payment ID:</label>
-                  <input 
-                    type="text" 
-                    {...register('paymentGateway', { required: true })} 
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
-                  />
-                </div>
               </div>
-            </div>
-            <div className="flex-shrink-0">
-              <div className="flex flex-col items-center">
-                <Image
-                  src={profilePicture ? profilePicture.toString() : {profilepicDemo} } // Placeholder for profile picture
-                  alt="Profile" 
-                  width={10}
-                  height={10}
-                  className="w-40 h-40 rounded-full object-cover mb-4"
-                />
+              <div className="flex flex-col items-center mt-6 md:mt-0">
+                <div className="w-32 h-32 rounded-full overflow-hidden">
+                  <Image 
+                    src={profilePicture || profilepicDemo} 
+                    alt="Profile Picture" 
+                    className="object-cover w-full h-full" 
+                    width={128}
+                    height={128}
+                  />
+                </div>
+                <button 
+                  type="button" 
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" 
+                  onClick={triggerFileInput}
+                >
+                  Change Profile Picture
+                </button>
                 <input 
                   type="file" 
                   ref={fileInputRef} 
-                  style={{ display: 'none' }} 
-                  accept="image/*"
                   onChange={handleProfilePictureChange} 
+                  className="hidden" 
                 />
-                <button 
-                  type="button" 
-                  onClick={triggerFileInput} 
-                  className="text-white bg-orange-500 hover:bg-orange-600 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-4 py-2"
-                >
-                  Change
-                </button>
               </div>
             </div>
-          </div>
-          {error && <div className="text-red-600">{error}</div>}
-          {success && <div className="text-green-600">{success}</div>}
-          <div className="flex justify-between mt-6">
-            <button 
-              type="button" 
-              className="bg-gray-200 text-gray-700 py-2 px-4 border border-transparent rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit" 
-              disabled={loading} 
-              className="bg-pink-700 text-white py-2 px-4 border border-transparent rounded-md shadow-sm hover:bg-pink-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
-            >
-              Save Changes
-            </button>
-          </div>
-        </form>
+            <div className="flex flex-col space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Referred By:</label>
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={referredBy ? referredBy.email : 'No referral'} 
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
+                />
+              </div>
+              <button 
+                type="submit" 
+                className={`mt-4 w-full px-4 py-2 text-white rounded-md ${loading ? 'bg-gray-500' : 'bg-pink-700 hover:bg-pink-800'} focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium`}
+                disabled={loading}
+              >
+                {loading ? 'Updating...' : 'Update Profile'}
+              </button>
+              {error && <div className="text-red-500 text-center mt-4">{error}</div>}
+              {success && <div className="text-green-500 text-center mt-4">{success}</div>}
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
     </>
-    );
+  );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Fetch user data and set form values
+// Adjust based on your logic
+
+// Fetch user data and set form values (commented out code for fetching user data)
+              // You can uncomment and adjust based on your logic
+              // if (session && session.user && session.user.email) {
+                //   axios.get(`/api/next-auth/auth/getUser?email=${session.user.email}`)
+                //     .then(response => {
+                  //       const user = response.data.user;
+                  //       setValue('userId', user._id);
+              //       setValue('email', user.email);
+              //       setValue('username', user.username);
+              //       setValue('phoneNumber', user.phoneNumber);
+              //       setValue('gender', user.gender);
+              //       setValue('age', user.age);
+              //       setValue('paymentPreference', user.paymentPreference);
+              //       setValue('paymentGateway', user.paymentGateway);
+              //       setValue('profilePicture', user.profilePicture);
+              //     })
+              //     .catch(err => {
+              //       setError('Failed to fetch user data');
+              //     });
+              // }

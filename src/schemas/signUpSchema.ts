@@ -8,11 +8,12 @@ export const usernameValidation = z
 
 
 
-export const signupSchema = z.object({
+export const signUpSchema = z.object({
     username: usernameValidation,
     email: z.string().email({message: 'invalid email address'}),
     phoneNumber: z.number().max(10, {message: "phone number can't contain more than 10 numbers"}),
     password: z.string().min(6, {message: "password must be atleast 6 chars"}),
     gender: z.string(),
-    age: z.number().min(1).max(100)
+    age: z.number().min(1).max(100),
+    referredBy: z.string(),
 })    

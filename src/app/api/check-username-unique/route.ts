@@ -53,7 +53,7 @@ export async function GET(request: Request) {
         }
         return Response.json({
             success: true,
-            Message: "Username is available & unique",
+            Message: "Username is available",
         }, {status: 200}
         )
 

@@ -9,17 +9,25 @@ export async function POST(request: Request) {
     
     try {
         const { username, phoneNumber, email, password, gender, age, paymentPreference, paymentGateway, referredBy } = await request.json();
-       
+
+        // Validate if required fields are provided
+        if (!username || !phoneNumber || !email || !password || !gender || !age || !paymentPreference || !paymentGateway) {
+            return new Response(JSON.stringify({
+                success: false,
+                message: "All fields are required"
+            }), { status: 400 });
+        }
+
         // existing user by username
         const existingUserVerifiedByUsername = await UserModel.findOne({ username, isVerified: true });
-    
+
         if (existingUserVerifiedByUsername) {
             return new Response(JSON.stringify({
                 success: false,
                 message: "Username is already taken"
             }), { status: 400 });
         }
-    
+
         // existing user by email
         const existingUserByEmail = await UserModel.findOne({ email });
         
@@ -28,7 +36,7 @@ export async function POST(request: Request) {
         
         // verify code generation
         const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
-        
+
         if (existingUserByEmail && existingUserByPhoneNumber) {
             if (existingUserByEmail.isVerified) {
                 return new Response(JSON.stringify({
@@ -46,14 +54,13 @@ export async function POST(request: Request) {
             const hashedPassword = await bcrypt.hash(password, 10);
             const expiryDate = new Date();
             expiryDate.setHours(expiryDate.getHours() + 1);
-            
-            // todo here the referredByObejectId is being depreciated , need to fix or write a new logic for that 
+
             // Handle referredBy properly
             let referredByObjectId = null;
             if (referredBy && Types.ObjectId.isValid(referredBy)) {
                 referredByObjectId = new Types.ObjectId(referredBy);
             }
-            
+
             // newUser model created 
             const newUser = new UserModel({
                 email,
@@ -66,39 +73,37 @@ export async function POST(request: Request) {
                 verifyCodeExpiry: expiryDate,
                 gender,
                 age,
-                paymentPreference: paymentPreference || "defaultPreference", // Default value if not provided
-                paymentGateway: paymentGateway || "defaultGateway",         // Default value if not provided
+                paymentPreference,
+                paymentGateway,
                 referredBy: referredByObjectId, // Ensure valid ObjectId or null
                 messages: [],
                 tasks: [],
             });
             await newUser.save();
         }
-        
+
         // send verification email and verification otp in phone
         const emailResponse = await sendVerificationEmail(email, username, verifyCode);
-        
+
         if (!emailResponse.success) {
             return new Response(JSON.stringify({
                 success: false,
                 message: emailResponse.message,
             }), { status: 500 });
         }
-        
+
         return new Response(JSON.stringify({
             success: true,
             message: "User registered successfully. Please verify email",
         }), { status: 201 });
     } catch (error) {
-      console.log("Error registering user", error);
-      return new Response(
-      JSON.stringify({
-      success: false,
-      message: "Error registering user",
-      }),
-      { status: 500 }
-      );
-      }
-      }
-      
-      
+        console.log("Error registering user", error);
+        return new Response(
+            JSON.stringify({
+                success: false,
+                message: "Error registering user",
+            }),
+            { status: 500 }
+        );
+    }
+}

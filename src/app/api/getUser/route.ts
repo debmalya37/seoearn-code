@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import UserModel from '@/models/userModel';
-import connectDB from '@/lib/dbConnect';
+import dbConnect from '@/lib/dbConnect';
 
-const getUser = async (req: NextApiRequest, res: NextApiResponse) => {
-  await connectDB();
+export async function GET(req: NextApiRequest, res: NextApiResponse) {
+  await dbConnect();
 
   const { email } = req.query;
 
@@ -20,8 +20,7 @@ const getUser = async (req: NextApiRequest, res: NextApiResponse) => {
 
     return res.status(200).json({ user });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: 'Internal server error' });
   }
-};
-
-export default getUser;
+}

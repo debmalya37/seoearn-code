@@ -21,7 +21,7 @@ const MessageSchema: Schema<IMessage> = new mongoose.Schema({
 export interface IUser extends Document {
   email: string;
   username: string;
-  phoneNumber: string;
+  phoneNumber: number;
   password: string;
   isVerified: boolean;
   isAcceptingMessages: boolean;
@@ -40,7 +40,7 @@ export interface IUser extends Document {
 const UserSchema = new Schema<IUser>({
   email: { type: String, required: true, unique: true, match: [/.+\@.+\..+/, 'Please use a valid email address'] },
   username: { type: String, required: true, trim: true, unique: true },
-  phoneNumber: { type: String, required: true },
+  phoneNumber: { type: Number, required: true },
   password: { type: String, required: true },
   gender: { type: String, enum: ['male', 'female', 'other'], required: true },
   age: { type: Number, required: true },
