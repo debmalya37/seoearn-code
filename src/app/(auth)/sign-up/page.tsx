@@ -32,9 +32,9 @@ function Page() {
       username: '',
       email: '',
       password: '',
-      phoneNumber: '',
+      phoneNumber: 91,
       gender: '',
-      age: '',
+      age: 0,
       referredBy: '',
     },
   });
