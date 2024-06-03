@@ -31,7 +31,6 @@ export async function PATCH(req: NextApiRequest, res: NextApiResponse) {
     user.paymentPreference = paymentPreference;
     user.paymentGateway = paymentGateway;
     user.profilePicture = profilePicture;
-
     await user.save();
 
     return res.status(200).json({ message: 'Profile updated successfully', user });

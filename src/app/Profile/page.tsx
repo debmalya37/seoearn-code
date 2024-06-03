@@ -97,7 +97,6 @@ export default function Profile() {
 
   return (
     <>
-      <Nav />
       <div className="flex flex-col items-center mt-10">
         <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-4xl">
           <h1 className="text-2xl font-bold mb-6 text-center">User Profile</h1>

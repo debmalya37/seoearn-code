@@ -25,9 +25,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
 
 //  return NextResponse.redirect(new URL('/Home', request.url))
-  
+
 }
- 
+
 // See "Matching Paths" below to learn more
 export const config = {
   matcher: [
