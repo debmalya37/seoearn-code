@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
@@ -6,17 +7,16 @@ import { Button } from "./ui/button";
 
 const Nav =  () => {
   const {data: session } = useSession()
-  const user: User = session?.user
+  const user: User = session?.user as User
   return (
     
-
     <header className="bg-pink-700 text-gray-100">
       <nav className="flex justify-between items-center w-full px-10 py-4">
         <div className="flex-ml-1">LOGO(seo)</div>
         {
           session ? (
            <>
-            <span className="">Welcome, {user.username || user.email }</span>
+            <span className="">Welcome, {user?.username || user?.email }</span>
             <Button className="w-full md:w-auto" onClick={()=> signOut()} >SignIn</Button>
             </>
           ) : (

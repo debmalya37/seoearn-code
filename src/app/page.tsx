@@ -1,8 +1,5 @@
-// src/app/page.tsx
-
 'use client';
 
-import Nav from '@/components/Nav';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
@@ -15,14 +12,13 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Nav />
       {session ? (
         <div className="flex-grow flex items-center justify-center text-gray-800">
           <div>Welcome, {session.user?.email}</div>
         </div>
       ) : (
         <div className="flex flex-col flex-grow">
-          <header className="py-6 bg-white shadow-md">
+          {/* <header className="py-6 bg-white shadow-md">
             <div className="container mx-auto flex justify-between items-center px-6">
               <div className="text-2xl font-bold text-purple-700">SEO EARN</div>
               <nav className="space-x-4">
@@ -34,7 +30,7 @@ export default function Home() {
                 </Link>
               </nav>
             </div>
-          </header>
+          </header> */}
 
           <main className="flex flex-col items-center justify-center flex-grow py-20 bg-gradient-to-r from-pink-400 via-purple-400 to-orange-400 text-gray-900">
             <h1 className="text-5xl font-bold text-white mb-6 text-center">Welcome to SEO EARN</h1>

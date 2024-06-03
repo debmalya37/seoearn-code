@@ -1,9 +1,21 @@
 "use client";
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import TaskCard from '@/components/TaskCard';
 import TaskDetails from '@/components/TaskDetails';
 import AddTaskModal from '@/components/AddTaskModal';
 import Nav from '@/components/Nav';
+import { ITask, TaskSchema } from '@/models/taskModel';
+import { useToast } from '@/components/ui/use-toast';
+import { useSession } from 'next-auth/react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { taskSchema } from '@/schemas/TaskSchema';
+import axios, { AxiosError } from 'axios';
+import { ApiResponse } from '@/types/ApiResponse';
+import { Description } from '@radix-ui/react-toast';
+import Link from 'next/link';
+import { User } from 'next-auth';
+import { Button } from '@/components/ui/button';
 
 
 
@@ -19,57 +31,58 @@ export interface TaskData {
   createdAt: string;
 }
 
-const mockTasks: TaskData[] = [
-  {
-    title: 'Task 1',
-    description: 'Web development code this website and deploy the website of a food delivery quick commerce.',
-    rating: 4,
-    category: 'Web Development',
-    duration: '1 week',
-    createdBy: 'username',
-    reward: 100,
-    status: 'Pending',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    title: 'web development task',
-    description: 'Web development code this website and deploy the website of a food delivery quick commerce.',
-    rating: 3,
-    category: 'Web Development',
-    duration: '1 week',
-    createdBy: 'username',
-    reward: 100,
-    status: 'Pending',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    title: 'watch videos',
-    description: 'watch netflix and run from the bed room and code this website and deploy the website of a food delivery quick commerce.',
-    rating: 3,
-    category: 'Web Development',
-    duration: '1 week',
-    createdBy: 'username',
-    reward: 100,
-    status: 'Pending',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    title: 'game play task',
-    description: 'play games and enjoy the evening.',
-    rating: 3,
-    category: 'Web Development',
-    duration: '1 week',
-    createdBy: 'username',
-    reward: 100,
-    status: 'Pending',
-    createdAt: new Date().toISOString(),
-  },
-  // Add more tasks as needed
-];
 
-const TasksPage: FC = () => {
+const TasksPage = () => {
   const [selectedTask, setSelectedTask] = useState<TaskData | null>(null);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
+  const [tasks, setTasks] = useState<ITask[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const {toast} = useToast()
+
+  const handleDeleteMessage = (taskId: string) => {
+    setTasks(tasks.filter((task) => task._id !== taskId))
+  }
+  const {data: session} = useSession()
+  const form = useForm({
+    resolver: zodResolver(taskSchema)
+  })
+
+  const {register, watch, setValue } = form;
+// fetchTasks 
+  const fetchTasks = useCallback(async (refresh: boolean)=> {
+    setIsLoading(true)
+    try {
+      const response = await axios.get<ApiResponse>('/api/tasks')
+      setTasks(response.data.tasks || [])
+      if (refresh) {
+        toast({
+          title: "Refresh Messages",
+          description: "showing latest Tasks"
+          
+        })
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse>;
+      toast({
+        title: "Error",
+          description: axiosError.response?.data. message|| "failed to fetch message settings",
+          variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setIsLoading, setTasks, toast]);
+
+
+  useEffect(()=> {
+    if(!session || !session.user) return
+    fetchTasks(true)
+    
+  }, [session, setValue, fetchTasks])
+
+
+
+
 
   const handleTaskClick = (task: TaskData) => {
     setSelectedTask(task);
@@ -88,6 +101,22 @@ const TasksPage: FC = () => {
     console.log('New Task:', task);
   };
 
+
+  // const {username} = session?.user as User
+  // todo research on baseurl and url making
+  // const baseUrl = `${window.location.protocol}// ${window.location.host}`
+  // const profileUrl = `${baseUrl}/u/${username}`;
+  // const copyToClipboard = ()=> {
+  //   navigator.clipboard.writeText(profileUrl)
+  //   toast({
+  //     title: "URL copied",
+  //     description: "Profile URL has been copied to clipboard" 
+  //   })
+  // }
+  if(!session || !session.user ) {
+    return <Link href={'/sign-in'}>  PLEASE LOGIN</Link>
+
+  }
   return (
     <>
       {/* <div className='flex justify-between w-full items-center'> */}
@@ -112,7 +141,17 @@ const TasksPage: FC = () => {
           <button className="bg-orange-400 text-white py-2 px-4 rounded-md">Sign Out</button>
           </div>
         </div>
-
+        {/* <h2 className="text-lg font-semibold mb-2">Copy Your Profile Link</h2>
+        {" "}
+        <div className="flex items-center">
+          <input 
+          type="text" 
+          value={profileUrl}
+          disabled
+          className="input input-bordered w-full p-2 mr-2"
+          />
+          <Button onClick={copyToClipboard}>Copy</Button>
+        </div> */}
         {/* Task List */}
         <div className="w-3/5 bg-purple-100 p-4">
           <div className="flex justify-between items-center mb-4">
@@ -120,9 +159,16 @@ const TasksPage: FC = () => {
             <input type="text" placeholder="search" className="border rounded-md py-2 px-4" />
           </div>
           <div className="space-y-4">
-            {mockTasks.map((task, index) => (
-              <TaskCard key={index} {...task} onClick={() => handleTaskClick(task)} />
-            ))}
+            {tasks.length > 0 ? (
+              tasks.map((task)=> {
+                <TaskCard
+                key={task._id}
+                task={task}
+                />
+              })
+            ) : (
+              
+            )}
           </div>
           <div className="flex justify-between items-center mt-4 pb-6">
             <button className="text-purple-700">Previous</button>

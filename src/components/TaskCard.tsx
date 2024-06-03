@@ -1,12 +1,27 @@
 import React from 'react';
 import { TaskData } from '@/app/TaskFeed/page';
+import axios from 'axios';
+import { ApiResponse } from '@/types/ApiResponse';
+import { toast } from './ui/use-toast';
+import Task, {ITask} from "@/models/taskModel"
 
-interface TaskCardProps extends TaskData {
-  onClick: () => void;
-}
 
-const TaskCard: React.FC<TaskCardProps> = ({ title, description, rating, category, status, createdAt, onClick }) => {
-  return (
+// todo Task._id is not defined need to fix it and import from right file
+// todo the Task import should be right 
+// interface TaskCardProps extends TaskData {
+//   onClick: (taskId: string) => void;
+// }
+
+const TaskCard: React.FC<TaskCardProps> = ({title, description, rating, category, status, createdAt, onClick }) => {
+
+  const handleDeleteConfirm = async () => {
+    const response = await axios.delete<ApiResponse>(`/api/delete-task/${Task}`)
+    toast({
+      title: response.data.message
+    })
+    onClick(Task);
+  } 
+  return ( 
     <div className="bg-white p-4 rounded-lg shadow-md cursor-pointer" onClick={onClick}>
       <h2 className="text-xl font-bold mb-2">{title}</h2>
       <p className="text-gray-600">{description}</p>

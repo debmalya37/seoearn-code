@@ -5,12 +5,15 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/options";
 import UserModel, { IUser } from "@/models/userModel";
 import mongoose from "mongoose";
+import { User } from "next-auth";
+
+// todo double check this route.ts in tasks 
 
 export async function POST(request: Request) {
   await dbConnect();
   
   const session = await getServerSession(authOptions);
-
+  
   if (!session || !session.user) {
     return NextResponse.json(
       {
@@ -60,6 +63,7 @@ export async function GET(request: Request) {
   await dbConnect();
 
   const session = await getServerSession(authOptions);
+  const user: User = session?.user as User
 
   if (!session || !session.user) {
     return NextResponse.json(
