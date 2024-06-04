@@ -18,7 +18,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
     }
     return res.status(200).json({ user });
   } catch (error) {
-    console.error(error);
+    console.error('Error retrieving profile:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 }

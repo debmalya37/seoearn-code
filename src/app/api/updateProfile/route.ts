@@ -29,7 +29,7 @@ export async function PATCH(req: NextApiRequest, res: NextApiResponse) {
 
     return res.status(200).json({ message: 'Profile updated successfully', user });
   } catch (error) {
-    console.error(error);
+    console.error('Error updating profile:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 }

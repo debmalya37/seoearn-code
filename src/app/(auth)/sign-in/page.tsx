@@ -63,7 +63,7 @@ function SignIn() {
         //     })
         // }
         if(result?.url) {
-            router.replace('/profile');
+            router.replace('/Profile');
 
         }
     }
