@@ -55,13 +55,13 @@ function SignIn() {
             }
             
         } 
-        // else {
-        //     toast({
-        //         title: "Login Successful!",
-        //         description: "redirecting to the platform",
-        //         variant: "default"
-        //     })
-        // }
+        else {
+            toast({
+                title: "Login Successful!",
+                description: "redirecting to the Profile",
+                variant: "default"
+            })
+        }
         if(result?.url) {
             router.replace('/Profile');
 
