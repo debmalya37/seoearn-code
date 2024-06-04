@@ -21,29 +21,46 @@ export default function Profile() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        // const token = localStorage.getItem('token'); // Adjust according to your auth logic
+         const token = localStorage.getItem('token'); // Adjust according to your auth logic
         const response = await axios.get('/api/profile', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        if (response.status === 200) {
-          const user = response.data.data;
-          setValue('email', user.email);
-          setValue('username', user.username);
-          setValue('phoneNumber', user.phoneNumber);
-          setValue('gender', user.gender);
-          setValue('age', user.age);
-          setValue('paymentPreference', user.paymentPreference);
-          setValue('paymentGateway', user.paymentGateway);
-          setValue('profilePicture', user.profilePicture);
-          if (user.referredBy) {
-            setReferredBy(user.referredBy);
-          }
-        } else {
-          setError('Failed to fetch user data');
-        }
+        if (session && session.user && session.user.email) {
+          axios.get(`/api/next-auth/auth/getUser?email=${session.user.email}`)
+            .then(response => {
+                const user = response.data.user;
+                setValue('userId', user._id);
+            setValue('email', user.email);
+            setValue('username', user.username);
+            setValue('phoneNumber', user.phoneNumber);
+            setValue('gender', user.gender);
+            setValue('age', user.age);
+            setValue('paymentPreference', user.paymentPreference);
+            setValue('paymentGateway', user.paymentGateway);
+            setValue('profilePicture', user.profilePicture);
+          })
+          .catch(err => {
+            setError('Failed to fetch user data');
+          });
+      }
+        // if (response.status === 200) {
+        //   const user = response.data.data;
+        //   setValue('email', user.email);
+        //   setValue('username', user.username);
+        //   setValue('phoneNumber', user.phoneNumber);
+        //   setValue('gender', user.gender);
+        //   setValue('age', user.age);
+        //   setValue('paymentPreference', user.paymentPreference);
+        //   setValue('paymentGateway', user.paymentGateway);
+        //   setValue('profilePicture', user.profilePicture);
+        //   if (user.referredBy) {
+        //     setReferredBy(user.referredBy);
+        //   }
+        // } else {
+        //   setError('Failed to fetch user data');
+        // }
       } catch (error) {
         console.error(error);
         setError('Failed to fetch user data');
@@ -259,21 +276,4 @@ export default function Profile() {
 
 // Fetch user data and set form values (commented out code for fetching user data)
               // You can uncomment and adjust based on your logic
-              // if (session && session.user && session.user.email) {
-                //   axios.get(`/api/next-auth/auth/getUser?email=${session.user.email}`)
-                //     .then(response => {
-                  //       const user = response.data.user;
-                  //       setValue('userId', user._id);
-              //       setValue('email', user.email);
-              //       setValue('username', user.username);
-              //       setValue('phoneNumber', user.phoneNumber);
-              //       setValue('gender', user.gender);
-              //       setValue('age', user.age);
-              //       setValue('paymentPreference', user.paymentPreference);
-              //       setValue('paymentGateway', user.paymentGateway);
-              //       setValue('profilePicture', user.profilePicture);
-              //     })
-              //     .catch(err => {
-              //       setError('Failed to fetch user data');
-              //     });
-              // }
+              
