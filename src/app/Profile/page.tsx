@@ -20,7 +20,7 @@ export default function Profile() {
   const fetchProfile = useCallback(async ()=> {
     setLoading(true)
     try {
-      const response = await axios.get(`/api/getProfile`);
+      const response = await axios.get(`/api/profile`);
       setValue('Profile', response.data.loading)
     } catch (error) {
       
@@ -29,7 +29,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await axios.get('/api/getProfile');
+        const response = await axios.get('/api/profile');
         if (response.status === 200) {
           const user = response.data.user;
           setValue('email', user.email);
@@ -58,26 +58,28 @@ export default function Profile() {
     }
   }, [setValue, session]);
 
+  // update  profile function //
   const onSubmit = async (data: any) => {
     setLoading(true);
-    setError('');
-    setSuccess('');
-
+    setError(null);
+    setSuccess(null);
+  
     try {
-      const response = await axios.patch('/api/updateProfile', data);
-
+      const response = await axios.post('/api/profile', data);
+  
       if (response.status !== 200) {
         throw new Error(`Error: ${response.statusText}`);
       }
-
+  
       setSuccess('Profile updated successfully');
     } catch (error) {
+      console.error('Error updating profile:', error);
       setError('Failed to update profile');
     } finally {
       setLoading(false);
     }
   };
-
+  
   const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
