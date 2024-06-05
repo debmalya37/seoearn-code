@@ -115,7 +115,7 @@ const TasksPage: FC = () => {
   
     return (
       <>
-        <Nav />
+        
         <div className="flex h-screen">
           {/* Sidebar */}
           <div className="w-1/5 bg-yellow-100 p-4 flex flex-col justify-between ">

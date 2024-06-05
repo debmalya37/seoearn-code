@@ -1,7 +1,6 @@
-// ProfilePage.tsx
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
@@ -9,7 +8,7 @@ import Image from 'next/image';
 import profilepicDemo from "../../../public/rcb pic logo.jpeg";
 
 export default function Profile() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { register, handleSubmit, setValue } = useForm();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +17,15 @@ export default function Profile() {
   const [referredBy, setReferredBy] = useState<{ username: string, email: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const fetchProfile = useCallback(async ()=> {
+    setLoading(true)
+    try {
+      const response = await axios.get(`/api/getProfile`);
+      setValue('Profile', response.data.loading)
+    } catch (error) {
+      
+    }
+  }, [setValue]) 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -84,6 +92,14 @@ export default function Profile() {
   const triggerFileInput = () => {
     fileInputRef.current?.click();
   };
+
+  if (status === 'loading') {
+    return <p>Loading...</p>;
+  }
+
+  if (status === 'unauthenticated') {
+    return <p>Please log in to view your profile.</p>;
+  }
 
   return (
     <div className="flex flex-col items-center mt-10">
@@ -190,13 +206,6 @@ export default function Profile() {
             {success && <div className="text-green-500 text-center mt-4">{success}</div>}
           </div>
         </form>
-        {referredBy && (
-          <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-            <h2 className="text-xl font-semibold mb-2">Referred By</h2>
-            <p><strong>Username:</strong> {referredBy.username}</p>
-            <p><strong>Email:</strong> {referredBy.email}</p>
-          </div>
-        )}
       </div>
     </div>
   );
