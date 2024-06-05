@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   await dbConnect();
 
-  const session = await getServerSession({ req, authOptions });
+  const session = await getServerSession(authOptions );
 
   if (!session || !session.user) {
     return NextResponse.json({ 
