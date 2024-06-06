@@ -3,6 +3,7 @@ import React from 'react';
 interface Task {
   id: number;
   name: string;
+  email:string;
   time: string;
   earning: number;
   status: string;
@@ -22,6 +23,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onReviewTask, onDeleteTask }
         <thead>
           <tr>
             <th>Tasks</th>
+            <th>owner email</th>
             <th>Time takes to Complete</th>
             <th>Earning</th>
             <th>Review / Delete</th>
@@ -31,7 +33,9 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onReviewTask, onDeleteTask }
           {tasks.map(task => (
             <tr key={task.id}>
               <td>{task.name}</td>
+              <td>{task.email}</td>
               <td>{task.time}</td>
+              <td>{task.status}</td>
               <td>${task.earning}</td>
               <td>
                 <button
