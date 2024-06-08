@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 const users = [
   { id: 1, name: 'User One', email: 'userone@example.com', rating: 0 },
   { id: 2, name: 'User Two', email: 'usertwo@example.com', rating: 0 },
+  { id: 3, name: 'User three', email: 'userthree@example.com', rating: 0 },
+  { id: 4, name: 'User four', email: 'userfour@example.com', rating: 0 },
+  { id: 5, name: 'User five', email: 'userfive@example.com', rating: 0 },
   // Add more users as needed
 ];
 

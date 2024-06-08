@@ -69,8 +69,8 @@ function SignIn() {
     }
   return (
    
-      <div className="flex items-center justify-center min-h-screen py-2 bg-gray-100" >
-        <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+      <div className="flex items-center justify-center min-h-screen py-2 bg-gradient-to-r from-indigo-200 via-purple-300 to-pink-400" >
+        <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-2xl">
             <div className="text-center">
                 <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">SignIn to Your Account</h1>
                 <p className="mb-4">Enter your signup Email & Password to Sign in</p>
@@ -106,7 +106,7 @@ function SignIn() {
         )}
         />
          {/* is submitting function is to be set for loading */}
-        <Button type="submit" disabled={isSubmitting}>
+        <Button className="shadow-2xl" type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please Wait...

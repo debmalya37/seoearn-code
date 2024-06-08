@@ -17,15 +17,18 @@ export default function Profile() {
   const [referredBy, setReferredBy] = useState<{ username: string, email: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const fetchProfile = useCallback(async ()=> {
-    setLoading(true)
+  const fetchProfile = useCallback(async () => {
+    setLoading(true);
     try {
       const response = await axios.get(`/api/profile`);
-      setValue('Profile', response.data.loading)
+      setValue('Profile', response.data.loading);
     } catch (error) {
-      
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-  }, [setValue]) 
+  }, [setValue]);
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -58,19 +61,18 @@ export default function Profile() {
     }
   }, [setValue, session]);
 
-  // update  profile function //
   const onSubmit = async (data: any) => {
     setLoading(true);
     setError(null);
     setSuccess(null);
-  
+
     try {
       const response = await axios.post('/api/profile', data);
-  
+
       if (response.status !== 200) {
         throw new Error(`Error: ${response.statusText}`);
       }
-  
+
       setSuccess('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -79,7 +81,7 @@ export default function Profile() {
       setLoading(false);
     }
   };
-  
+
   const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -104,68 +106,68 @@ export default function Profile() {
   }
 
   return (
-    <div className="flex flex-col items-center mt-10">
-      <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-4xl">
-        <h1 className="text-2xl font-bold mb-6 text-center">User Profile</h1>
+    <div className="flex flex-col items-center mt-0 bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-400">
+      <div className="bg-gradient-to-r from-pink-100 via-orange-200 to-pink-300 rounded-lg shadow-2xl p-8 w-full max-w-4xl mt-10 mb-5">
+        <h1 className="text-3xl font-bold mb-8 text-center">User Profile</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="flex flex-col md:flex-row">
-            <div className="flex-grow mr-6">
+            <div className="flex-grow mb-6 md:mb-0 md:mr-6">
               <div className="flex flex-col space-y-4">
-                <label>
-                  Email
+                <label className="block">
+                  <span className="text-gray-800">Email</span>
                   <input
                     type="email"
-                    className="form-input mt-1"
+                    className="form-input mt-1 block w-full"
                     {...register('email')}
                     disabled
                   />
                 </label>
-                <label>
-                  Username
+                <label className="block">
+                  <span className="text-gray-800">Username</span>
                   <input
                     type="text"
-                    className="form-input mt-1"
+                    className="form-input mt-1 block w-full"
                     {...register('username')}
                     disabled
                   />
                 </label>
-                <label>
-                  Phone Number
+                <label className="block">
+                  <span className="text-gray-800">Phone Number</span>
                   <input
                     type="text"
-                    className="form-input mt-1"
+                    className="form-input mt-1 block w-full"
                     {...register('phoneNumber')}
                   />
                 </label>
-                <label>
-                  Gender
+                <label className="block">
+                  <span className="text-gray-700">Gender</span>
                   <input
                     type="text"
-                    className="form-input mt-1"
+                    className="form-input mt-1 block w-full"
                     {...register('gender')}
                   />
                 </label>
-                <label>
-                  Age
+                <label className="block">
+                  <span className="text-gray-700">Age</span>
                   <input
                     type="text"
-                    className="form-input mt-1"
+                    className="form-input mt-1 block w-full"
                     {...register('age')}
                   />
                 </label>
-                <label>
-                  Payment Preference
+                <label className="block">
+                  <span className="text-gray-700">Payment Preference</span>
                   <input
                     type="text"
-                    className="form-input mt-1"
+                    className="form-input mt-1 block w-full"
                     {...register('paymentPreference')}
                   />
                 </label>
-                <label>
-                  Payment Gateway
+                <label className="block">
+                  <span className="text-gray-700">Payment Gateway</span>
                   <input
                     type="text"
-                    className="form-input mt-1"
+                    className="form-input mt-1 block w-full"
                     {...register('paymentGateway')}
                   />
                 </label>
@@ -190,7 +192,7 @@ export default function Profile() {
               <button
                 type="button"
                 onClick={triggerFileInput}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300"
               >
                 Change Picture
               </button>

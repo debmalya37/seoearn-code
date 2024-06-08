@@ -84,8 +84,8 @@ function Page() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen py-2 bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+    <div className="flex items-center justify-center min-h-screen py-2 bg-gradient-to-r from-indigo-200 via-purple-300 to-pink-400">
+      <div className="w-full max-w-md p-8 space-y-8 bg-gradient-to-r from-pink-100 via-blue-100 to-pink-200 rounded-lg shadow-2xl">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
             Welcome to SEO EARNING SPACE

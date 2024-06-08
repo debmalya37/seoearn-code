@@ -43,7 +43,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
     duration: '',
     createdBy: createdBy, // Set createdBy to the username or userId
     createdAt: new Date().toISOString(),
-    rewardPrice: 0,
+    reward: 0,
     status: 'Pending',
   });
 
@@ -133,7 +133,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   type="number"
                   id="reward"
                   name="reward"
-                  value={taskData.rewardPrice}
+                  value={taskData.reward}
                   onChange={handleChange}
                   className="border p-2 w-full"
                 />

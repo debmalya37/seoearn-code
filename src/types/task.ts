@@ -8,7 +8,7 @@ export interface TaskData {
     duration: string;
     createdBy: string;
     createdAt?: string;
-    rewardPrice: number;
+    reward: number;
     status?: string; // Assuming `status` might be an optional field
   }
   

@@ -14,8 +14,10 @@ const AdminDashboard = () => {
   const [showUsers, setShowUsers] = useState<boolean>(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState<boolean>(false);
   const [tasks, setTasks] = useState([
-    { id: 1, name: 'task 1',email: "demo@email.com", time: '2 min', earning: 1.50, status: 'Pending' },
-    { id: 2, name: 'task 2',email: "demo@email.com", time: '2 min', earning: 1.50, status: 'Pending' },
+    { id: 1, name: 'Task 1',email: "demo@email.com", time: '2 min', earning: 1.50, status: 'Pending' },
+    { id: 2, name: 'Task 2',email: "demo@email.com", time: '2 min', earning: 1.50, status: 'Pending' },
+    { id: 3, name: 'Task 3',email: "demo@email.com", time: '3 min', earning: 1.50, status: 'Pending' },
+    { id: 4, name: 'Task 4',email: "demo@email.com", time: '2 min', earning: 1.50, status: 'Pending' },
     // Add more tasks as needed
   ]);
   const [userToView, setUserToView] = useState<any>(null);

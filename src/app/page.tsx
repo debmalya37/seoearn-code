@@ -1,7 +1,13 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-import Link from 'next/link';
+import BenefitsSection from '@/components/home/BenefitsSection';
+import ContentSection from '@/components/home/ContentSection';
+import Header from '@/components/home/Header'; // Fixed casing
+import SpecialSection from '@/components/home/SpecialSection';
+import StatsSection from '@/components/home/StatsSection';
+import { Button } from '@/components/ui/button';
+import { signOut, useSession } from 'next-auth/react';
+import Head from 'next/head';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -11,77 +17,34 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen m-0 bg-gradient-to-r from-indigo-200 via-purple-300 to-pink-400">
+      <Head>
+        <title>Home Page</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       {session ? (
-        <div className="flex-grow flex items-center justify-center text-gray-800">
-          <div>Welcome, {session.user?.email}</div>
-        </div>
+        <>
+        <main className="container mx-auto p-4 flex-grow bg-gradient-to-r from-indigo-200 via-purple-300 to-pink-400">
+          <div className="flex items-center justify-between bg-purple-300 p-2 border border-gray-300 rounded mt-0 relative" >Welcome, {session.user?.email}
+          <Button className="w-20 md:w-auto bg-orange-500 " onClick={()=> signOut()} >SignOut</Button>
+          </div>
+            <ContentSection />
+            <StatsSection />
+            <BenefitsSection />
+            <SpecialSection />
+            </main>
+        
+        </>
       ) : (
-        <div className="flex flex-col flex-grow">
-          {/* <header className="py-6 bg-white shadow-md">
-            <div className="container mx-auto flex justify-between items-center px-6">
-              <div className="text-2xl font-bold text-purple-700">SEO EARN</div>
-              <nav className="space-x-4">
-                <Link href="/signin">
-                  <span className="text-lg text-pink-700 hover:text-purple-700 cursor-pointer">Sign In</span>
-                </Link>
-                <Link href="/signup">
-                  <span className="text-lg text-pink-700 hover:text-purple-700 cursor-pointer">Create an Account</span>
-                </Link>
-              </nav>
-            </div>
-          </header> */}
-
-          <main className="flex flex-col items-center justify-center flex-grow py-20 bg-gradient-to-r from-pink-400 via-purple-400 to-orange-400 text-gray-900">
-            <h1 className="text-5xl font-bold text-white mb-6 text-center">Welcome to SEO EARN</h1>
-            <p className="text-lg text-white mb-12 text-center max-w-2xl">
-              Join our platform where freelancers complete micro tasks and get paid, while advertisers get their tasks done efficiently. Grow your business with SEO EARN.
-            </p>
-            <div className="flex space-x-4">
-              <Link href="/signin">
-                <span className="px-6 py-3 bg-pink-700 text-white font-semibold rounded-md shadow-md hover:bg-pink-800 cursor-pointer">Sign In</span>
-              </Link>
-              <Link href="/signup">
-                <span className="px-6 py-3 bg-purple-700 text-white font-semibold rounded-md shadow-md hover:bg-purple-800 cursor-pointer">Create an Account</span>
-              </Link>
-            </div>
+        <>
+          <main className="container mx-auto p-4 flex-grow">
+          <Header />
+            <ContentSection />
+            <StatsSection />
+            <BenefitsSection />
+            <SpecialSection />
           </main>
-
-          <footer className="w-full bg-purple-800 text-white py-8">
-            <div className="max-w-5xl mx-auto flex flex-wrap justify-between text-sm">
-              <div className="mb-4 md:mb-0">
-                <h3 className="font-semibold mb-2">Training and assistance</h3>
-                <ul>
-                  <li><a href="#" className="hover:underline">News</a></li>
-                  <li><a href="#" className="hover:underline">Wiki</a></li>
-                  <li><a href="#" className="hover:underline">Forum</a></li>
-                  <li><a href="#" className="hover:underline">Support</a></li>
-                </ul>
-              </div>
-              <div className="mb-4 md:mb-0">
-                <h3 className="font-semibold mb-2">Information</h3>
-                <ul>
-                  <li><a href="#" className="hover:underline">Recent Payments</a></li>
-                  <li><a href="#" className="hover:underline">Publication Catalog</a></li>
-                </ul>
-              </div>
-              <div className="mb-4 md:mb-0">
-                <h3 className="font-semibold mb-2">Legal Information</h3>
-                <ul>
-                  <li><a href="#" className="hover:underline">Service rules</a></li>
-                  <li><a href="#" className="hover:underline">Project Services</a></li>
-                  <li><a href="#" className="hover:underline">Payment and Delivery Terms</a></li>
-                  <li><a href="#" className="hover:underline">AML Policy</a></li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">About Us</h3>
-                <p>Contact</p>
-                <p>&copy; SEOEARNING 2007-2014</p>
-              </div>
-            </div>
-          </footer>
-        </div>
+        </>
       )}
     </div>
   );

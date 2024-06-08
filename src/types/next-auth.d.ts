@@ -9,8 +9,10 @@ declare module 'next-auth' {
         isAcceptingMessages?: boolean;
         username?: string;
         messages?: [];
+        accessToken?: string;
     }
     interface Session {
+        accessToken?: string;
         user: {
             _id?: string;
             isVerified?: boolean;
@@ -29,6 +31,7 @@ declare module 'next-auth/jwt' {
         isVerified?: boolean;
         isAcceptingMessages?: boolean;
         username?: string;
-        messages?: [];
+        messages?: [];        
+        accessToken?: string;
     }
 }
