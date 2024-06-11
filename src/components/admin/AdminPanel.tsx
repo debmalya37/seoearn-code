@@ -1,129 +1,116 @@
 "use client";
-import Image from 'next/image';
-import React, { useState } from 'react';
-import profilepicDemo from "../../../public/rcb pic logo.jpeg";
-import TaskList from './TaskList';
-import UserList from './UserList';
-import ReviewTaskModal from './ReviewTaskModal';
-import UserProfileModal from './UserProfileModal';
+import { useState, useEffect } from 'react';
 
 const AdminDashboard = () => {
-  const [selectedSection, setSelectedSection] = useState<string>('tasks');
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
-  const [taskToReview, setTaskToReview] = useState<any>(null);
-  const [showUsers, setShowUsers] = useState<boolean>(false);
-  const [isUserModalOpen, setIsUserModalOpen] = useState<boolean>(false);
-  const [tasks, setTasks] = useState([
-    { id: 1, name: 'Task 1',email: "demo@email.com", time: '2 min', earning: 1.50, status: 'Pending' },
-    { id: 2, name: 'Task 2',email: "demo@email.com", time: '2 min', earning: 1.50, status: 'Pending' },
-    { id: 3, name: 'Task 3',email: "demo@email.com", time: '3 min', earning: 1.50, status: 'Pending' },
-    { id: 4, name: 'Task 4',email: "demo@email.com", time: '2 min', earning: 1.50, status: 'Pending' },
-    // Add more tasks as needed
-  ]);
-  const [userToView, setUserToView] = useState<any>(null);
+  const [stats, setStats] = useState<any>(null);
 
-  const handleSectionChange = (section: string) => {
-    setSelectedSection(section);
-  };
+  useEffect(() => {
+    const fetchStats = async () => {
+      const res = await fetch('/api/stats');
+      const data = await res.json();
+      setStats(data);
+    };
 
-  const handleReviewTask = (task: any) => {
-    setTaskToReview(task);
-    setIsTaskModalOpen(true);
-  };
+    fetchStats();
+  }, []);
 
-  const closeTaskModal = () => {
-    setIsTaskModalOpen(false);
-    setTaskToReview(null);
-  };
+  if (!stats) return <div>Loading...</div>;
 
-  const handleToggleUsers = () => {
-    setShowUsers(!showUsers);
-  };
-
-  const handleViewUser = (user: any) => {
-    setUserToView(user);
-    setIsUserModalOpen(true);
-  };
-
-  const closeUserModal = () => {
-    setIsUserModalOpen(false);
-    setUserToView(null);
-  };
-  const handleDeleteTask = (taskId: number) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
-  };
-  const handleUpdateTask = (updatedTask: any) => {
-    // Update the task in the task list
-    setTaskToReview(updatedTask);
-    setIsTaskModalOpen(false);
-  };
-
-  const stats = [
-    { label: 'Countries', value: 27, icon: '🌍' },
-    { label: 'Total Users', value: 5325, icon: '👥', onClick: handleToggleUsers },
-    { label: 'Active Users', value: 1962, icon: '🟢' },
-    { label: 'Total Tasks', value: 326, icon: '📋' },
-    { label: 'Active Tasks', value: 29, icon: '🔄' },
-    { label: 'Total Revenue', value: '$12,345.67', icon: '💰' },
-  ];
+  const { userStats, taskStats } = stats;
 
   return (
     <div className="admin-dashboard p-6">
       <header className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Admin Panel</h1>
-        <div className="flex items-center">
-          <input type="text" placeholder="Search content..." className="p-2 border rounded" />
-          <Image src={profilepicDemo} alt="Profile" className="ml-4 rounded-full" width={50} height={50} />
-        </div>
+        {/* Other header elements */}
       </header>
 
       <div className="grid grid-cols-3 gap-4 mb-8">
-        {stats.map(stat => (
-          <div
-            key={stat.label}
-            className="bg-white p-6 rounded shadow cursor-pointer flex items-center justify-between"
-            onClick={stat.onClick}
-          >
-            <div>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <div className="text-gray-500">{stat.label}</div>
-            </div>
-            <div className="text-3xl">{stat.icon}</div>
-          </div>
-        ))}
+        <div className="bg-white p-6 rounded shadow">
+          <div className="text-2xl font-bold">{userStats.totalUsers}</div>
+          <div className="text-gray-500">Total Users</div>
+        </div>
+        <div className="bg-white p-6 rounded shadow">
+          <div className="text-2xl font-bold">{userStats.avgAge.toFixed(2)}</div>
+          <div className="text-gray-500">Average Age</div>
+        </div>
+        <div className="bg-white p-6 rounded shadow">
+          <div className="text-2xl font-bold">{userStats.totalFemaleUsers}</div>
+          <div className="text-gray-500">Total Female Users</div>
+        </div>
+        <div className="bg-white p-6 rounded shadow">
+          <div className="text-2xl font-bold">{userStats.totalMaleUsers}</div>
+          <div className="text-gray-500">Total Male Users</div>
+        </div>
+        <div className="bg-white p-6 rounded shadow">
+          <div className="text-2xl font-bold">{userStats.activeUsers}</div>
+          <div className="text-gray-500">Active Users</div>
+        </div>
+        <div className="bg-white p-6 rounded shadow">
+          <div className="text-2xl font-bold">{taskStats.totalTasks}</div>
+          <div className="text-gray-500">Total Tasks</div>
+        </div>
       </div>
 
-      <nav className="mb-4">
-        <ul className="flex space-x-4">
-          <li>
-            <button
-              className={`px-4 py-2 rounded ${selectedSection === 'tasks' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-              onClick={() => handleSectionChange('tasks')}
-            >
-              Tasks
-            </button>
-          </li>
-          <li>
-            <button
-              className={`px-4 py-2 rounded ${selectedSection === 'users' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-              onClick={() => handleSectionChange('users')}
-            >
-              Users
-            </button>
-          </li>
-        </ul>
-      </nav>
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4">User List</h2>
+        <div className="bg-white p-6 rounded shadow overflow-auto max-h-96">
+          <table className="min-w-full">
+            <thead>
+              <tr>
+                <th className="px-4 py-2">Username</th>
+                <th className="px-4 py-2">Email</th>
+                <th className="px-4 py-2">Gender</th>
+                <th className="px-4 py-2">Age</th>
+                <th className="px-4 py-2">Verified</th>
+              </tr>
+            </thead>
+            <tbody>
+              {userStats.userList.map((user: any, index: number) => (
+                <tr key={index}>
+                  <td className="border px-4 py-2">{user.username}</td>
+                  <td className="border px-4 py-2">{user.email}</td>
+                  <td className="border px-4 py-2">{user.gender}</td>
+                  <td className="border px-4 py-2">{user.age}</td>
+                  <td className="border px-4 py-2">{user.isVerified ? 'Yes' : 'No'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-      {selectedSection === 'tasks' &&  <TaskList tasks={tasks} onReviewTask={handleReviewTask} onDeleteTask={handleDeleteTask} />}
-      {selectedSection === 'users' && <UserList onViewUser={handleViewUser} />}
+      <div>
+        <h2 className="text-xl font-bold mb-4">Task List</h2>
+        <div className="bg-white p-6 rounded shadow overflow-auto max-h-96">
+          <table className="min-w-full">
+            <thead>
+              <tr>
+                <th className="px-4 py-2">Title</th>
+                <th className="px-4 py-2">Description</th>
+                <th className="px-4 py-2">Rating</th>
+                <th className="px-4 py-2">Category</th>
+                <th className="px-4 py-2">Created At</th>
+                <th className="px-4 py-2">Created By</th>
+              </tr>
+            </thead>
+            <tbody>
+              {taskStats.taskList.map((task: any, index: number) => (
+                <tr key={index}>
+                  <td className="border px-4 py-2">{task.title}</td>
+                  <td className="border px-4 py-2">{task.description}</td>
+                  <td className="border px-4 py-2">{task.rating}</td>
+                  <td className="border px-4 py-2">{task.category}</td>
+                  <td className="border px-4 py-2">{new Date(task.createdAt).toLocaleString()}</td>
+                  <td className="border px-4 py-2">{task.createdBy}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-      {isTaskModalOpen && taskToReview && (
-        <ReviewTaskModal task={taskToReview} onClose={closeTaskModal} onUpdateTask={handleUpdateTask} />
-      )}
-
-      {isUserModalOpen && userToView && (
-        <UserProfileModal user={userToView} onClose={closeUserModal} />
-      )}
+      {/* Other dashboard components */}
     </div>
   );
 };
