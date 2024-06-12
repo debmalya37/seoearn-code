@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   await dbConnect();
 
   try {
-    const { username, phoneNumber, email, password, gender, age, paymentPreference, paymentGateway, referredBy, deviceIdentifier} = await request.json();
+    const { username, phoneNumber, email, password, gender, age, paymentPreference, paymentGateway, referredBy, deviceIdentifier } = await request.json();
 
     // Validate if required fields are provided
     if (!username || !phoneNumber || !email || !password || !gender || !age) {
@@ -21,7 +21,44 @@ export async function POST(request: Request) {
       );
     }
 
-    // existing user by username
+    // Check if a user already exists with this deviceIdentifier
+    const existingUserByDeviceIdentifier = await UserModel.findOne({ deviceIdentifier });
+
+    if (existingUserByDeviceIdentifier) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: "One user is already associated with this device. You can't make another account with this device.",
+        }),
+        { status: 400 }
+      );
+    }
+
+    // Check if a user already exists with this email or phoneNumber
+    const existingUserByEmail = await UserModel.findOne({ email });
+    const existingUserByPhoneNumber = await UserModel.findOne({ phoneNumber });
+
+    if (existingUserByEmail) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: "User already exists with this email",
+        }),
+        { status: 400 }
+      );
+    }
+
+    if (existingUserByPhoneNumber) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: "User already exists with this phone number",
+        }),
+        { status: 400 }
+      );
+    }
+
+    // Check if a user already exists with this username
     const existingUserVerifiedByUsername = await UserModel.findOne({ username, isVerified: true });
 
     if (existingUserVerifiedByUsername) {
@@ -33,76 +70,41 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    // exising user by deviceIdentifier
-    const existingUserByDeviceIdentifier = await UserModel.findOne({deviceIdentifier});
-    // existing user by email
-    const existingUserByEmail = await UserModel.findOne({ email });
 
-    // existing user by phoneNumber
-    const existingUserByPhoneNumber = await UserModel.findOne({ phoneNumber });
-
-    // verify code generation
+    // If no user found, create new user
+    const hashedPassword = await bcrypt.hash(password, 10);
     const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiryDate = new Date(Date.now() + 3600000); // 1 hour expiry
 
-    if (existingUserByEmail && existingUserByPhoneNumber && existingUserByDeviceIdentifier) {
-      if (existingUserByDeviceIdentifier) {
-        return new Response(
-          JSON.stringify({
-            success: false,
-            message: "One user is already associated with this Device, You can't make another account with this device",
-          }),
-          { status: 400 }
-        );
-      }
-      if (existingUserByEmail.isVerified) {
-        return new Response(
-          JSON.stringify({
-            success: false,
-            message: "User already exists with this email",
-          }),
-          { status: 400 }
-        );
-      } else {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        existingUserByEmail.password = hashedPassword;
-        existingUserByEmail.verifyCode = verifyCode;
-        existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
-        await existingUserByEmail.save();
-      }
-    } else {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const expiryDate = new Date();
-      expiryDate.setHours(expiryDate.getHours() + 1);
-
-      // Handle referredBy properly
-      let referredByObjectId = null;
-      if (referredBy && Types.ObjectId.isValid(referredBy)) {
-        referredByObjectId = new Types.ObjectId(referredBy);
-      }
-      
-      // newUser model created
-      const newUser = new UserModel({
-        email,
-        username,
-        phoneNumber,
-        password: hashedPassword,
-        isVerified: false,
-        isAcceptingMessages: true,
-        verifyCode,
-        verifyCodeExpiry: expiryDate,
-        gender,
-        age,
-        paymentPreference,
-        paymentGateway,
-        referredBy: referredByObjectId, // Ensure valid ObjectId or null
-        messages: [],
-        tasks: [],
-        deviceIdentifier,
-      });
-      await newUser.save();
+    // Handle referredBy properly
+    let referredByObjectId = null;
+    if (referredBy && Types.ObjectId.isValid(referredBy)) {
+      referredByObjectId = new Types.ObjectId(referredBy);
     }
 
-    // send verification email and verification otp in phone
+    // Create new user
+    const newUser = new UserModel({
+      email,
+      username,
+      phoneNumber,
+      password: hashedPassword,
+      isVerified: false,
+      isAcceptingMessages: true,
+      verifyCode,
+      verifyCodeExpiry: expiryDate,
+      gender,
+      age,
+      paymentPreference,
+      paymentGateway,
+      referredBy: referredByObjectId,
+      messages: [],
+      tasks: [],
+      deviceIdentifier,
+    });
+
+    await newUser.save();
+
+    // Send verification email
     const emailResponse = await sendVerificationEmail(email, username, verifyCode);
 
     if (!emailResponse.success) {
