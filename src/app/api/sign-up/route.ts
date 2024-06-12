@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   await dbConnect();
 
   try {
-    const { username, phoneNumber, email, password, gender, age, paymentPreference, paymentGateway, referredBy } = await request.json();
+    const { username, phoneNumber, email, password, gender, age, paymentPreference, paymentGateway, referredBy, deviceIdentifier} = await request.json();
 
     // Validate if required fields are provided
     if (!username || !phoneNumber || !email || !password || !gender || !age) {
@@ -33,7 +33,8 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
+    // exising user by deviceIdentifier
+    const existingUserByDeviceIdentifier = await UserModel.findOne({deviceIdentifier});
     // existing user by email
     const existingUserByEmail = await UserModel.findOne({ email });
 
@@ -43,7 +44,16 @@ export async function POST(request: Request) {
     // verify code generation
     const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    if (existingUserByEmail && existingUserByPhoneNumber) {
+    if (existingUserByEmail && existingUserByPhoneNumber && existingUserByDeviceIdentifier) {
+      if (existingUserByDeviceIdentifier) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: "One user is already associated with this Device, You can't make another account with this device",
+          }),
+          { status: 400 }
+        );
+      }
       if (existingUserByEmail.isVerified) {
         return new Response(
           JSON.stringify({
@@ -69,7 +79,7 @@ export async function POST(request: Request) {
       if (referredBy && Types.ObjectId.isValid(referredBy)) {
         referredByObjectId = new Types.ObjectId(referredBy);
       }
-
+      
       // newUser model created
       const newUser = new UserModel({
         email,
@@ -87,6 +97,7 @@ export async function POST(request: Request) {
         referredBy: referredByObjectId, // Ensure valid ObjectId or null
         messages: [],
         tasks: [],
+        deviceIdentifier,
       });
       await newUser.save();
     }

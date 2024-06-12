@@ -15,12 +15,14 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2, Loader2Icon } from "lucide-react";
+import { getDeviceIdentifier, getStoredDeviceIdentifier } from "@/app/utils/deviceIndentifier";
 
 function Page() {
   const [username, setUsername] = useState('');
   const [usernameMessage, setUsernameMessage] = useState('');
   const [isCheckingUsername, setisCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deviceIdentifier, setDeviceIdentifier] = useState('');
 
   const debounced = useDebounceCallback(setUsername, 300);
   const { toast } = useToast();
@@ -38,6 +40,20 @@ function Page() {
       referredBy: '',
     },
   });
+
+  useEffect(() => {
+    const fetchDeviceIdentifier = async () => {
+      const storedDeviceIdentifier = getStoredDeviceIdentifier();
+      if (storedDeviceIdentifier) {
+        setDeviceIdentifier(storedDeviceIdentifier);
+      } else {
+        const newDeviceIdentifier = await getDeviceIdentifier();
+        setDeviceIdentifier(newDeviceIdentifier);
+      }
+    };
+
+    fetchDeviceIdentifier();
+  }, []);
 
   useEffect(() => {
     const checkUsernameUnique = async () => {
@@ -65,7 +81,7 @@ function Page() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post<ApiResponse>('/api/sign-up', data);
+      const response = await axios.post<ApiResponse>('/api/sign-up', { ...data, deviceIdentifier });
       toast({
         title: 'Success',
         description: response.data.message,
@@ -224,5 +240,3 @@ function Page() {
 }
 
 export default Page;
-
-

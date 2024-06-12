@@ -35,6 +35,7 @@ export interface IUser extends Document {
   messages: IMessage[];
   tasks?: Types.Array<Types.ObjectId>; // Update tasks to be an array of ObjectId
   referredBy?: Types.ObjectId;
+  deviceIdentifier: string;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -53,7 +54,8 @@ const UserSchema = new Schema<IUser>({
   isAcceptingMessages: { type: Boolean, default: true },
   messages: [MessageSchema],
   tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
-  referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  deviceIdentifier: { type: String, unique: true, required: true },
 });
 
 const UserModel = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
