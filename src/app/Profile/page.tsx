@@ -7,14 +7,14 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import profilepicDemo from "../../../public/rcb pic logo.jpeg";
 
-export default function Profile() {
+const Profile = () => {
   const { data: session, status } = useSession();
   const { register, handleSubmit, setValue } = useForm();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | ArrayBuffer | null>(profilepicDemo);
-  const [referredBy, setReferredBy] = useState<{ username: string, email: string } | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const fetchProfile = useCallback(async () => {
@@ -43,9 +43,7 @@ export default function Profile() {
           setValue('paymentPreference', user.paymentPreference);
           setValue('paymentGateway', user.paymentGateway);
           setValue('profilePicture', user.profilePicture);
-          if (user.referredBy) {
-            setReferredBy(user.referredBy);
-          }
+          setReferralCode(user.referralCode);
           setProfilePicture(user.profilePicture || profilepicDemo);
         } else {
           setError('Failed to fetch user data');
@@ -95,6 +93,17 @@ export default function Profile() {
 
   const triggerFileInput = () => {
     fileInputRef.current?.click();
+  };
+
+  const copyReferralLink = () => {
+    if (referralCode) {
+      const referralLink = `${window.location.origin}/sign-up?ref=${referralCode}`;
+      navigator.clipboard.writeText(referralLink).then(() => {
+        setSuccess('Referral link copied to clipboard');
+      }, (err) => {
+        setError('Failed to copy referral link');
+      });
+    }
   };
 
   if (status === 'loading') {
@@ -198,6 +207,26 @@ export default function Profile() {
               </button>
             </div>
           </div>
+          {referralCode && (
+            <div className="flex flex-col items-center mt-6">
+              <p className="text-gray-800 mb-2">Referral Link:</p>
+              <div className="flex items-center">
+                <input
+                  type="text"
+                  className="form-input mt-1 block w-full"
+                  value={`${window.location.origin}/sign-up?ref=${referralCode}`}
+                  readOnly
+                />
+                <button
+                  type="button"
+                  onClick={copyReferralLink}
+                  className="ml-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-300"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+          )}
           <div className="text-center">
             <button
               type="submit"
@@ -213,4 +242,6 @@ export default function Profile() {
       </div>
     </div>
   );
-}
+};
+
+export default Profile;

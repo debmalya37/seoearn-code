@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   const userId = user._id;
 
   try {
-    const { phoneNumber, profilePicture } = await req.json();
+    const { phoneNumber, profilePicture, paymentPreference, paymentGateway }= await req.json();
 
     if (!phoneNumber) {
       return NextResponse.json({ 
@@ -73,7 +73,9 @@ export async function POST(req: NextRequest) {
 
     const updatedUser = await UserModel.findByIdAndUpdate(userId, {
       phoneNumber: phoneNumber,
-      profilePicture: profilePicture
+      profilePicture: profilePicture,
+      paymentPreference: paymentPreference,
+      paymentGateway: paymentGateway,
     }, { new: true });
 
     if (!updatedUser) {

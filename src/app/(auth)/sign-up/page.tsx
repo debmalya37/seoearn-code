@@ -23,6 +23,7 @@ function Page() {
   const [isCheckingUsername, setisCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deviceIdentifier, setDeviceIdentifier] = useState('');
+  const [referralCode, setReferralCode] = useState('');
 
   const debounced = useDebounceCallback(setUsername, 300);
   const { toast } = useToast();
@@ -53,6 +54,15 @@ function Page() {
     };
 
     fetchDeviceIdentifier();
+  }, []);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode) {
+      setReferralCode(refCode);
+      form.setValue('referredBy', refCode);
+    }
   }, []);
 
   useEffect(() => {

@@ -3,14 +3,14 @@ import UserModel from "@/models/userModel";
 import bcrypt from "bcryptjs";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 import { Types } from "mongoose";
+import { generateReferralCode } from "@/app/utils/referral";
 
 export async function POST(request: Request) {
   await dbConnect();
 
   try {
-    const { username, phoneNumber, email, password, gender, age, paymentPreference, paymentGateway, referredBy, deviceIdentifier } = await request.json();
+    const { username, phoneNumber, email, password, gender, age, paymentPreference, paymentGateway, referralCode, deviceIdentifier } = await request.json();
 
-    // Validate if required fields are provided
     if (!username || !phoneNumber || !email || !password || !gender || !age) {
       return new Response(
         JSON.stringify({
@@ -21,7 +21,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if a user already exists with this deviceIdentifier
     const existingUserByDeviceIdentifier = await UserModel.findOne({ deviceIdentifier });
 
     if (existingUserByDeviceIdentifier) {
@@ -34,7 +33,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if a user already exists with this email or phoneNumber
     const existingUserByEmail = await UserModel.findOne({ email });
     const existingUserByPhoneNumber = await UserModel.findOne({ phoneNumber });
 
@@ -58,7 +56,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if a user already exists with this username
     const existingUserVerifiedByUsername = await UserModel.findOne({ username, isVerified: true });
 
     if (existingUserVerifiedByUsername) {
@@ -71,18 +68,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // If no user found, create new user
     const hashedPassword = await bcrypt.hash(password, 10);
     const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiryDate = new Date(Date.now() + 3600000); // 1 hour expiry
+    const expiryDate = new Date(Date.now() + 3600000);
 
-    // Handle referredBy properly
-    let referredByObjectId = null;
-    if (referredBy && Types.ObjectId.isValid(referredBy)) {
-      referredByObjectId = new Types.ObjectId(referredBy);
-    }
-
-    // Create new user
+    
+    // create new user
     const newUser = new UserModel({
       email,
       username,
@@ -96,15 +87,25 @@ export async function POST(request: Request) {
       age,
       paymentPreference,
       paymentGateway,
-      referredBy: referredByObjectId,
+      referredBy: null,
       messages: [],
       tasks: [],
       deviceIdentifier,
     });
+    // Generate and assign referral code
+    newUser.referralCode = generateReferralCode(username, newUser._id);
 
+    // Handle referral code properly
+    if (referralCode) {
+      const referringUser = await UserModel.findOne({ referralCode });
+      if (referringUser) {
+        newUser.referredBy = referringUser._id; // set referredBy to referringUser's ID
+        referringUser.referredUsers.push(newUser._id);
+        await referringUser.save();
+      }
+    }
     await newUser.save();
-
-    // Send verification email
+    
     const emailResponse = await sendVerificationEmail(email, username, verifyCode);
 
     if (!emailResponse.success) {

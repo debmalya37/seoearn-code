@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
-import { ITask, TaskSchema } from '@/models/taskModel';
 
 export interface IMessage extends Document {
   content: string;
@@ -33,9 +32,13 @@ export interface IUser extends Document {
   paymentPreference?: string;
   paymentGateway?: string;
   messages: IMessage[];
-  tasks?: Types.Array<Types.ObjectId>; // Update tasks to be an array of ObjectId
+  tasks?: Types.Array<Types.ObjectId>;
   referredBy?: Types.ObjectId;
   deviceIdentifier: string;
+  balance: number;
+  earnings: number;
+  referralCode?: string; // Add referralCode
+  referrals?: Types.Array<Types.ObjectId>; // Add referrals array
 }
 
 const UserSchema = new Schema<IUser>({
@@ -56,6 +59,10 @@ const UserSchema = new Schema<IUser>({
   tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
   referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   deviceIdentifier: { type: String, unique: true, required: true },
+  balance: { type: Number, default: 0 },
+  earnings: { type: Number, default: 0 },
+  referralCode: { type: String, unique: true }, // Add referralCode field
+  referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Add referrals array
 });
 
 const UserModel = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
