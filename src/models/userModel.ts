@@ -29,6 +29,9 @@ export interface IUser extends Document {
   gender: string;
   age: number;
   profilePicture?: string;
+  paymentId?: string;
+  payerAccount?: string;
+  totalAmount?: number;
   paymentPreference?: string;
   paymentGateway?: string;
   messages: IMessage[];
@@ -51,6 +54,9 @@ const UserSchema = new Schema<IUser>({
   profilePicture: { type: String, required: false },
   paymentPreference: { type: String, required: false },
   paymentGateway: { type: String, required: false },
+  paymentId: { type: String },
+  payerAccount: { type: String },
+  totalAmount: { type: Number, default: 0 },
   verifyCode: { type: String, required: true },
   verifyCodeExpiry: { type: Date, required: true },
   isVerified: { type: Boolean, default: false },
