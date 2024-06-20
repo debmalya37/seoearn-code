@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const PERFECT_MONEY_API_URL = 'https://perfectmoney.is/acct/confirm.asp';
+// https://perfectmoney.com/api/step1.asp
 
 export interface PaymentRequestParams {
   accountId: string;
