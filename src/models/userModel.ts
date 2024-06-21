@@ -54,7 +54,7 @@ const UserSchema = new Schema<IUser>({
   profilePicture: { type: String, required: false },
   paymentPreference: { type: String, required: false },
   paymentGateway: { type: String, required: false },
-  paymentId: { type: String },
+  paymentId: { type: String, default: "123456" },
   payerAccount: { type: String },
   totalAmount: { type: Number, default: 0 },
   verifyCode: { type: String, required: true },

@@ -12,27 +12,33 @@ function PaymentPage() {
   const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
-    const fetchTotalAmount = async () => {
+    const fetchPaymentData = async () => {
       if (status === 'authenticated') {
         try {
           const response = await axios.get('/api/payment/totalAmount', {
             headers: {
-              'Authorization': `Bearer ${session.accessToken}`
-            }
+              'Authorization': `Bearer ${session.accessToken}`,
+            },
           });
-          setTotalAmount(response.data.totalAmount);
+          const data = response.data;
+          setTotalAmount(data.totalAmount);
+          setPaymentId(data.paymentId);
+          setPayerAccount(data.payerAccount);
         } catch (error) {
-          console.error('Error fetching total amount:', error);
+          console.error("Error fetching payment data:", error);
         }
       }
     };
-
-    fetchTotalAmount();
+    fetchPaymentData();
   }, [session, status]);
 
   const handleAccountSetup = async () => {
     try {
-      const response = await axios.post('/api/payment/account', { paymentId, payerAccount });
+      const response = await axios.post('/api/PaymentAccount', { paymentId, payerAccount }, {
+        headers: {
+          'Authorization': `Bearer ${session.accessToken}`
+        }
+      });
       alert(response.data.message);
     } catch (error) {
       console.error('Error updating account details:', error);
@@ -45,36 +51,27 @@ function PaymentPage() {
       return;
     }
 
-    const form = document.createElement('form');
-    form.action = 'https://perfectmoney.com/api/step1.asp';
-    form.method = 'POST';
-
-    form.innerHTML = `
-      <input type="hidden" name="PAYEE_ACCOUNT" value="U46777206">
-      <input type="hidden" name="PAYEE_NAME" value="debmalya sen">
-      <input type="hidden" name="PAYMENT_ID" value="#deb">
-      <input type="hidden" name="PAYMENT_AMOUNT" value="${amount}">
-      <input type="hidden" name="PAYMENT_UNITS" value="USD">
-      <input type="hidden" name="STATUS_URL" value="mailto:debmalyasen37@gmail.com">
-      <input type="hidden" name="PAYMENT_URL" value="http://localhost:3000/payment/success">
-      <input type="hidden" name="PAYMENT_URL_METHOD" value="POST">
-      <input type="hidden" name="NOPAYMENT_URL" value="http://localhost:3000/payment/unsuccessful">
-      <input type="hidden" name="NOPAYMENT_URL_METHOD" value="POST">
-      <input type="hidden" name="SUGGESTED_MEMO" value="">
-      <input type="hidden" name="username" value="${session.user.name}">
-      <input type="hidden" name="Depositwithdraw" value="Deposit">
-      <input type="hidden" name="paymentAccount" value="${payerAccount}">
-      <input type="hidden" name="transactionid" value="#deb-${Date.now()}">
-      <input type="hidden" name="BAGGAGE_FIELDS" value="username Depositwithdraw paymentAccount transactionid">
-    `;
-
-    document.body.appendChild(form);
-    form.submit();
+    try {
+      const response = await axios.post('/api/deposit', { amount }, {
+        headers: {
+          'Authorization': `Bearer ${session.accessToken}`
+        }
+      });
+      alert(response.data.message);
+      setTotalAmount(response.data.totalAmount);
+    } catch (error) {
+      console.error('Error during deposit:', error);
+    }
   };
 
   const handleWithdraw = async () => {
+    if (amount < 25) {
+      alert('Minimum withdraw amount is $25');
+      return;
+    }
+
     try {
-      const response = await axios.post('/api/payment/withdraw', { amount }, {
+      const response = await axios.post('/api/withdraw', { amount }, {
         headers: {
           'Authorization': `Bearer ${session.accessToken}`
         }
@@ -153,11 +150,12 @@ function PaymentPage() {
             Deposit
           </button>
           <div className="mb-4 mt-4">
-            <label className="block text-sm font-medium text-gray-700">Withdraw Amount</label>
+            <label className="block text-sm font-medium text-gray-700">Withdraw Amount (Minimum $25)</label>
             <input
               type="number"
               value={amount}
               onChange={(e) => setAmount(parseFloat(e.target.value))}
+              min="25"
               className="mt-1 p-2 border border-gray-300 rounded-md w-full"
             />
           </div>

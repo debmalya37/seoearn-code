@@ -4,7 +4,7 @@
     import UserModel from '@/models/userModel';
 import { authOptions } from '../../auth/[...nextauth]/options';
 import { getServerSession, User } from 'next-auth';
-
+//https://perfectmoney.com/api/step1.asp
     export async function GET(req: NextRequest) {
         const session = await getServerSession(authOptions);
         const user: User = session?.user as User;
@@ -23,8 +23,9 @@ import { getServerSession, User } from 'next-auth';
 
     try {
     const user = await UserModel.findOne({ email: session.user.email });
+    console.log(user);
     if (!user) {
-    return NextResponse.json({ message: 'User not found' }, { status: 404 });
+    return NextResponse.json({ message: 'User not found', user }, { status: 404 });
     }
     return NextResponse.json({ totalAmount: user.totalAmount || 0 });
     } catch (error) {

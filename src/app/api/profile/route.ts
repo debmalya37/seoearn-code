@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   const userId = user._id;
 
   try {
-    const { phoneNumber, profilePicture, paymentPreference, paymentGateway }= await req.json();
+    const { phoneNumber, profilePicture, paymentPreference, paymentId }= await req.json();
 
     if (!phoneNumber) {
       return NextResponse.json({ 
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
       phoneNumber: phoneNumber,
       profilePicture: profilePicture,
       paymentPreference: paymentPreference,
-      paymentGateway: paymentGateway,
+      paymentId: paymentId,
     }, { new: true });
 
     if (!updatedUser) {

@@ -41,7 +41,7 @@ const Profile = () => {
           setValue('gender', user.gender);
           setValue('age', user.age);
           setValue('paymentPreference', user.paymentPreference);
-          setValue('paymentGateway', user.paymentGateway);
+          setValue('paymentId', user.paymentId);
           setValue('profilePicture', user.profilePicture);
           setReferralCode(user.referralCode);
           setProfilePicture(user.profilePicture || profilepicDemo);
@@ -173,11 +173,11 @@ const Profile = () => {
                   />
                 </label>
                 <label className="block">
-                  <span className="text-gray-700">Payment Gateway</span>
+                  <span className="text-gray-700">Payment ID</span>
                   <input
                     type="text"
                     className="form-input mt-1 block w-full"
-                    {...register('paymentGateway')}
+                    {...register('paymentId')}
                   />
                 </label>
               </div>
