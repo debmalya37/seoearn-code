@@ -3,6 +3,8 @@ import UserModel from '@/models/userModel';
 import dbConnect from '@/lib/dbConnect';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
+import { generateReferralCode } from '@/app/utils/referral';
+
 
 // Handle GET requests
 export async function GET(req: NextRequest) {
@@ -62,7 +64,8 @@ export async function POST(req: NextRequest) {
   const userId = user._id;
 
   try {
-    const { phoneNumber, profilePicture } = await req.json();
+    const { phoneNumber, profilePicture, paymentPreference, paymentId, referralCode }= await req.json();
+     
 
     if (!phoneNumber) {
       return NextResponse.json({ 
@@ -70,10 +73,17 @@ export async function POST(req: NextRequest) {
         message: 'Missing required fields' 
       }, { status: 400 });
     }
-
+    const referralCodeGenerator = async () =>  {
+      const referralCodeGenerated = generateReferralCode(user, userId);
+      console.log(referralCodeGenerated);
+      return referralCodeGenerated;
+    }
     const updatedUser = await UserModel.findByIdAndUpdate(userId, {
       phoneNumber: phoneNumber,
-      profilePicture: profilePicture
+      profilePicture: profilePicture,
+      paymentPreference: paymentPreference,
+      paymentId: paymentId,
+      referralCode: generateReferralCode(user,userId)
     }, { new: true });
 
     if (!updatedUser) {
@@ -82,6 +92,7 @@ export async function POST(req: NextRequest) {
         message: 'Failed to update user'
       }, { status: 404 });
     }
+    console.log(user ,"updated user : ",updatedUser);
 
     return NextResponse.json({
       success: true,

@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/options";
 import UserModel, { IUser } from "@/models/userModel";
 import mongoose from "mongoose";
+import { User } from "next-auth";
 
 // POST endpoint to create a new task
 export async function POST(request: Request) {
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
+    
     const newTask = await Task.create({ title, description, rating, category, duration, createdBy: user._id, reward });
 
     if (!user.tasks) {
@@ -76,7 +77,7 @@ export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
   const user: User = session?.user as User;
 
-  if (!session || !session.user) {
+  if (!session || !user) {
     return NextResponse.json(
       {
         success: false,

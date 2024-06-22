@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
-import { ITask, TaskSchema } from '@/models/taskModel';
 
 export interface IMessage extends Document {
   content: string;
@@ -30,12 +29,19 @@ export interface IUser extends Document {
   gender: string;
   age: number;
   profilePicture?: string;
+  paymentId?: string;
+  payerAccount?: string;
+  totalAmount?: number;
   paymentPreference?: string;
   paymentGateway?: string;
   messages: IMessage[];
-  tasks?: Types.Array<Types.ObjectId>; // Update tasks to be an array of ObjectId
+  tasks?: Types.Array<Types.ObjectId>;
   referredBy?: Types.ObjectId;
   deviceIdentifier: string;
+  balance: number;
+  earnings: number;
+  referralCode?: string; // Add referralCode
+  referrals?: Types.Array<Types.ObjectId>; // Add referrals array
 }
 
 const UserSchema = new Schema<IUser>({
@@ -48,6 +54,9 @@ const UserSchema = new Schema<IUser>({
   profilePicture: { type: String, required: false },
   paymentPreference: { type: String, required: false },
   paymentGateway: { type: String, required: false },
+  paymentId: { type: String, default: "123456" },
+  payerAccount: { type: String },
+  totalAmount: { type: Number, default: 0 },
   verifyCode: { type: String, required: true },
   verifyCodeExpiry: { type: Date, required: true },
   isVerified: { type: Boolean, default: false },
@@ -56,6 +65,10 @@ const UserSchema = new Schema<IUser>({
   tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
   referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   deviceIdentifier: { type: String, unique: true, required: true },
+  balance: { type: Number, default: 0 },
+  earnings: { type: Number, default: 0 },
+  referralCode: { type: String, unique: true }, // Add referralCode field
+  referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Add referrals array
 });
 
 const UserModel = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
