@@ -73,17 +73,17 @@ export async function POST(req: NextRequest) {
         message: 'Missing required fields' 
       }, { status: 400 });
     }
-    const referralCodeGenerator = async () =>  {
-      const referralCodeGenerated = generateReferralCode(user, userId);
-      console.log(referralCodeGenerated);
-      return referralCodeGenerated;
-    }
+    // const referralCodeGenerator = async () =>  {
+    //   const referralCodeGenerated = generateReferralCode(user, userId);
+    //   console.log(referralCodeGenerated);
+    //   return referralCodeGenerated;
+    // }
     const updatedUser = await UserModel.findByIdAndUpdate(userId, {
       phoneNumber: phoneNumber,
       profilePicture: profilePicture,
       paymentPreference: paymentPreference,
       paymentId: paymentId,
-      referralCode: generateReferralCode(user,userId)
+      referralCode: generateReferralCode(user.username,userId)
     }, { new: true });
 
     if (!updatedUser) {
