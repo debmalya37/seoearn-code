@@ -219,7 +219,8 @@ function Page() {
                 <FormItem>
                   <FormLabel>Referred By</FormLabel>
                   <FormControl>
-                    <Input placeholder="Referred By" {...field} />
+                    <Input readOnly placeholder="Referred By" {...field} />
+                  
                   </FormControl>
                   <FormMessage />
                 </FormItem>
