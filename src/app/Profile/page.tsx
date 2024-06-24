@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import profilepicDemo from "../../../public/rcb pic logo.jpeg";
+import { generateReferralCode, generateReferralLink } from '../utils/referral';
 
 const Profile = () => {
   const { data: session, status } = useSession();
@@ -28,8 +29,9 @@ const Profile = () => {
       setLoading(false);
     }
   }, [setValue]);
-
+  
   useEffect(() => {
+    
     const fetchUserProfile = async () => {
       try {
         const response = await axios.get('/api/profile');
@@ -43,6 +45,7 @@ const Profile = () => {
           setValue('paymentPreference', user.paymentPreference);
           setValue('paymentId', user.paymentId);
           setValue('profilePicture', user.profilePicture);
+          setValue('referralCode', user.referralCode);
           setReferralCode(user.referralCode);
           setProfilePicture(user.profilePicture || profilepicDemo);
         } else {
@@ -53,11 +56,13 @@ const Profile = () => {
         setError('Failed to fetch user data');
       }
     };
-
+    
     if (session) {
+      // referralCodeGeneration();
       fetchUserProfile();
     }
   }, [setValue, session]);
+  
 
   const onSubmit = async (data: any) => {
     setLoading(true);
@@ -79,7 +84,15 @@ const Profile = () => {
       setLoading(false);
     }
   };
-
+  const referralCodeGeneration = async ()=> {
+    const response = await axios.get('/api/profile');
+    const user = response.data.user;
+    const userId = response.data.userId;
+    const referralCode = generateReferralCode(user,userId);
+    // setValue('referralCode',user.referralCode)
+    return referralCode;
+    
+  }
   const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -180,6 +193,14 @@ const Profile = () => {
                     {...register('paymentId')}
                   />
                 </label>
+                <label className="block">
+                  <span className="text-gray-700">Referral Code: </span>
+                  <input
+                    type="text"
+                    className="form-input mt-1 block w-full"
+                    {...register('referralCode')}
+                  />
+                </label>
               </div>
             </div>
             <div className="flex flex-col items-center">
@@ -207,7 +228,26 @@ const Profile = () => {
               </button>
             </div>
           </div>
-          {referralCode && (
+          {/*  referral link section */}
+          <div className="flex flex-col items-center mt-6">
+              <p className="text-gray-800 mb-2">Referral Link:</p>
+              <div className="flex items-center">
+                <input
+                  type="text"
+                  className="form-input mt-1 block w-full"
+                  value={`${window.location.origin}/sign-up?ref=${referralCode}`}
+                  readOnly
+                />
+                <button
+                  type="button"
+                  onClick={copyReferralLink}
+                  className="ml-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-300"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+          {/* {referralCode && (
             <div className="flex flex-col items-center mt-6">
               <p className="text-gray-800 mb-2">Referral Link:</p>
               <div className="flex items-center">
@@ -226,7 +266,7 @@ const Profile = () => {
                 </button>
               </div>
             </div>
-          )}
+          )} */}
           <div className="text-center">
             <button
               type="submit"
