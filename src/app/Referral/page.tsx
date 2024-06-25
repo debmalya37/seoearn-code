@@ -46,16 +46,6 @@ const ReferralPage = () => {
     fetchReferralData();
   }, [session]);
 
-  const referralCodeGeneration = async ()=> {
-    const response = await axios.get('/api/profile');
-    const user = response.data.user;
-    const userId = response.data.userId;
-    const referralCode = generateReferralCode(user,userId);
-    // setValue('referralCode',user.referralCode)
-    return referralCode;
-    
-  }
-
   const copyReferralLink = () => {
     if (referralData?.referralCode) {
       const referralLink = generateReferralLink(referralData.referralCode);
@@ -109,10 +99,10 @@ const ReferralPage = () => {
             <div className="flex flex-col items-center mt-6">
               <p className="text-gray-800 mb-2">Referral Link:</p>
               <div className="flex items-center">
-              <input
+                <input
                   type="text"
                   className="form-input mt-1 block w-full"
-                  value={`${window.location.origin}/sign-up?ref=${referralCode}`}
+                  value={generateReferralLink(referralData.referralCode)}
                   readOnly
                 />
                 <button

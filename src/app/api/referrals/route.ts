@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import mongoose from 'mongoose';
 import User from '@/models/userModel';
 import dbConnect from '@/lib/dbConnect';
-import { authOptions } from '../auth/[...nextauth]/options';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth/[...nextauth]/options';
 
 export async function GET(req: NextRequest) {
   try {
@@ -18,42 +17,39 @@ export async function GET(req: NextRequest) {
         message: 'Not authenticated'
       }, { status: 401 });
     }
+
     const user = session.user;
     const userId = user._id;
 
-    // Aggregation pipeline
-    const referralsAggregationPipeline = [
-      { $match: { _id: userId } },
-      {
-        $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: 'referredBy',
-          as: 'referrals'
-        }
-      },
-      {
-        $project: {
-          totalReferrals: { $size: "$referrals" },
-          referralList: {
-            $map: {
-              input: "$referrals",
-              as: "referral",
-              in: { name: "$$referral.username", email: "$$referral.email" }
-            }
-          }
-        }
-      }
-    ];
+    // Find the user by ID
+    const foundUser = await User.findById(userId).populate('referrals');
+    if (!foundUser) {
+      return NextResponse.json({
+        success: false,
+        message: "User not found"
+      }, { status: 404 });
+    }
 
-    // Execute the aggregation pipeline
-    const [referralStats] = await User.aggregate(referralsAggregationPipeline);
+    // Get the referral data
+    const totalReferrals = foundUser.referrals.length;
+    const referralList = foundUser.referrals.map((referral: any) => ({
+      name: referral.username,
+      email: referral.email
+    }));
 
     return NextResponse.json({
-      referralStats
-    });
+      referralStats: {
+        totalReferrals,
+        referralList,
+        referralCode: foundUser.referralCode
+      }
+    }, { status: 200 });
+
   } catch (error) {
     console.error('Error fetching referrals:', error);
-    return NextResponse.json({ error: 'Failed to fetch referrals' }, { status: 500 });
+    return NextResponse.json({
+      success: false,
+      message: 'Internal server error'
+    }, { status: 500 });
   }
 }
