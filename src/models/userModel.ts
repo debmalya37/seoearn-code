@@ -42,6 +42,8 @@ export interface IUser extends Document {
   earnings: number;
   referralCode?: string; // Add referralCode
   referrals?: Types.Array<Types.ObjectId>; // Add referrals array
+  referralEarnings: number; // Add referralEarnings
+  referralCount: number; // Add referralCount
 }
 
 const UserSchema = new Schema<IUser>({
@@ -69,6 +71,8 @@ const UserSchema = new Schema<IUser>({
   earnings: { type: Number, default: 0 },
   referralCode: { type: String, unique: true }, // Add referralCode field
   referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Add referrals array
+  referralEarnings: { type: Number, default: 0 }, // Add referralEarnings field
+  referralCount: { type: Number, default: 0 }, // Add referralCount field
 });
 
 const UserModel = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
