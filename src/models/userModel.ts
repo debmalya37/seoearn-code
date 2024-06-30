@@ -18,6 +18,9 @@ const MessageSchema: Schema<IMessage> = new mongoose.Schema({
 });
 
 export interface IUser extends Document {
+  user: never[];
+  user: never[];
+  user: never[];
   email: string;
   username: string;
   phoneNumber: number;

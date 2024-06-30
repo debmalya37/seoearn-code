@@ -34,7 +34,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { title, description, rating, category, duration, reward } = await request.json();
+    const { title, description, rating, category, duration, reward,createdAt } = await request.json();
 
     // Validation checks
     if (!title || !description || !category || !duration || !reward) {
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       );
     }
     
-    const newTask = await Task.create({ title, description, rating, category, duration, createdBy: user._id, reward });
+    const newTask = await Task.create({ title, description, rating, category, duration, createdBy: user._id, reward, createdAt });
 
     if (!user.tasks) {
       user.tasks = [];
