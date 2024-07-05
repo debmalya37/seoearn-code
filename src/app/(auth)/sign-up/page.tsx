@@ -63,7 +63,7 @@ function Page() {
       setReferralCode(refCode);
       form.setValue('referredBy', refCode);
     }
-  }, []);
+  }, [form]);
 
   useEffect(() => {
     const checkUsernameUnique = async () => {

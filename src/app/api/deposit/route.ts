@@ -1,33 +1,34 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSession } from 'next-auth/react';
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/models/userModel';
+import { authOptions } from '../auth/[...nextauth]/options';
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getSession({ req });
+export async function POST(req: NextRequest) {
+  const session = await getServerSession( authOptions);
   if (!session) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   await dbConnect();
 
   try {
-    const { amount } = req.body;
+    const { amount } = await req.json();
 
     if (amount < 20) {
-      return res.status(400).json({ message: 'Minimum deposit amount is $20' });
+      return NextResponse.json({ message: 'Minimum deposit amount is $20' }, { status: 400 });
     }
 
     const user = await UserModel.findOne({ email: session.user.email });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
     user.totalAmount = (user.totalAmount || 0) + amount;
     await user.save();
 
-    res.status(200).json({ message: 'Deposit successful', totalAmount: user.totalAmount });
+    return NextResponse.json({ message: 'Deposit successful', totalAmount: user.totalAmount }, { status: 200 });
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -1,30 +1,31 @@
-// src/pages/api/deposit.ts
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
 const { PM_MEMBER_ID, PM_PASSWORD, BUSINESS_ACCOUNT_ID } = process.env;
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
-  const { userAccountId, amount, paymentId } = req.body;
+export async function POST(req: NextRequest) {
+  const { userAccountId, amount, paymentId } = await req.json();
 
   if (!userAccountId || !amount || !paymentId) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  const url = `https://perfectmoney.com/acct/confirm.asp?AccountID=42850048&PassPhrase=#deb@perfect#24&Payer_Account=U46777206&Payee_Account=U46777206&Amount=1&PAYMENT_ID=U46777206`;
+  const url = `https://perfectmoney.com/acct/confirm.asp?AccountID=${PM_MEMBER_ID}&PassPhrase=${PM_PASSWORD}&Payer_Account=${userAccountId}&Payee_Account=${BUSINESS_ACCOUNT_ID}&Amount=${amount}&PAYMENT_ID=${paymentId}`;
 
   try {
     const response = await axios.get(url);
     const data = response.data;
 
     if (!data.includes('ERROR')) {
-      return res.status(200).json({ success: true, data });
+      return NextResponse.json({ success: true, data }, { status: 200 });
     } else {
-      return res.status(500).json({ error: 'Error processing payment', data });
+      return NextResponse.json({ error: 'Error processing payment', data }, { status: 500 });
     }
   } catch (error: any) {
-    return res.status(500).json({ message: 'Server error', error });
+    return NextResponse.json({ message: 'Server error', error }, { status: 500 });
   }
 }
+
+export const runtime = "edge"
 
 export default POST;

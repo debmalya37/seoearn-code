@@ -45,6 +45,7 @@ export interface AdsTaskData {
 }
 
 const CreateAdvertisement: FC  = ()=> {
+  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<AdsTaskData | null>(null);
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +53,6 @@ const CreateAdvertisement: FC  = ()=> {
   const { data: session } = useSession();
 
 
-  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(taskSchema),
@@ -102,7 +102,7 @@ const CreateAdvertisement: FC  = ()=> {
     }, [session, setValue, fetchAdsTask]);
 
 
-    const handleTaskClick = (task: TaskData) => {
+    const handleTaskClick = (task: AdsTaskData) => {
       setSelectedTask(task);
     };
   const handleOpenAddTaskModal = () => {
@@ -147,6 +147,10 @@ const CreateAdvertisement: FC  = ()=> {
             )}
           </div>
 
+              <h3>STATS OF YOUR TASKS: </h3>
+              <table>
+                
+              </table>
     <div className="flex justify-between items-center mt-4 pb-6">
             <button className="text-purple-700">Previous</button>
             <div className="space-x-2">

@@ -1,11 +1,11 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getBalance } from '../../../lib/perfectMoney';
+import { NextRequest, NextResponse } from 'next/server';
+import { getBalance } from '@/lib/perfectMoney';
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
+export async function GET(req: NextRequest) {
   try {
     const balance = await getBalance();
-    res.status(200).json(balance);
+    return NextResponse.json(balance, { status: 200 });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch balance' });
+    return NextResponse.json({ error: 'Failed to fetch balance' }, { status: 500 });
   }
 }

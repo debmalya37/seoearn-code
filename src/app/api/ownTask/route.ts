@@ -7,6 +7,9 @@ import UserModel, { IUser } from "@/models/userModel";
 import mongoose from "mongoose";
 import { User } from "next-auth";
 
+
+
+
   // POST endpoint to create a new task
 export async function POST(request: Request) {
   await dbConnect();
@@ -84,6 +87,34 @@ export async function GET(request: Request) {
       { status: 401 }
     );
   }
+  const tasksAggregation = [
+    {
+      $facet: {
+        totalTasks: [{$count: "count"}],
+        tasklist: [
+          {
+            $project: {
+              title: 1,
+              description: 1,
+              rating: 1,
+              category: 1,
+              createdAt: 1,
+              createdBy: 1
+            }
+          }
+        ]
+      }
+    },
+  
+    {
+      $project: {
+        totalTasks: {$arrayElemAt: ["$totalTaks.count", 0]},
+        totalList: "$taskList"
+      }
+    }
+  ]
+  const [taskPipeLine] = await Task.aggregate(tasksAggregation);
+
 
   try {
     const user = await UserModel.findById(session.user._id).populate('tasks') as IUser;
@@ -102,6 +133,7 @@ export async function GET(request: Request) {
       {
         success: true,
         tasks: user.tasks,
+        taskPipeLine
       },
       { status: 200 }
     );
