@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useAuth } from '@/utils/auth';
+import { useAuth } from '@src/utils/auth';
 
 const AdminLayout: React.FC = ({ children }) => {
   const router = useRouter();

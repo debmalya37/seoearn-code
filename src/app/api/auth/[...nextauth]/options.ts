@@ -5,8 +5,8 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
-import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/models/userModel";
+import dbConnect from "@src/lib/dbConnect";
+import UserModel from "@src/models/userModel";
 
 const SECRET_KEY = process.env.JWT_TOKEN || 'your-secret-key'; // Ensure you have a secret key for signing the token
 

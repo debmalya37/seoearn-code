@@ -1,9 +1,9 @@
-import dbConnect from "@/lib/dbConnect";
+import dbConnect from "@src/lib/dbConnect";
 import { NextResponse } from "next/server";
-import Task from "@/models/taskModel";
+import Task from "@src/models/taskModel";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/options";
-import UserModel, { IUser } from "@/models/userModel";
+import UserModel, { IUser } from "@src/models/userModel";
 import mongoose from "mongoose";
 import { User } from "next-auth";
 

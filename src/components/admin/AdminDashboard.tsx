@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
 import axios from 'axios';
-import { IUser } from '@/models/userModel';
+import { IUser } from '@src/models/userModel';
 import AdminUserCard from './AdminUserCard';
 
 const AdminDashboard: React.FC = () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { IUser } from '@/models/userModel';
+import { IUser } from '@src/models/userModel';
 import  toast  from '../ui/toast';
 // todo toast import issue 
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TaskData } from '@/app/TaskFeed/page';
+import { TaskData } from '@src/app/TaskFeed/page';
 
 interface TaskDetailsProps {
   task: TaskData | null;

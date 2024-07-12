@@ -1,9 +1,9 @@
-import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/models/userModel";
+import dbConnect from "@src/lib/dbConnect";
+import UserModel from "@src/models/userModel";
 import bcrypt from "bcryptjs";
-import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
+import { sendVerificationEmail } from "@src/helpers/sendVerificationEmail";
 import { Types } from "mongoose";
-import { generateReferralCode } from "@/app/utils/referral";
+import { generateReferralCode } from "@src/app/utils/referral";
 
 export async function POST(request: Request) {
   await dbConnect();

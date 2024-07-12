@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react';
-import { TaskData } from '@/types/task';
+import { TaskData } from '@src/types/task';
 
 interface AddTaskModalProps {
   isOpen: boolean;

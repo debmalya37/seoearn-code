@@ -1,6 +1,6 @@
 // helpers/sendVerificationSMS.ts
 import twilio from 'twilio';
-import { ApiResponse } from '@/types/ApiResponse';
+import { ApiResponse } from '@src/types/ApiResponse';
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 export async function sendVerificationSMS(phoneNumber: string, otp: string): Promise<ApiResponse> {

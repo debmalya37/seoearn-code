@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
-import Task from '@/models/taskModel';
+import Task from '@src/models/taskModel';
 
 export async function PATCH(request: Request) {
   try {

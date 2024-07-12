@@ -1,11 +1,11 @@
 'use client';
 
-import BenefitsSection from '@/components/home/BenefitsSection';
-import ContentSection from '@/components/home/ContentSection';
-import Header from '@/components/home/Header'; // Fixed casing
-import SpecialSection from '@/components/home/SpecialSection';
-import StatsSection from '@/components/home/StatsSection';
-import { Button } from '@/components/ui/button';
+import BenefitsSection from '@src/components/home/BenefitsSection';
+import ContentSection from '@src/components/home/ContentSection';
+import Header from '@src/components/home/Header'; // Fixed casing
+import SpecialSection from '@src/components/home/SpecialSection';
+import StatsSection from '@src/components/home/StatsSection';
+import { Button } from '@src/components/ui/button';
 import { signOut, useSession } from 'next-auth/react';
 import Head from 'next/head';
 

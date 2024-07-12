@@ -1,7 +1,7 @@
-import dbConnect from "@/lib/dbConnect";
-import TaskModel from "@/models/taskModel";
-import UserModel from "@/models/userModel";
-import { handleReferralEarnings } from "@/helpers/referralEarnings";
+import dbConnect from "@src/lib/dbConnect";
+import TaskModel from "@src/models/taskModel";
+import UserModel from "@src/models/userModel";
+import { handleReferralEarnings } from "@src/helpers/referralEarnings";
 
 export async function handleTaskCompletion(taskId: string, earnings: any) {
   await dbConnect();

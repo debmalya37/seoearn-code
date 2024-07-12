@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import UserModel from '@/models/userModel';
-import dbConnect from '@/lib/dbConnect';
+import UserModel from '@src/models/userModel';
+import dbConnect from '@src/lib/dbConnect';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
-import { generateReferralCode } from '@/app/utils/referral';
+import { generateReferralCode } from '@src/app/utils/referral';
 
 
 // Handle GET requests

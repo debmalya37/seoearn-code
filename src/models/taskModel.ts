@@ -1,17 +1,20 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Model, model } from 'mongoose';
 
+// Define the ITask interface extending Document from Mongoose
 export interface ITask extends Document {
+  status: string;
   title: string;
   description: string;
   rating: number;
   category: string;
   duration: number;
-  createdBy: string;
+  createdBy: mongoose.Types.ObjectId; // Adjusted to ObjectId
   reward: number;
   createdAt: Date;
 }
 
- export const TaskSchema: Schema<ITask> = new Schema({
+// Define the Task schema
+const TaskSchema: Schema = new Schema({
   title: {
     type: String,
     required: true,
@@ -33,7 +36,8 @@ export interface ITask extends Document {
     required: true,
   },
   createdBy: {
-    type: String,
+    type: mongoose.Types.ObjectId,
+    ref: 'User', // Assuming there's a User model
     required: true,
   },
   reward: {
@@ -47,5 +51,6 @@ export interface ITask extends Document {
   }
 });
 
-const Task =  mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);
+// Ensure the Task model uses the ITask interface
+const Task: Model<ITask> = mongoose.models.Task || model<ITask>('Task', TaskSchema);
 export default Task;

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
-import User from '@/models/userModel';
-import Task from '@/models/taskModel';
-import dbConnect from '@/lib/dbConnect';
+import User from '@src/models/userModel';
+import Task from '@src/models/taskModel';
+import dbConnect from '@src/lib/dbConnect';
 
 export async function GET() {
 try {

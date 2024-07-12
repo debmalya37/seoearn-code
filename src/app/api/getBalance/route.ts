@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getBalance } from '@/lib/perfectMoney';
+import { getBalance } from '@src/lib/perfectMoney';
 
 export async function GET(req: NextRequest) {
   try {

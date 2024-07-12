@@ -2,7 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Button } from "@/components/ui/button"
+import { Button } from "@src/components/ui/button"
 import {
   Form,
   FormControl,
@@ -11,10 +11,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { signInSchema } from "@/schemas/signInSchema"
-import { useToast } from "@/components/ui/use-toast"
+} from "@src/components/ui/form"
+import { Input } from "@src/components/ui/input"
+import { signInSchema } from "@src/schemas/signInSchema"
+import { useToast } from "@src/components/ui/use-toast"
 import { useParams, useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { useState } from "react"

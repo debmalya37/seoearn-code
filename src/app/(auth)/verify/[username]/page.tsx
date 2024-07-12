@@ -1,20 +1,20 @@
 'use client';
 
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { useToast } from '@/components/ui/use-toast'
-import { signUpSchema } from '@/schemas/signUpSchema'
-import { verifySchema } from '@/schemas/verifySchema'
-import { ApiResponse } from '@/types/ApiResponse'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@src/components/ui/form'
+import { useToast } from '@src/components/ui/use-toast'
+import { signUpSchema } from '@src/schemas/signUpSchema'
+import { verifySchema } from '@src/schemas/verifySchema'
+import { ApiResponse } from '@src/types/ApiResponse'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios, { AxiosError } from 'axios'
 import { useParams, useRouter } from 'next/navigation'
-import { Input } from "@/components/ui/input";
-import { Form } from '@/components/ui/form';
+import { Input } from "@src/components/ui/input";
+import { Form } from '@src/components/ui/form';
 import { title } from 'process'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import  * as  z  from 'zod'
-import { Button } from '@/components/ui/button'
+import { Button } from '@src/components/ui/button'
     function VerifyAccount() {
         const router = useRouter()
         const params = useParams<{username: string}>()

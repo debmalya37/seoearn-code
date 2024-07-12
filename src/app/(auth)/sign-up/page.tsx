@@ -6,16 +6,16 @@ import * as z from "zod";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDebounceCallback } from "usehooks-ts";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@src/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { signUpSchema } from "@/schemas/signUpSchema";
+import { signUpSchema } from "@src/schemas/signUpSchema";
 import axios, { AxiosError } from "axios";
-import { ApiResponse } from "@/types/ApiResponse";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { ApiResponse } from "@src/types/ApiResponse";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@src/components/ui/form";
+import { Input } from "@src/components/ui/input";
+import { Button } from "@src/components/ui/button";
 import { Loader2, Loader2Icon } from "lucide-react";
-import { getDeviceIdentifier, getStoredDeviceIdentifier } from "@/app/utils/deviceIndentifier";
+import { getDeviceIdentifier, getStoredDeviceIdentifier } from "@src/app/utils/deviceIndentifier";
 
 function Page() {
   const [username, setUsername] = useState('');
@@ -77,7 +77,7 @@ function Page() {
           setUsernameMessage(message);
         } catch (error) {
           const axiosError = error as AxiosError<ApiResponse>;
-          setUsernameMessage(axiosError.response?.data.message ?? 'Error checking username');
+          setUsernameMessage( 'Error checking username or username already exists');
         } finally {
           setisCheckingUsername(false);
         }
@@ -97,6 +97,10 @@ function Page() {
         description: response.data.message,
       });
       router.replace(`/verify/${data.username}`);
+
+      // const ChangeColor = ()=> {
+      //   if(response.data.)
+      // }
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       let errorMessage = axiosError.response?.data.message;
@@ -137,7 +141,7 @@ function Page() {
                     />
                   </FormControl>
                   {isCheckingUsername && <Loader2Icon className="animate-spin" />}
-                  <p className={`text-sm ${usernameMessage === Response.message ? 'text-green-500' : 'text-red-500'}`}>
+                  <p className={`text-sm ${usernameMessage ? 'text-green-500' : 'text-red-500'}`}>
                     {username} {usernameMessage}
                   </p>
                   <FormDescription>

@@ -19,8 +19,7 @@ const MessageSchema: Schema<IMessage> = new mongoose.Schema({
 
 export interface IUser extends Document {
   user: never[];
-  user: never[];
-  user: never[];
+  _id: Types.ObjectId;
   email: string;
   username: string;
   phoneNumber: number;
@@ -38,7 +37,8 @@ export interface IUser extends Document {
   paymentPreference?: string;
   paymentGateway?: string;
   messages: IMessage[];
-  tasks?: Types.Array<Types.ObjectId>;
+  // tasks?: Types.Array<Types.ObjectId>;
+  tasks: Types.ObjectId[];
   referredBy?: Types.ObjectId;
   deviceIdentifier: string;
   balance: number;

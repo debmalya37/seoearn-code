@@ -1,7 +1,7 @@
-import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/models/userModel";
+import dbConnect from "@src/lib/dbConnect";
+import UserModel from "@src/models/userModel";
 import {z} from "zod";
-import { usernameValidation } from "@/schemas/signUpSchema";
+import { usernameValidation } from "@src/schemas/signUpSchema";
 import { Message } from "twilio/lib/twiml/MessagingResponse";
 
 const UsernameQuerySchema = z.object({

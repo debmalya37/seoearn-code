@@ -1,31 +1,33 @@
-"use client";
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { TaskData } from '@src/app/TaskFeed/page';
 import axios from 'axios';
+import { ApiResponse } from '@src/types/ApiResponse';
 import { toast } from './ui/use-toast';
-import { ITask } from "@/models/taskModel";
+import { ITask } from "@src/models/taskModel";
+import { ObjectId } from 'mongodb';
 
 interface TaskCardProps extends ITask {
+  _id: string;
   onClick: (taskId: string) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ _id, title, description, rating, category, createdAt, onClick }) => {
-  const [taskStats, setTaskStats] = useState<any>(null);
+const TaskCard: React.FC<TaskCardProps> = ({ _id, title, description, rating, category, status, createdAt, onClick }) => {
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await fetch('/api/stats');
-        const data = await res.json();
-        setTaskStats(data);
-      } catch (error) {
-        console.error('Error fetching task stats:', error);
-      }
-    };
-    fetchStats();
-  }, []);
-
-  const tasksPipeLine = taskStats ? taskStats.tasksPipeLine : {};
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await axios.delete<ApiResponse>(`/api/delete-task/${_id}`);
+      toast({
+        title: response.data.message
+      });
+      onClick(_id);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete the task",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md cursor-pointer" onClick={() => onClick(_id)}>
@@ -33,23 +35,23 @@ const TaskCard: React.FC<TaskCardProps> = ({ _id, title, description, rating, ca
       <p className="text-gray-600">{description}</p>
       <div className="mt-2">
         <span className="text-purple-700 font-bold">Category: </span>
-        {tasksPipeLine.category}
+        {category}
       </div>
       <div className="mt-2">
         <span className="text-purple-700 font-bold">Status: </span>
-        <span className={tasksPipeLine.status === 'Completed' ? 'text-green-600' : tasksPipeLine.status === 'Pending' ? 'text-red-600' : 'text-yellow-600'}>
-          {tasksPipeLine.status}
+        <span className={status === 'Completed' ? 'text-green-600' : status === 'Pending' ? 'text-red-600' : 'text-yellow-600'}>
+          {status}
         </span>
       </div>
       <div className="mt-2 flex items-center">
         <span className="text-purple-700 font-bold">Rating: </span>
-        <span className="ml-2">{tasksPipeLine.rating} ⭐</span>
+        <span className="ml-2">{rating} ⭐</span>
       </div>
       <div className="mt-2">
         <span className="text-purple-700 font-bold">Created At: </span>
-        {new Date(tasksPipeLine.createdAt).toLocaleString()}
+        {new Date(createdAt).toLocaleString()}
       </div>
-      {/* <button onClick={handleDeleteConfirm} className="text-red-600 mt-2">Delete</button> */}
+      <button onClick={handleDeleteConfirm} className="text-red-600 mt-2">Delete</button>
     </div>
   );
 };

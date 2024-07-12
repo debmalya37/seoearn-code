@@ -1,4 +1,4 @@
-import UserModel from "@/models/userModel";
+import UserModel from "@src/models/userModel";
 import { Types } from "mongoose";
 
 const LEVEL_ONE_PERCENTAGE = 0.0025; // 0.25%

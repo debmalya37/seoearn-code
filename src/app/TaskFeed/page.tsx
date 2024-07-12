@@ -1,19 +1,19 @@
 "use client";
 import React, { FC, useCallback, useEffect, useState } from "react";
-import TaskCard from "@/components/TaskCard";
-import TaskDetails from "@/components/TaskDetails";
-import AddTaskModal from "@/components/AddTaskModal";
-import Nav from "@/components/Nav";
-import { ITask } from "@/models/taskModel";
-import { useToast } from "@/components/ui/use-toast";
+import TaskCard from "@src/components/TaskCard";
+import TaskDetails from "@src/components/TaskDetails";
+import AddTaskModal from "@src/components/AddTaskModal";
+import Nav from "@src/components/Nav";
+import { ITask } from "@src/models/taskModel";
+import { useToast } from "@src/components/ui/use-toast";
 import { useSession, signOut, getSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { taskSchema } from "@/schemas/TaskSchema";
+import { taskSchema } from "@src/schemas/TaskSchema";
 import axios, { AxiosError } from "axios";
-import { ApiResponse } from "@/types/ApiResponse";
+import { ApiResponse } from "@src/types/ApiResponse";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@src/components/ui/button";
 
 export interface TaskData {
   title: string;
@@ -28,7 +28,7 @@ export interface TaskData {
 }
 
 const TasksPage: FC = () => {
-  const [selectedTask, setSelectedTask] = useState<TaskData | null>(null);
+  const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -104,13 +104,12 @@ const handleSubmitAddTask = async (task: TaskData) => {
   }
 };
 
-
   useEffect(() => {
     if (!session || !session.user) return;
     fetchTasks(true);
   }, [session, setValue, fetchTasks]);
 
-  const handleTaskClick = (task: TaskData) => {
+  const handleTaskClick = (task: ITask) => {
     setSelectedTask(task);
   };
 
@@ -121,32 +120,6 @@ const handleSubmitAddTask = async (task: TaskData) => {
   const handleCloseAddTaskModal = () => {
     setIsAddTaskModalOpen(false);
   };
-
-  // const handleSubmitAddTask = async (task: TaskData) => {
-  //   try {
-  //     console.log("Submitting task:", task);
-  //     const response = await axios.post<ApiResponse>("/api/tasks", task, {
-  //       headers: {
-  //         Authorization: `Bearer ${session?.token || ""}`,
-  //       },
-  //     });
-  //     if (response.data.success) {
-  //       fetchTasks(false);
-  //       toast({
-  //         title: "Task added",
-  //         description: response.data.message,
-  //       });
-  //       setIsAddTaskModalOpen(false);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error adding task:", error);
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to add task",
-  //       variant: "destructive",
-  //     });
-  //   }
-  // };
 
   if (!session || !session.user) {
     return <Link href="/sign-in">PLEASE LOGIN</Link>;
@@ -182,7 +155,7 @@ const handleSubmitAddTask = async (task: TaskData) => {
             {tasks.length > 0 ? (
               tasks.map((task) => (
                 <TaskCard
-                  key={task._id}
+                  key={task.id} // Ensure _id is converted to string
                   {...task}
                   onClick={handleTaskClick}
                 />
