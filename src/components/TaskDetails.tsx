@@ -1,15 +1,12 @@
 import React from 'react';
 import { TaskData } from '@src/app/TaskFeed/page';
-
 interface TaskDetailsProps {
   task: TaskData | null;
 }
-
 const TaskDetails: React.FC<TaskDetailsProps> = ({ task }) => {
   if (!task) {
     return <div className="text-center text-gray-500">Select a task to see the details</div>;
   }
-
   return (
     <div className="bg-white p-4 rounded-lg shadow-md w-full">
       <h2 className="text-xl font-bold mb-2">{task.title}</h2>
@@ -40,5 +37,4 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task }) => {
     </div>
   );
 };
-
 export default TaskDetails;

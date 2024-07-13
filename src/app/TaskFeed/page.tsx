@@ -28,12 +28,16 @@ export interface TaskData {
 }
 
 const TasksPage: FC = () => {
-  const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
+  const [selectedTask, setSelectedTask] = useState<TaskData | null>(null);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { data: session } = useSession();
+
+
+
+
 
   const handleDeleteMessage = (taskId: string) => {
     setTasks((prevTasks) => prevTasks.filter((task) => task._id !== taskId));
@@ -109,7 +113,10 @@ const handleSubmitAddTask = async (task: TaskData) => {
     fetchTasks(true);
   }, [session, setValue, fetchTasks]);
 
-  const handleTaskClick = (task: ITask) => {
+  // const handleTaskClick = (task: ITask) => {
+  //   setSelectedTask(task);
+  // };
+  const handleTaskClick = (task: TaskData) => {
     setSelectedTask(task);
   };
 
