@@ -1,64 +1,72 @@
+// src/app/TaskFeed/[taskId]/page.tsx
+
 "use client";
 
-import React from 'react'
-import { useParams } from 'next/navigation'
-import { useSearchParams } from 'next/navigation';
-import { TaskData } from '@src/app/TaskFeed/page';
-import mongoose from 'mongoose';
-import axios from 'axios';
-import { ApiResponse } from '@src/types/ApiResponse';
+import React, { FC, useEffect, useState } from "react";
+import axios from "axios";
+import { ITask } from "@src/models/taskModel";
+import { useToast } from "@src/components/ui/use-toast";
 
-interface TaskDetailsPageData {
-    id: string,
-    status: string;
-    title: string;
-    description: string;
-    rating: number;
-    category: string;
-    duration: number;
-    createdBy: mongoose.Types.ObjectId; // Adjusted to ObjectId
-    reward: number;
-    createdAt: Date;
+// Define the Props interface to include params
+interface Props {
+  params: {
+    taskId: string;
+  };
+}
 
+const TaskDetails: FC<Props> = ({ params }) => {
+  const { taskId } = params;
+  const [task, setTask] = useState<ITask | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  const getTaskDetails = async () => {
+    
+  }
+  useEffect(() => {
+    const fetchTask = async () => {
+      try {
+        const response = await axios.get(`/api/ownTask/${taskId}`);
+        console.log(response);
+        setTask(response.data.task);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch task details",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (taskId) {
+      fetchTask();
+      console.log(fetchTask());
+      console.log(task);
+    }
+  }, [taskId, toast]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-
-const TaskDetailsPage: React.FC<TaskDetailsPageData> = ( {params}: any) => {
-    const id = params.id;
-    const fetchTaskDetails = async () => {
-
-        const res = await fetch(`/api/${id}`);
-        const data =  res.json;
-        return <div>here is the data id</div> ;
-        
-    }
-
-    // const params = useParams()
-    // const searchParams = useSearchParams();
-    // const taskId = searchParams.get("id");
-
-    // console.log("here is the param",params);
-    // console.log("here is the task ",task);
-    // console.log(searchParams);
-    fetchTaskDetails();
+  if (!task) {
+    return <div>Task not found</div>;
+  }
 
   return (
-    <>
-    here is the task data {id};
-    </>
-    //   task ID and details page
-    //   your taskId {params.id};
-
-
-
-
-
-
-    // <span>name :</span>
-
-
-);
+    <div className="p-4">
+      <h1 className="text-3xl font-bold mb-4">{task.title}</h1>
+      <p className="mb-2"><strong>Description:</strong> {task.description}</p>
+      <p className="mb-2"><strong>Rating:</strong> {task.rating}</p>
+      <p className="mb-2"><strong>Category:</strong> {task.category}</p>
+      <p className="mb-2"><strong>Duration:</strong> {task.duration}</p>
+      <p className="mb-2"><strong>Reward:</strong> {task.reward}</p>
+      <p className="mb-2"><strong>Created At:</strong> {new Date(task.createdAt).toLocaleString()}</p>
+      {/* <p className="mb-2"><strong>Created By:</strong> {task.createdBy}</p> */}
+    </div>
+  );
 };
 
-
-export default TaskDetailsPage;
+export default TaskDetails;

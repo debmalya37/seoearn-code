@@ -88,7 +88,7 @@ export async function GET(request: Request) {
       {
         success: true,
         tasks: user.tasks,
-        taskPipeLine
+        
       },
       { status: 200 }
     );
