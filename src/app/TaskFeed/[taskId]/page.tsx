@@ -6,30 +6,40 @@ import React, { FC, useEffect, useState } from "react";
 import axios from "axios";
 import { ITask } from "@src/models/taskModel";
 import { useToast } from "@src/components/ui/use-toast";
+import { useParams } from "next/navigation";
 
-// Define the Props interface to include params
 interface Props {
   params: {
     taskId: string;
   };
 }
 
-const TaskDetails: FC<Props> = ({ params }) => {
-  const { taskId } = params;
+const TaskDetails: FC<Props> = () => {
+  const { taskId } = useParams();
   const [task, setTask] = useState<ITask | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const getTaskDetails = async () => {
-    
-  }
+  console.log("here is ur taskid from params ", taskId);
   useEffect(() => {
     const fetchTask = async () => {
       try {
         const response = await axios.get(`/api/ownTask/${taskId}`);
-        console.log(response);
-        setTask(response.data.task);
+        console.log("API response:", response);
+
+        if (response.data.success) {
+          setTask(response.data.task);
+          console.log("Task set:", response.data.task);
+        } else {
+          console.error("API responded with an error:", response.data.message);
+          toast({
+            title: "Error",
+            description: response.data.message || "Failed to fetch task details",
+            variant: "destructive",
+          });
+        }
       } catch (error) {
+        console.error("Failed to fetch task details:", error);
         toast({
           title: "Error",
           description: "Failed to fetch task details",
@@ -42,12 +52,11 @@ const TaskDetails: FC<Props> = ({ params }) => {
 
     if (taskId) {
       fetchTask();
-      console.log(fetchTask());
-      console.log(task);
     }
   }, [taskId, toast]);
 
   if (isLoading) {
+    console.log("Loading...");
     return <div>Loading...</div>;
   }
 
@@ -64,7 +73,6 @@ const TaskDetails: FC<Props> = ({ params }) => {
       <p className="mb-2"><strong>Duration:</strong> {task.duration}</p>
       <p className="mb-2"><strong>Reward:</strong> {task.reward}</p>
       <p className="mb-2"><strong>Created At:</strong> {new Date(task.createdAt).toLocaleString()}</p>
-      {/* <p className="mb-2"><strong>Created By:</strong> {task.createdBy}</p> */}
     </div>
   );
 };
