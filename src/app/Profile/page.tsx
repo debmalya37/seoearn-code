@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import profilepicDemo from "../../../public/rcb pic logo.jpeg";
+import profilepicDemo from "../../assets/rcb-pic-logo.jpeg";
 import { generateReferralCode, generateReferralLink } from '../utils/referral';
 
 const Profile = () => {

@@ -16,8 +16,8 @@ export interface AdsTaskData {
   category: string;
   duration: string;
   reward: number;
-  status: string;
-  createdAt: string;
+  status?: string; // Allow status to be undefined
+  createdAt?: string;
 }
 
 const CreateAdvertisement: FC = () => {
@@ -125,31 +125,30 @@ const CreateAdvertisement: FC = () => {
                 </th>
               </tr>
             </thead>
-                <tbody>
+            <tbody>
               {tasks.length > 0 ? (
-              tasks.map((task) => (
-              <tr key={task._id}>
-              <td className="border px-4 py-2">
-              <Link href={`/TaskFeed/${task._id}`}>
-                {task.title}
-              
-              </Link>
-              </td>
-              <td className="border px-4 py-2">{task.description}</td>
-              <td className="border px-4 py-2">{task.rating}</td>
-              <td className="border px-4 py-2">{task.category}</td>
-              <td className="border px-4 py-2">{task.duration}</td>
-              <td className="border px-4 py-2">{task.reward}</td>
-              <td className="border px-4 py-2">{new Date(task.createdAt).toLocaleString()}</td>
-              {/* <td className="border px-4 py-2">{task.createdBy}</td> */}
-              </tr>
-              ))
+                tasks.map((task) => (
+                  <tr key={String(task._id)}> {/* Convert _id to string */}
+                    <td className="border px-4 py-2">
+                      <Link href={`/TaskFeed/${task._id}`}>
+                        {task.title}
+                      </Link>
+                    </td>
+                    <td className="border px-4 py-2">{task.description}</td>
+                    <td className="border px-4 py-2">{task.rating}</td>
+                    <td className="border px-4 py-2">{task.category}</td>
+                    <td className="border px-4 py-2">{task.duration}</td>
+                    <td className="border px-4 py-2">{task.reward}</td>
+                    <td className="border px-4 py-2">{new Date(task.createdAt).toLocaleString()}</td>
+                    {/* <td className="border px-4 py-2">{task.createdBy}</td> */}
+                  </tr>
+                ))
               ) : (
-              <tr>
-              <td className="border px-4 py-2" colSpan={8}>
-              No tasks found
-              </td>
-              </tr>
+                <tr>
+                  <td className="border px-4 py-2" colSpan={8}>
+                    No tasks found
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>

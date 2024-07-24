@@ -1,7 +1,8 @@
 import React from 'react';
 import { TaskData } from '@src/app/TaskFeed/page';
+import { ITask } from '@src/models/taskModel';
 interface TaskDetailsProps {
-  task: TaskData | null;
+  task:  TaskData | null;
 }
 const TaskDetails: React.FC<TaskDetailsProps> = ({ task }) => {
   if (!task) {
@@ -29,7 +30,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task }) => {
       </div>
       <div className="mb-2">
         <span className="text-purple-700 font-bold">Created At: </span>
-        {new Date(task.createdAt).toLocaleString()}
+        {task.createdAt}
       </div>
       <div className="mt-4">
         <button className="bg-orange-400 text-white py-2 px-4 rounded-md">Details</button>

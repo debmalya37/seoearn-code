@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     if (!user.tasks) {
       user.tasks = [];
     }
-    user.tasks.push(newTask._id);
+    user.tasks.push(newTask.id);
     await user.save();
 
     return NextResponse.json({ success: true, message: "Task Created", task: newTask }, { status: 201 });

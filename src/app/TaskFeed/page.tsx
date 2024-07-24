@@ -23,8 +23,8 @@ export interface TaskData {
   duration: string;
   createdBy: string;
   reward: number;
-  status: string;
-  createdAt: string;
+  status?: string;
+  createdAt?: string;
 }
 
 const TasksPage: FC = () => {
@@ -34,10 +34,6 @@ const TasksPage: FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { data: session } = useSession();
-
-
-
-
 
   const handleDeleteMessage = (taskId: string) => {
     setTasks((prevTasks) => prevTasks.filter((task) => task._id !== taskId));
@@ -49,76 +45,75 @@ const TasksPage: FC = () => {
 
   const { register, watch, setValue } = form;
 
-  // page.tsx
-const fetchTasks = useCallback(
-  async (refresh: boolean) => {
-    setIsLoading(true);
+  const fetchTasks = useCallback(
+    async (refresh: boolean) => {
+      setIsLoading(true);
+      try {
+        const session = await getSession();
+        console.log('Access Token:', session?.accessToken);
+        const response = await axios.get<ApiResponse>("/api/tasks", {
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+        });
+        setTasks(response.data.tasks || []);
+        if (refresh) {
+          toast({
+            title: "Refresh Messages",
+            description: "Showing latest tasks",
+          });
+        }
+      } catch (error) {
+        const axiosError = error as AxiosError<ApiResponse>;
+        toast({
+          title: "Error",
+          description: axiosError.response?.data.message || "Failed to fetch tasks",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [setIsLoading, setTasks, toast]
+  );
+
+  const handleSubmitAddTask = async (task: TaskData) => {
     try {
       const session = await getSession();
-      console.log('Access Token:', session?.accessToken); // Log the access token
-      const response = await axios.get<ApiResponse>("/api/tasks", {
+      console.log('Access Token:', session?.accessToken);
+      const response = await axios.post<ApiResponse>("/api/tasks", task, {
         headers: {
           Authorization: `Bearer ${session?.accessToken}`,
         },
       });
-      setTasks(response.data.tasks || []);
-      if (refresh) {
+      if (response.data.success) {
+        fetchTasks(false);
         toast({
-          title: "Refresh Messages",
-          description: "Showing latest tasks",
+          title: "Task added",
+          description: response.data.message,
         });
+        setIsAddTaskModalOpen(false);
       }
     } catch (error) {
-      const axiosError = error as AxiosError<ApiResponse>;
       toast({
         title: "Error",
-        description: axiosError.response?.data.message || "Failed to fetch tasks",
+        description: "Failed to add task",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
-  },
-  [setIsLoading, setTasks, toast]
-);
-
-const handleSubmitAddTask = async (task: TaskData) => {
-  try {
-    const session = await getSession();
-    console.log('Access Token:', session?.accessToken); // Log the access token
-    const response = await axios.post<ApiResponse>("/api/tasks", task, {
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-    });
-    if (response.data.success) {
-      fetchTasks(false);
-      toast({
-        title: "Task added",
-        description: response.data.message,
-      });
-      setIsAddTaskModalOpen(false);
-    }
-  } catch (error) {
-    toast({
-      title: "Error",
-      description: "Failed to add task",
-      variant: "destructive",
-    });
-  }
-};
+  };
 
   useEffect(() => {
     if (!session || !session.user) return;
     fetchTasks(true);
   }, [session, setValue, fetchTasks]);
 
-  // const handleTaskClick = (task: ITask) => {
-  //   setSelectedTask(task);
+  // const handleTaskClick = (taskId: string) => {
+  //   const selected = tasks.find((task) => task._id === taskId);
+  //   if (selected) {
+  //     setSelectedTask(selected);
+  //   }
   // };
-  const handleTaskClick = (task: TaskData) => {
-    setSelectedTask(task);
-  };
 
   const handleOpenAddTaskModal = () => {
     setIsAddTaskModalOpen(true);
@@ -159,14 +154,19 @@ const handleSubmitAddTask = async (task: TaskData) => {
             <input type="text" placeholder="search" className="border rounded-md py-2 px-4" />
           </div>
           <div className="space-y-4">
-            {tasks.length > 0 ? (
-              tasks.map((task) => (
-                <TaskCard
-                  key={task.id} // Ensure _id is converted to string
-                  {...task}
-                  onClick={handleTaskClick}
-                />
-              ))
+          {tasks.length > 0 ? (
+            tasks.map((task) => (
+              <TaskCard
+                key={String(task._id)} // Ensure _id is used for key
+                title={task.title}
+                description={task.description}
+                rating={task.rating}
+                category={task.category}
+                status={task.status || 'Pending'} // Default status if needed
+                createdAt={task.createdAt} // Ensure createdAt is a string
+               
+              />
+            ))
             ) : (
               <p>No tasks found</p>
             )}

@@ -2,8 +2,8 @@ import { ITask } from "@src/models/taskModel";
 import  {IMessage}  from "@src/models/userModel";
 import  Task  from "@src/models/userModel";
 export interface ApiResponse{
-    taskPipeLine: {};
-    taskStats: any;
+    taskPipeLine?: {};
+    taskStats?: any;
     success: boolean;
     message: string;
     isAcceptingMessages?: boolean;

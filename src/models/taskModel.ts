@@ -7,8 +7,8 @@ export interface ITask extends Document {
   description: string;
   rating: number;
   category: string;
-  duration: number;
-  createdBy: mongoose.Types.ObjectId; // Adjusted to ObjectId
+  duration: string;
+  createdBy: string; // Adjusted to ObjectId
   reward: number;
   createdAt: Date;
 }
