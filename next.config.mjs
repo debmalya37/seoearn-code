@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: 'standalone',
     swcMinify: false,
     transpilePackages: ['crypto-js'], // Include any other packages if needed
     webpack: (config, { isServer }) => {
