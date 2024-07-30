@@ -141,7 +141,7 @@ function Page() {
                     />
                   </FormControl>
                   {isCheckingUsername && <Loader2Icon className="animate-spin" />}
-                  <p className={`text-sm ${usernameMessage ? 'text-green-500' : 'text-red-500'}`}>
+                  <p className={`text-sm ${usernameMessage ? 'text-red-500' : 'text-green-500'}`}>
                     {username} {usernameMessage}
                   </p>
                   <FormDescription>
