@@ -9,5 +9,5 @@ export const generateReferralCode = (username: string, userId: string): string =
 
 export const generateReferralLink = (referralCode: string): string => {
   const domain = process.env.DOMAIN || 'http://localhost:3000'; // Use environment variable for the domain
-  return `${}/sign-up?ref=${referralCode}`;
+  return `${domain}/sign-up?ref=${referralCode}`;
 };
