@@ -33,7 +33,17 @@
   "include": [
     "src/**/*",
     ".next/types/**/*.ts",
-    "src/types/*"
+    "src/types/*",
+    "src/emails/*",
+    "src/helpers/*",
+    "src/lib/*",
+    "src/models/*",
+    "src/schemas/*",
+    "src/context/*",
+    "src/components/*",
+    "src/utils/*",
+  
+
   ],
   "exclude": [
     "node_modules"

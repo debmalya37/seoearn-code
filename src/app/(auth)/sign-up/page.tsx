@@ -16,7 +16,7 @@ import { Input } from "@src/components/ui/input";
 import { Button } from "@src/components/ui/button";
 import { Loader2, Loader2Icon } from "lucide-react";
 import { getDeviceIdentifier, getStoredDeviceIdentifier } from "@src/app/utils/deviceIndentifier";
-
+import { signIn, useSession } from "next-auth/react";
 function Page() {
   const [username, setUsername] = useState('');
   const [usernameMessage, setUsernameMessage] = useState('');
@@ -242,7 +242,7 @@ function Page() {
             </Button>
           </form>
         </Form>
-
+        {/* <button onClick={() => signIn('google')}>Sign in with Google</button> */}
         <p>
           Already a member?{' '}
           <Link href="/sign-in" className="text-blue-600">

@@ -107,8 +107,12 @@ export async function POST(request: Request) {
     await newUser.save();
     
     const emailResponse = await sendVerificationEmail(email, username, verifyCode);
+    if(emailResponse.success) {
+      console.log("email sent to your mail")
+    }
 
     if (!emailResponse.success) {
+      console.log("email sending error")
       return new Response(
         JSON.stringify({
           success: false,

@@ -21,15 +21,16 @@ export interface IUser extends Document {
   user: never[];
   _id: Types.ObjectId;
   email: string;
+  name: string;
   username: string;
-  phoneNumber: number;
-  password: string;
+  phoneNumber?: number;
+  password?: string;
   isVerified: boolean;
   isAcceptingMessages: boolean;
-  verifyCode: string;
-  verifyCodeExpiry: Date;
-  gender: string;
-  age: number;
+  verifyCode?: string;
+  verifyCodeExpiry?: Date;
+  gender?: string;
+  age?: number;
   profilePicture?: string;
   paymentId?: string;
   payerAccount?: string;
@@ -37,45 +38,45 @@ export interface IUser extends Document {
   paymentPreference?: string;
   paymentGateway?: string;
   messages: IMessage[];
-  // tasks?: Types.Array<Types.ObjectId>;
   tasks: Types.ObjectId[];
   referredBy?: Types.ObjectId;
-  deviceIdentifier: string;
+  deviceIdentifier?: string;
   balance: number;
   earnings: number;
-  referralCode?: string; // Add referralCode
-  referrals?: Types.Array<Types.ObjectId>; // Add referrals array
-  referralEarnings: number; // Add referralEarnings
-  referralCount: number; // Add referralCount
+  referralCode?: string;
+  referrals?: Types.Array<Types.ObjectId>;
+  referralEarnings: number;
+  referralCount: number;
 }
 
 const UserSchema = new Schema<IUser>({
   email: { type: String, required: true, unique: true, match: [/.+\@.+\..+/, 'Please use a valid email address'] },
+  name: { type: String },
   username: { type: String, required: true, trim: true, unique: true },
-  phoneNumber: { type: Number, required: true },
-  password: { type: String, required: true },
-  gender: { type: String, enum: ['male', 'female', 'other'], required: true },
-  age: { type: Number, required: true },
-  profilePicture: { type: String, required: false },
-  paymentPreference: { type: String, required: false },
-  paymentGateway: { type: String, required: false },
-  paymentId: { type: String, default: "123456" },
+  phoneNumber: { type: Number },
+  password: { type: String },
+  gender: { type: String, enum: ['male', 'female', 'other'] },
+  age: { type: Number },
+  profilePicture: { type: String },
+  paymentPreference: { type: String },
+  paymentGateway: { type: String },
+  paymentId: { type: String, default: '123456' },
   payerAccount: { type: String },
   totalAmount: { type: Number, default: 0 },
-  verifyCode: { type: String, required: true },
-  verifyCodeExpiry: { type: Date, required: true },
+  verifyCode: { type: String },
+  verifyCodeExpiry: { type: Date },
   isVerified: { type: Boolean, default: false },
   isAcceptingMessages: { type: Boolean, default: true },
   messages: [MessageSchema],
   tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
   referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  deviceIdentifier: { type: String, unique: true, required: true },
+  deviceIdentifier: { type: String },
   balance: { type: Number, default: 0 },
   earnings: { type: Number, default: 0 },
-  referralCode: { type: String, unique: true }, // Add referralCode field
-  referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Add referrals array
-  referralEarnings: { type: Number, default: 0 }, // Add referralEarnings field
-  referralCount: { type: Number, default: 0 }, // Add referralCount field
+  referralCode: { type: String, unique: true },
+  referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  referralEarnings: { type: Number, default: 0 },
+  referralCount: { type: Number, default: 0 },
 });
 
 const UserModel = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

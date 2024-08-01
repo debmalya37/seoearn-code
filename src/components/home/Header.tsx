@@ -7,12 +7,12 @@ const Header = () => {
       <Image src={pic} alt="Logo" width={50} height={50} />
       <h5 className="m-0">SEO EARNING SPACE</h5>
       <div className="absolute right-0 flex space-x-2">
+        <Link href={'/sign-in'}>
+
         <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
           Login
         </button>
-        <button className="px-4 py-2 text-white bg-purple-700 rounded hover:bg-purple-800">
-          Sign up
-        </button>
+        </Link>
       </div>
     </div>
   );

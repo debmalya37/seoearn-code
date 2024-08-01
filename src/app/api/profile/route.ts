@@ -1,16 +1,14 @@
+// profile/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import UserModel from '@src/models/userModel';
 import dbConnect from '@src/lib/dbConnect';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
-import { generateReferralCode } from '@src/app/utils/referral';
 
-
-// Handle GET requests
 export async function GET(req: NextRequest) {
   await dbConnect();
-
-  const session = await getServerSession( authOptions );
+  const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
     return NextResponse.json({ 
@@ -19,11 +17,9 @@ export async function GET(req: NextRequest) {
     }, { status: 401 });
   }
 
-  const user = session.user;
-  const userId = user._id;
-
+  const userEmail = session.user.email;
   try {
-    const foundUser = await UserModel.findById(userId);
+    const foundUser = await UserModel.findOne({ email: userEmail });
 
     if (!foundUser) {
       return NextResponse.json({
@@ -47,11 +43,9 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// Handle POST requests
 export async function POST(req: NextRequest) {
   await dbConnect();
-
-  const session = await getServerSession(authOptions );
+  const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
     return NextResponse.json({ 
@@ -60,12 +54,9 @@ export async function POST(req: NextRequest) {
     }, { status: 401 });
   }
 
-  const user = session.user;
-  const userId = user._id;
-
+  const userEmail = session.user.email;
   try {
-    const { phoneNumber, profilePicture, paymentPreference, paymentId, referralCode }= await req.json();
-     
+    const { phoneNumber, profilePicture, paymentPreference, paymentId, referralCode } = await req.json();
 
     if (!phoneNumber) {
       return NextResponse.json({ 
@@ -73,18 +64,18 @@ export async function POST(req: NextRequest) {
         message: 'Missing required fields' 
       }, { status: 400 });
     }
-    // const referralCodeGenerator = async () =>  {
-    //   const referralCodeGenerated = generateReferralCode(user, userId);
-    //   console.log(referralCodeGenerated);
-    //   return referralCodeGenerated;
-    // }
-    const updatedUser = await UserModel.findByIdAndUpdate(userId, {
-      phoneNumber: phoneNumber,
-      profilePicture: profilePicture,
-      paymentPreference: paymentPreference,
-      paymentId: paymentId,
-      referralCode: generateReferralCode(user.username,userId)
-    }, { new: true });
+
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { email: userEmail },
+      {
+        phoneNumber: phoneNumber,
+        profilePicture: profilePicture,
+        paymentPreference: paymentPreference,
+        paymentId: paymentId,
+        referralCode: referralCode // Assuming you are passing referralCode
+      },
+      { new: true }
+    );
 
     if (!updatedUser) {
       return NextResponse.json({
@@ -92,7 +83,6 @@ export async function POST(req: NextRequest) {
         message: 'Failed to update user'
       }, { status: 404 });
     }
-    console.log(user ,"updated user : ",updatedUser);
 
     return NextResponse.json({
       success: true,
@@ -108,4 +98,3 @@ export async function POST(req: NextRequest) {
     }, { status: 500 });
   }
 }
-

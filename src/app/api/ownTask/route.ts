@@ -72,7 +72,7 @@ export async function GET(request: Request) {
 
     const [taskPipeLine] = await Task.aggregate(tasksAggregation);
 
-    const user = await UserModel.findById(userId).populate('tasks') as IUser;
+    const user = await UserModel.findOne({email: session.user.email}).populate('tasks') as IUser;
 
     if (!user) {
       return NextResponse.json(
