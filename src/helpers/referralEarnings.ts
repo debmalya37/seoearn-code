@@ -1,11 +1,15 @@
+import { authOptions } from "@src/app/api/auth/[...nextauth]/options";
 import UserModel from "@src/models/userModel";
 import { Types } from "mongoose";
+import { getServerSession } from "next-auth";
 
 const LEVEL_ONE_PERCENTAGE = 0.0025; // 0.25%
 const LEVEL_TWO_PERCENTAGE = 0.005;  // 0.5%
 
+
 export const handleReferralEarnings = async (userId: Types.ObjectId, taskEarnings: number) => {
-const user = await UserModel.findById(userId);
+    const session = await getServerSession(authOptions);
+const user = await UserModel.findOne({email: session?.user.email});
 if (!user) throw new Error("User not found");
 
 const levelOneUser = user.referredBy ? await UserModel.findById(user.referredBy) : null;

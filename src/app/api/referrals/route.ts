@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const userId = user._id;
 
     // Find the user by ID
-    const foundUser = await User.findById(userId).populate('referrals');
+    const foundUser = await User.findOne({email: session.user.email}).populate('referrals');
     if (!foundUser) {
       return NextResponse.json({
         success: false,
