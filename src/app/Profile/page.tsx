@@ -12,7 +12,6 @@ import profilepicDemo from "../../assets/rcb-pic-logo.jpeg";
 import { generateReferralCode } from "../utils/referral";
 import CountrySelect from "../../components/CountrySelect";
 import Select from 'react-select';
-import { date } from "zod";
 
 const Profile = () => {
   const { data: session, status } = useSession();
@@ -23,7 +22,7 @@ const Profile = () => {
   const [profilePicture, setProfilePicture] = useState<string | ArrayBuffer | null>(profilepicDemo);
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [dob, setDob] = useState<Date | null>(null);
-  const [age, setAge] = useState<Number | null>(null)
+  const [age, setAge] = useState<number | null>(null);
   const [gender, setGender] = useState<string | null>(null);
   const [country, setCountry] = useState<string | null>(null);
   const [countryCode, setCountryCode] = useState<string | null>(null);
@@ -54,7 +53,13 @@ const Profile = () => {
   ];
 
   const fetchProfile = useCallback(async () => {
-    setLoading(true);
+    setLoading(true);<Select
+                  options={paymentPreferenceOptions}
+                  value={paymentPreferenceOptions.find(option => option.value === paymentPreference)}
+                  onChange={(selectedOption) => setPaymentPreference(selectedOption?.value || "")}
+                  className="form-input mt-1 block w-full"
+                  placeholder="Select payment preference"
+                />
     try {
       const response = await axios.get(`/api/profile`);
       setValue("Profile", response.data.loading);
@@ -79,7 +84,7 @@ const Profile = () => {
           setValue("country", user.country);
           setValue("gender", user.gender);
           setDob(isNaN(parsedDob.getTime()) ? null : parsedDob); // Handle invalid dates
-          setValue("age", isNaN(parsedDob.getTime()) ? "" : calculateAge(parsedDob));
+          setAge(isNaN(parsedDob.getTime()) ? null : calculateAge(parsedDob));
           setValue("profilePicture", user.profilePicture);
           setValue("referralCode", user.referralCode);
           setValue("paymentId", user.paymentId || "");
@@ -91,8 +96,7 @@ const Profile = () => {
           setPhoneNumber(user.phoneNumber || "");
           setCountryCode(user.countryCode || "");
           setGender(user.gender || "");
-          setDob(user.dob || "");
-          setAge(user.age || "");
+          setCountry(user.country || "");
         } else {
           setError("Failed to fetch user data");
         }
@@ -112,7 +116,7 @@ const Profile = () => {
     const ageDate = new Date(ageDifMs);
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   };
-  
+
   const onSubmit = async (data: any) => {
     setLoading(true);
     setError(null);
@@ -126,8 +130,8 @@ const Profile = () => {
       data.gender = gender;
       data.countryCode = countryCode;
       data.dob = dob;
-      data.age = age;
-
+      data.country = country;
+      
       const response = await axios.post("/api/profile", data);
 
       if (response.status !== 200) {
@@ -230,10 +234,10 @@ const Profile = () => {
                 </span>
                 <div className="flex">
                   <Select
+                    className="w-20 mr-2"
                     options={countryCodeOptions}
                     value={countryCodeOptions.find(option => option.value === countryCode)}
-                    onChange={(selectedOption) => setCountryCode(selectedOption?.value || "")}
-                    className="mr-2 w-1/3"
+                    onChange={(selectedOption) => setCountryCode(selectedOption?.value || null)}
                   />
                   <input
                     type="text"
@@ -245,55 +249,18 @@ const Profile = () => {
               </label>
               <label className="block mb-2">
                 <span className="text-gray-800 flex items-center">
-                  <FiMapPin className="mr-2" />
-                  Country
-                </span>
-                <CountrySelect
-                  value={country || ""}
-                  onChange={(selectedCountry) => setCountry(selectedCountry)}
-                />
-              </label>
-              <label className="block mb-2">
-                <span className="text-gray-800 flex items-center">
-                  <FiCreditCard className="mr-2" />
-                  Payment ID
-                </span>
-                <input
-                  type="text"
-                  className="form-input mt-1 block w-full"
-                  value={paymentId}
-                  onChange={(e) => setPaymentId(e.target.value)}
-                />
-              </label>
-              <label className="block mb-2">
-                <span className="text-gray-800 flex items-center">
-                  <FiCreditCard className="mr-2" />
-                  Payment Preference
-                </span>
-                <Select
-                  options={paymentPreferenceOptions}
-                  value={paymentPreferenceOptions.find(option => option.value === paymentPreference)}
-                  onChange={(selectedOption) => setPaymentPreference(selectedOption?.value || "")}
-                  className="form-input mt-1 block w-full"
-                  placeholder="Select payment preference"
-                />
-              </label>
-            </div>
-            <div>
-              <label className="block mb-2">
-                <span className="text-gray-800 flex items-center">
                   <FiCalendar className="mr-2" />
                   Date of Birth
                 </span>
                 <DatePicker
-                  selected={dob ? dob : null}
+                  selected={dob}
                   onChange={(date: Date | null) => {
                     if (date) {
                       setDob(date);
-                      setValue("age", calculateAge(date));
+                      setAge(calculateAge(date));
                     } else {
                       setDob(null);
-                      setValue("age", ""); // Reset age if date is null
+                      setAge(null);
                     }
                   }}
                   dateFormat="dd/MM/yyyy"
@@ -302,88 +269,112 @@ const Profile = () => {
               </label>
               <label className="block mb-2">
                 <span className="text-gray-800 flex items-center">
-                  <FiUserPlus className="mr-2" />
+                  <FiUser className="mr-2" />
                   Gender
                 </span>
                 <Select
                   options={genderOptions}
                   value={genderOptions.find(option => option.value === gender)}
-                  onChange={(selectedOption) => setGender(selectedOption?.value || "")}
-                  className="form-input mt-1 block w-full"
-                  placeholder="Select gender"
+                  onChange={(selectedOption) => setGender(selectedOption?.value || null)}
                 />
               </label>
               <label className="block mb-2">
                 <span className="text-gray-800 flex items-center">
-                  <FiUserPlus className="mr-2" />
-                  Age
+                  <FiMapPin className="mr-2" />
+                  Country
                 </span>
-                <input
-                  type="text"
-                  className="form-input mt-1 block w-full"
-                  {...register("age")}
-                  readOnly
+                <CountrySelect
+                  value={country || ""}
+                  onChange={(selectedCountry) => setCountry(selectedCountry || null)}
                 />
               </label>
-              <div className="flex flex-col items-center mt-6">
-                <div className="relative w-32 h-32 mb-4">
-                  <Image
-                    src={typeof profilePicture === "string" ? profilePicture : profilepicDemo}
-                    alt="Profile Picture"
-                    className="rounded-full object-cover"
-                    fill
-                  />
-                </div>
+            </div>
+            <div className="flex flex-col items-center justify-center">
+              <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-indigo-500">
+                <Image
+                  src={profilePicture as string}
+                  alt="Profile Picture"
+                  layout="fill"
+                  objectFit="cover"
+                />
                 <input
                   type="file"
-                  accept="image/*"
                   ref={fileInputRef}
                   onChange={handleProfilePictureChange}
-                  style={{ display: "none" }}
+                  className="hidden"
+                  accept="image/*"
                 />
                 <button
                   type="button"
                   onClick={triggerFileInput}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300"
+                  className="absolute inset-0 bg-black bg-opacity-50 text-white flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300"
                 >
-                  Change Profile Picture
+                  Change Picture
                 </button>
               </div>
-              <div className="mt-4">
+              <div className="text-center mt-4">
                 <label className="block mb-2">
-                  <span className="text-gray-800">Referral Code</span>
+                  <span className="text-gray-800 flex items-center">
+                    <FiUserPlus className="mr-2" />
+                    Referral Code
+                  </span>
+                  <div className="flex">
+                    <input
+                      type="text"
+                      className="form-input mt-1 block w-full"
+                      {...register("referralCode")}
+                      value={referralCode || ""}
+                      disabled
+                    />
+                    <button
+                      type="button"
+                      className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
+                      onClick={copyReferralLink}
+                    >
+                      Copy Link
+                    </button>
+                  </div>
+                </label>
+                <label className="block mb-2">
+                  <span className="text-gray-800 flex items-center">
+                    <FiCreditCard className="mr-2" />
+                    Payment ID
+                  </span>
                   <input
                     type="text"
                     className="form-input mt-1 block w-full"
-                    {...register("referralCode")}
-                    value={referralCode || ""}
-                    readOnly
+                    value={paymentId}
+                    onChange={(e) => setPaymentId(e.target.value)}
                   />
                 </label>
-                <button
-                  type="button"
-                  onClick={copyReferralLink}
-                  className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-300"
-                >
-                  Copy Referral Link
-                </button>
+                <label className="block mb-2">
+                  <span className="text-gray-800 flex items-center">
+                    <FiCreditCard className="mr-2" />
+                    Payment Preference
+                  </span>
+                  <Select
+                  options={paymentPreferenceOptions}
+                  value={paymentPreferenceOptions.find(option => option.value === paymentPreference)}
+                  onChange={(selectedOption) => setPaymentPreference(selectedOption?.value || "")}
+                  className="form-input mt-1 block w-full"
+                  placeholder="Select payment preference"
+                />
+                </label>
               </div>
             </div>
           </div>
-          <div className="flex justify-center">
+          <div className="text-center">
             <button
               type="submit"
-              className={`px-4 py-2 rounded-md text-white ${
-                loading ? "bg-gray-500 cursor-not-allowed" : "bg-purple-500 hover:bg-purple-600"
-              } focus:ring-4 focus:outline-none focus:ring-purple-300`}
+              className="bg-indigo-500 text-white px-6 py-2 rounded-md hover:bg-indigo-600 transition duration-300"
               disabled={loading}
             >
               {loading ? "Updating..." : "Update Profile"}
             </button>
           </div>
-          {error && <p className="mt-4 text-red-600 text-center">{error}</p>}
-          {success && <p className="mt-4 text-green-600 text-center">{success}</p>}
         </form>
+        {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+        {success && <p className="text-green-500 mt-4 text-center">{success}</p>}
       </div>
     </div>
   );
