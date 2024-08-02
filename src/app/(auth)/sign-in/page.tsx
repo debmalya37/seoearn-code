@@ -1,5 +1,5 @@
 // app/sign-in/page.tsx
-
+"use client";
 import { getProviders, signIn } from 'next-auth/react';
 
 const SignIn = async () => {
