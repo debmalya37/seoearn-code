@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
   const userEmail = session.user.email;
   try {
-    const { phoneNumber, profilePicture, paymentPreference, paymentId, referralCode } = await req.json();
+    const { age, gender, country, phoneNumber, profilePicture, paymentPreference, paymentId, referralCode } = await req.json();
 
     if (!phoneNumber) {
       return NextResponse.json({ 
@@ -68,6 +68,9 @@ export async function POST(req: NextRequest) {
     const updatedUser = await UserModel.findOneAndUpdate(
       { email: userEmail },
       {
+        age: age,
+        country: country,
+        gender: gender,
         phoneNumber: phoneNumber,
         profilePicture: profilePicture,
         paymentPreference: paymentPreference,
@@ -83,7 +86,7 @@ export async function POST(req: NextRequest) {
         message: 'Failed to update user'
       }, { status: 404 });
     }
-
+    console.log(updatedUser);
     return NextResponse.json({
       success: true,
       message: "User updated successfully",

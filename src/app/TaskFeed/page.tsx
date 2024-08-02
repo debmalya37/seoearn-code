@@ -131,7 +131,7 @@ const TasksPage: FC = () => {
     <>
       <div className="flex h-screen">
         {/* Sidebar */}
-        <div className="w-1/5 bg-yellow-100 p-4 flex flex-col justify-between ">
+        {/* <div className="w-1/5 bg-yellow-100 p-4 flex flex-col justify-between ">
           <div className="fixed">
             <div className="text-xl font-bold mb-6">{session.user.username}</div>
             <nav className="space-y-4">
@@ -146,7 +146,7 @@ const TasksPage: FC = () => {
             </nav>
             <Button className="w-20 md:w-auto bg-orange-500 " onClick={()=> signOut()} >SignOut</Button>
           </div>
-        </div>
+        </div> */}
         {/* Task List */}
         <div className="w-3/5 bg-purple-100 p-4">
           <div className="flex justify-between items-center mb-4">
@@ -164,7 +164,7 @@ const TasksPage: FC = () => {
                 category={task.category}
                 status={task.status || 'Pending'} // Default status if needed
                 createdAt={task.createdAt} // Ensure createdAt is a string
-               
+              
               />
             ))
             ) : (
