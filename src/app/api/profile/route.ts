@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
   const userEmail = session.user.email;
   try {
-    const { age, gender, country, phoneNumber, profilePicture, paymentPreference, paymentId, referralCode } = await req.json();
+    const { age, dob, gender, country, phoneNumber, profilePicture, paymentPreference, paymentId, referralCode } = await req.json();
 
     if (!phoneNumber) {
       return NextResponse.json({ 
@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
         age: age,
         country: country,
         gender: gender,
+        dob: dob,
         phoneNumber: phoneNumber,
         profilePicture: profilePicture,
         paymentPreference: paymentPreference,

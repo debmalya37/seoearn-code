@@ -68,7 +68,7 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
-  }, [setValue]);
+  }, [setValue, setPaymentPreference]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {

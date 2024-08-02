@@ -1,4 +1,4 @@
-import username from "@src/app/[username]/page";
+import username from "@src/app/[Username]/page";
 import dbConnect from "@src/lib/dbConnect";
 import UserModel from "@src/models/userModel";
 
