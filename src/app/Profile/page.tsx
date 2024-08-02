@@ -53,13 +53,7 @@ const Profile = () => {
   ];
 
   const fetchProfile = useCallback(async () => {
-    setLoading(true);<Select
-                  options={paymentPreferenceOptions}
-                  value={paymentPreferenceOptions.find(option => option.value === paymentPreference)}
-                  onChange={(selectedOption) => setPaymentPreference(selectedOption?.value || "")}
-                  className="form-input mt-1 block w-full"
-                  placeholder="Select payment preference"
-                />
+    setLoading(true);
     try {
       const response = await axios.get(`/api/profile`);
       setValue("Profile", response.data.loading);
@@ -68,7 +62,7 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
-  }, [setValue, setPaymentPreference]);
+  }, [setValue]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -186,7 +180,7 @@ const Profile = () => {
 
   return (
     <div className="flex flex-col items-center mt-0 bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-400">
-      <div className="bg-gradient-to-r from-pink-100 via-orange-200 to-pink-300 rounded-lg shadow-2xl p-8 w-full max-w-4xl mt-10 mb-5">
+      <div className="bg-gradient-to-r from-green-200 via-orange-100 to-green-100 rounded-lg shadow-2xl p-8 w-full max-w-4xl mt-10 mb-5">
         <h1 className="text-3xl font-bold mb-8 text-center">User Profile</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
