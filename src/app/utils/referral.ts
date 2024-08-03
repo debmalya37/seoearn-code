@@ -8,6 +8,6 @@ export const generateReferralCode = (username: string, userId: string): string =
 };
 
 export const generateReferralLink = (referralCode: string): string => {
-  const domain = process.env.DOMAIN || 'http://localhost:3000'; // Use environment variable for the domain
+  const domain = process.env.DOMAIN || 'https://seoearningspace.com'; // Use environment variable for the domain
   return `${domain}/sign-up?ref=${referralCode}`;
 };
