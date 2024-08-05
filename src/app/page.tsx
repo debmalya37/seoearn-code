@@ -12,6 +12,7 @@ import png1 from "../../asset/1.png";
 import png2 from "../../asset/2.png";
 import png3 from "../../asset/3.png";
 import png4 from "../../asset/4.png";
+import Link from 'next/link';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -119,7 +120,7 @@ export default function Home() {
             <header className="bg-white border-b border-gray-300">
               <div className="container mx-auto px-4 py-4 flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-orange-500">SEO Earning Space</h1>
-                <Button className="w-20 md:w-auto bg-orange-500" onClick={() => signOut()}>SignOut</Button>
+                {/* <Button className="w-20 md:w-auto bg-orange-500" onClick={() => signOut()}>SignOut</Button> */}
               </div>
             </header>
 
@@ -129,7 +130,10 @@ export default function Home() {
               <p className="text-lg leading-relaxed mb-8">
                 Maximize your SEO potential with our comprehensive platform. Whether you&apos;re a beginner or an experienced marketer, we provide the tools and resources you need to succeed.
               </p>
+              
+              <Link href="/sign-in">
               <Button className="w-40 md:w-auto bg-orange-500">Get Started</Button>
+              </Link>
             </main>
 
             <footer className="bg-purple-700 text-white py-4">

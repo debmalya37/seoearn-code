@@ -57,8 +57,8 @@ const UserSchema = new Schema<IUser>({
   username: { type: String, required: true, trim: true, unique: true },
   phoneNumber: { type: Number },
   password: { type: String },
-  gender: { type: String, enum: ['male', 'female', 'other'], required: true },
-  age: { type: Number , required: true, min: 0},
+  gender: { type: String, enum: ['male', 'female', 'other']},
+  age: { type: Number , min: 0},
   dob: {type: Date},
   profilePicture: { type: String },
   paymentPreference: { type: String },
@@ -80,7 +80,7 @@ const UserSchema = new Schema<IUser>({
   referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   referralEarnings: { type: Number, default: 0 },
   referralCount: { type: Number, default: 0 },
-  country: {type: String, required: true},
+  country: {type: String},
 });
 
 const UserModel = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
