@@ -5,7 +5,7 @@ import UserModel from '@src/models/userModel';
 
 const SECRET_KEY = process.env.JWT_TOKEN || 'your-secret-key';
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = ({
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -82,7 +82,8 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   secret: process.env.NEXTAUTH_SECRET,
-};
+}
+)
 
 
 
