@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:3000"
+    environment:
+      MONGODB_URI: mongodb+srv://debmalyasen37:password1234@cluster0.kw873i1.mongodb.net/
+      TOKEN_SECRET: DDFIUHSH
+      DOMAIN: http://seoearningspace.com
+      NEXTAUTH_URL: http://www.seoearningspace.com
+      RESEND_API_KEY: re_i9MeFVNk_sZusMaf4PhNd2eUx2TTC1rT4
+      GOOGLE_CLIENT_ID: 1078591157488-9s1id9ftecmp75uoqbtri477s9po3ri0.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: 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
+      TWILIO_ACCOUNT_SID: ""
+      TWILIO_AUTH_TOKEN: ""
+      TWILIO_PHONE_NUMBER: ""
+      NEXTAUTH_SECRET: dd4vj3rtyabojn3ttc
+      JWT_TOKEN: 0fd3c1c8adeb6d3f1c36a023779dec70ac78521032d1e641ce66758eaf06e7a4
+      NEXT_PUBLIC_PM_PASSWORD: "#deb@perfect#24"
+      NEXT_PUBLIC_PM_ACCOUNT_ID: 42850048
+      NEXT_PUBLIC_PM_USD_ACCOUNT: U46777206
+      PM_MEMBER_ID: 42850048
+      PM_PASSWORD: "#deb@perfect#24"
+      BUSINESS_ACCOUNT_ID: U46777206
+      PM_PASSPHRASE: cyc6pA7F3Tb2P9KsACKHSOmOw
+      EMAIL_SERVER: smtp://username:password@smtp.example.com:587
+      EMAIL_FROM: noreply@example.com
+      AUTH_RESEND_KEY: abc123
+    volumes:
+      - .:/app

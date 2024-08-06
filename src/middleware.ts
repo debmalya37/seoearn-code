@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/taskfeed', request.url))
     }
 
-    if (!token && url.pathname.startsWith('profile')) {
+    else if (!token && url.pathname.startsWith('profile')) {
         return NextResponse.redirect(new URL('/sign-in', request.url));
     }
 
