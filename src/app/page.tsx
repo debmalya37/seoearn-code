@@ -130,7 +130,10 @@ export default function Home() {
               <Image src={png1} alt="Welcome Image" className="w-full h-auto max-w-sm mb-8" />
               <h2 className="text-4xl font-bold mb-4">Welcome to SEO Earning Space</h2>
               <p className="text-lg leading-relaxed mb-8">
-                Maximize your SEO potential with our comprehensive platform. Whether you&apos;re a beginner or an experienced marketer, we provide the tools and resources you need to succeed.
+              
+                
+                <p>YOUR BEST PLACE TO GET EASY MICRO TASKS AND EARN REAL MONEY FROM IT</p>
+                <p>POST YOUR MICRO TASK ADVERTISEMENTS AND GET IT DONE BY MANY FREELANCERS</p>
               </p>
               
               <Link href="/sign-in">
