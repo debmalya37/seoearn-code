@@ -37,7 +37,9 @@ export default function Home() {
           <main className="flex-1 px-8 py-4">
             <section className="text-center mb-8">
               <p className="text-sm leading-relaxed">
-                The <u>Search Essentials</u> outline the most important elements of what makes your website eligible to appear on Google Search. While there&apos;s no guarantee that any particular site will be added to Google&apos;s index, sites that follow the Search Essentials are more likely to show up in Google&apos;s search results. SEO is about taking the next step and working on improving your site&apos;s presence in Search. This guide will walk you through some of the most common and effective improvements you can do on your site.
+                
+              <p>YOUR BEST PLACE TO GET EASY MICRO TASKS AND EARN REAL MONEY FROM IT</p>
+              <p>POST YOUR MICRO TASK ADVERTISEMENTS AND GET IT DONE BY MANY FREELANCERS</p>
               </p>
             </section>
 
