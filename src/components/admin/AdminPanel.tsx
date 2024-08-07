@@ -1,4 +1,5 @@
 "use client";
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 const AdminDashboard = () => {
@@ -66,16 +67,20 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {userStats.userList.map((user: any, index: number) => (
-                <tr key={index}>
-                  <td className="border px-4 py-2">{user.username}</td>
-                  <td className="border px-4 py-2">{user.email}</td>
-                  <td className="border px-4 py-2">{user.gender}</td>
-                  <td className="border px-4 py-2">{user.age}</td>
-                  <td className="border px-4 py-2">{user.isVerified ? 'Yes' : 'No'}</td>
-                </tr>
-              ))}
-            </tbody>
+            {userStats.userList.map((user: any, index: number) => (
+              <tr key={index}>
+                <td className="border px-4 py-2">
+                  <Link href={`/user/${user._id}`}>
+                    <span className="text-blue-500 hover:underline">{user.username}</span>
+                  </Link>
+                </td>
+                <td className="border px-4 py-2">{user.email}</td>
+                <td className="border px-4 py-2">{user.gender}</td>
+                <td className="border px-4 py-2">{user.age}</td>
+                <td className="border px-4 py-2">{user.isVerified ? 'Yes' : 'No'}</td>
+              </tr>
+            ))}
+          </tbody>
           </table>
         </div>
       </div>
@@ -97,7 +102,11 @@ const AdminDashboard = () => {
             <tbody>
               {taskStats.taskList.map((task: any, index: number) => (
                 <tr key={index}>
-                  <td className="border px-4 py-2">{task.title}</td>
+                  <td className="border px-4 py-2">
+                    <Link href={`/TaskFeed/${task._id}`}>
+                      <span className="text-blue-500 hover:underline">{task.title}</span>
+                    </Link>
+                  </td>
                   <td className="border px-4 py-2">{task.description}</td>
                   <td className="border px-4 py-2">{task.rating}</td>
                   <td className="border px-4 py-2">{task.category}</td>
@@ -105,7 +114,7 @@ const AdminDashboard = () => {
                   <td className="border px-4 py-2">{task.createdBy}</td>
                 </tr>
               ))}
-            </tbody> 
+            </tbody>
           </table>
         </div>
       </div>

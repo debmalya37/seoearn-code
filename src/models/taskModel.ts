@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model, model } from 'mongoose';
+import { string } from 'zod';
 
 // Define the ITask interface extending Document from Mongoose
 export interface ITask extends Document {
@@ -48,6 +49,10 @@ const TaskSchema: Schema = new Schema({
     type: Date,
     required: true,
     default: Date.now,
+  },
+  status: {
+    type: String,
+    required: true
   }
 });
 

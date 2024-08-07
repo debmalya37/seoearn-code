@@ -34,6 +34,13 @@ const categoryOptions = [
   "Other"
 ];
 
+const statusOptions = [
+  "Pending",
+  "In Progress",
+  "Approved",
+  "Rejected" // Add any other status options you need
+];
+
 const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, createdBy }) => {
   const [taskData, setTaskData] = useState<TaskData>({
     title: '',
@@ -57,15 +64,18 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
     setTaskData({ ...taskData, category: value });
   };
 
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
+    setTaskData({ ...taskData, status: value });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(taskData);
     onClose();
   };
 
-
-
-    // return part 
+  // Return part
   return (
     <>
       {isOpen && (
@@ -82,6 +92,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   value={taskData.title}
                   onChange={handleChange}
                   className="border p-2 w-full"
+                  required
                 />
               </div>
               <div className="mb-4">
@@ -92,6 +103,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   value={taskData.description}
                   onChange={handleChange}
                   className="border p-2 w-full"
+                  required
                 />
               </div>
               <div className="mb-4">
@@ -103,6 +115,8 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   value={taskData.rating}
                   onChange={handleChange}
                   className="border p-2 w-full"
+                  required
+                  min="0"
                 />
               </div>
               <div className="mb-4">
@@ -113,6 +127,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   value={taskData.category}
                   onChange={handleCategoryChange}
                   className="border p-2 w-full"
+                  required
                 >
                   {categoryOptions.map((option, index) => (
                     <option key={index} value={option}>{option}</option>
@@ -128,6 +143,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   value={taskData.duration}
                   onChange={handleChange}
                   className="border p-2 w-full"
+                  required
                 />
               </div>
               <div className="mb-4">
@@ -139,7 +155,24 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   value={taskData.reward}
                   onChange={handleChange}
                   className="border p-2 w-full"
+                  required
+                  min="0"
                 />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="status" className="block mb-1">Status:</label>
+                <select
+                  id="status"
+                  name="status"
+                  value={taskData.status}
+                  onChange={handleStatusChange}
+                  className="border p-2 w-full"
+                  required
+                >
+                  {statusOptions.map((option, index) => (
+                    <option key={index} value={option}>{option}</option>
+                  ))}
+                </select>
               </div>
               <button
                 type="submit"

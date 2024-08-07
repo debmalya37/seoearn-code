@@ -32,6 +32,7 @@ const TasksPage: FC = () => {
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
   const { toast } = useToast();
   const { data: session } = useSession();
 
@@ -50,7 +51,6 @@ const TasksPage: FC = () => {
       setIsLoading(true);
       try {
         const session = await getSession();
-        console.log('Access Token:', session?.accessToken);
         const response = await axios.get<ApiResponse>("/api/tasks", {
           headers: {
             Authorization: `Bearer ${session?.accessToken}`,
@@ -80,7 +80,6 @@ const TasksPage: FC = () => {
   const handleSubmitAddTask = async (task: TaskData) => {
     try {
       const session = await getSession();
-      console.log('Access Token:', session?.accessToken);
       const response = await axios.post<ApiResponse>("/api/tasks", task, {
         headers: {
           Authorization: `Bearer ${session?.accessToken}`,
@@ -108,13 +107,6 @@ const TasksPage: FC = () => {
     fetchTasks(true);
   }, [session, setValue, fetchTasks]);
 
-  // const handleTaskClick = (taskId: string) => {
-  //   const selected = tasks.find((task) => task._id === taskId);
-  //   if (selected) {
-  //     setSelectedTask(selected);
-  //   }
-  // };
-
   const handleOpenAddTaskModal = () => {
     setIsAddTaskModalOpen(true);
   };
@@ -122,6 +114,14 @@ const TasksPage: FC = () => {
   const handleCloseAddTaskModal = () => {
     setIsAddTaskModalOpen(false);
   };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
+  };
+
+  const filteredTasks = tasks.filter((task) =>
+    task.title.toLowerCase().includes(searchInput.toLowerCase())
+  );
 
   if (!session || !session.user) {
     return <Link href="/sign-in">PLEASE LOGIN</Link>;
@@ -131,42 +131,31 @@ const TasksPage: FC = () => {
     <>
       <div className="flex h-screen">
         {/* Sidebar */}
-        {/* <div className="w-1/5 bg-yellow-100 p-4 flex flex-col justify-between ">
-          <div className="fixed">
-            <div className="text-xl font-bold mb-6">{session.user.username}</div>
-            <nav className="space-y-4">
-              <a href="#" className="block">Advertisement</a>
-              <a href="#" className="block">Income</a>
-              <a href="#" className="block">Referral</a>
-              <a href="#" className="block">Task</a>
-              <a href="#" className="block">Payment</a>
-              <a href="#" className="block">Contact & Support</a>
-              <a href="#" className="block">Status</a>
-              <a href="#" className="block">About Us</a>
-            </nav>
-            <Button className="w-20 md:w-auto bg-orange-500 " onClick={()=> signOut()} >SignOut</Button>
-          </div>
-        </div> */}
         {/* Task List */}
         <div className="w-3/5 bg-purple-100 p-4">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold">All Tasks</h1>
-            <input type="text" placeholder="search" className="border rounded-md py-2 px-4" />
+            <input
+              type="text"
+              placeholder="search"
+              className="border rounded-md py-2 px-4"
+              value={searchInput}
+              onChange={handleSearchChange}
+            />
           </div>
           <div className="space-y-4">
-          {tasks.length > 0 ? (
-            tasks.map((task) => (
-              <TaskCard
-                key={String(task._id)} // Ensure _id is used for key
-                title={task.title}
-                description={task.description}
-                rating={task.rating}
-                category={task.category}
-                status={task.status || 'Pending'} // Default status if needed
-                createdAt={task.createdAt} // Ensure createdAt is a string
-              
-              />
-            ))
+            {filteredTasks.length > 0 ? (
+              filteredTasks.map((task) => (
+                <><Link key={String(task._id)} href={`/TaskFeed/${task._id}`}>
+                  <TaskCard
+                    title={task.title}
+                    description={task.description}
+                    rating={task.rating}
+                    category={task.category}
+                    status={task.status || "Pending"}
+                    createdAt={task.createdAt} id={(task._id) as string} />
+                </Link><br /></>
+              ))
             ) : (
               <p>No tasks found</p>
             )}

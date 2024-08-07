@@ -1,48 +1,49 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation'; // Import useRouter from next/navigation
 import { ITask } from "@src/models/taskModel";
-import axios from 'axios';
-import { ApiResponse } from '@src/types/ApiResponse';
 import { toast } from './ui/use-toast';
 
 interface TaskCardProps {
+  id: string; // Add id prop for navigation
   title: string;
   description: string;
   rating: number;
   category: string;
   status: string;
-  createdAt: Date; // Adjusted to match TaskData if it's a string
-  // onClick: (taskId: string) => void;
+  createdAt: Date;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({  title, description, rating, category, status, createdAt }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ id, title, description, rating, category, status, createdAt }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const router = useRouter(); // Initialize useRouter
 
-  // const handleDeleteConfirm = async () => {
-  //   try {
-  //     const response = await axios.delete<ApiResponse>(`/api/delete-task/${_id}`);
-  //     toast({
-  //       title: response.data.message
-  //     });
-      // onClick(_id);
-  //   } catch (error) {
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to delete the task",
-  //       variant: "destructive"
-  //     });
-  //   }
-  // };
+  const handleReadMore = () => {
+    router.push(`/taskfeed/${id}`); // Navigate to the task details page
+  };
+
+  const shortDescription = description.length > 100 ? description.substring(0, 100) + "..." : description; // Limit the description length
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md cursor-pointer">
       <h2 className="text-xl font-bold mb-2">{title}</h2>
-      <p className="text-gray-600">{description}</p>
+      <p className="text-gray-600">
+        {isExpanded ? description : shortDescription}
+        {description.length > 100 && (
+          <button type='button'
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-blue-600 ml-2"
+          >
+            {isExpanded ? "Read Less" : "Read More"}
+          </button>
+        )}
+      </p>
       <div className="mt-2">
         <span className="text-purple-700 font-bold">Category: </span>
         {category}
       </div>
       <div className="mt-2">
         <span className="text-purple-700 font-bold">Status: </span>
-        <span className={status === 'Completed' ? 'text-green-600' : status === 'Pending' ? 'text-red-600' : 'text-yellow-600'}>
+        <span className={status === 'Approved' ? 'text-green-600' : status === 'Pending' ? 'text-red-600' : status==="In Progress" ? 'text-yellow-600': "text-grey-500"}>
           {status}
         </span>
       </div>
@@ -54,8 +55,14 @@ const TaskCard: React.FC<TaskCardProps> = ({  title, description, rating, catego
         <span className="text-purple-700 font-bold">Created At: </span>
         {new Date(createdAt).toLocaleString()}
       </div>
-      {/* <button onClick={(e) => { e.stopPropagation(); handleDeleteConfirm(); }} className="text-red-600 mt-2">Delete</button> */}
+      <button
+        onClick={handleReadMore}
+        className="text-blue-600 mt-2"
+      >
+        View Details
+      </button>
     </div>
+    
   );
 };
 
