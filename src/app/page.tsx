@@ -31,7 +31,9 @@ export default function Home() {
         <>
         <main className="">
           <div className="flex items-center justify-between bg-purple-300 p-2 border border-gray-300 rounded mt-0 relative">
-            Welcome, {session.user?.email}
+            Welcome, {session.user?.email} 
+            <Image src={session.user?.image} alt='user logo'/>
+
             <Button className="w-20 md:w-auto bg-orange-500" onClick={() => signOut()}>SignOut</Button>
           </div>
           <main className="flex-1 px-8 py-4">

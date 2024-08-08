@@ -1,3 +1,5 @@
+
+// adminpanel.tsx
 "use client";
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -15,6 +17,33 @@ const AdminDashboard = () => {
     fetchStats();
   }, []);
 
+  const updateTaskStatus = async (taskId: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const updatedStats = { ...stats };
+        const updatedTaskList = updatedStats.taskStats.taskList.map((task: any) =>
+          task._id === taskId ? { ...task, status: newStatus } : task
+        );
+        setStats({
+          ...updatedStats,
+          taskStats: { ...updatedStats.taskStats, taskList: updatedTaskList },
+        });
+      } else {
+        console.error('Failed to update task status');
+      }
+    } catch (error) {
+      console.error('Error updating task status:', error);
+    }
+  };
+
   if (!stats) return <div>Loading...</div>;
 
   const { userStats, taskStats } = stats;
@@ -23,10 +52,10 @@ const AdminDashboard = () => {
     <div className="admin-dashboard p-6">
       <header className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Admin Panel</h1>
-        {/* Other header elements */}
       </header>
 
       <div className="grid grid-cols-3 gap-4 mb-8">
+        {/* Stats sections */}
         <div className="bg-white p-6 rounded shadow">
           <div className="text-2xl font-bold">{userStats.totalUsers}</div>
           <div className="text-gray-500">Total Users</div>
@@ -67,20 +96,20 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody>
-            {userStats.userList.map((user: any, index: number) => (
-              <tr key={index}>
-                <td className="border px-4 py-2">
-                  <Link href={`/user/${user._id}`}>
-                    <span className="text-blue-500 hover:underline">{user.username}</span>
-                  </Link>
-                </td>
-                <td className="border px-4 py-2">{user.email}</td>
-                <td className="border px-4 py-2">{user.gender}</td>
-                <td className="border px-4 py-2">{user.age}</td>
-                <td className="border px-4 py-2">{user.isVerified ? 'Yes' : 'No'}</td>
-              </tr>
-            ))}
-          </tbody>
+              {userStats.userList.map((user: any, index: number) => (
+                <tr key={index}>
+                  <td className="border px-4 py-2">
+                    <Link href={`/u/${user.username}`}>
+                      <span className="text-blue-500 hover:underline">{user.username}</span>
+                    </Link>
+                  </td>
+                  <td className="border px-4 py-2">{user.email}</td>
+                  <td className="border px-4 py-2">{user.gender}</td>
+                  <td className="border px-4 py-2">{user.age}</td>
+                  <td className="border px-4 py-2">{user.isVerified ? 'Yes' : 'No'}</td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       </div>
@@ -97,6 +126,8 @@ const AdminDashboard = () => {
                 <th className="px-4 py-2">Category</th>
                 <th className="px-4 py-2">Created At</th>
                 <th className="px-4 py-2">Created By</th>
+                <th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -111,15 +142,38 @@ const AdminDashboard = () => {
                   <td className="border px-4 py-2">{task.rating}</td>
                   <td className="border px-4 py-2">{task.category}</td>
                   <td className="border px-4 py-2">{new Date(task.createdAt).toLocaleString()}</td>
-                  <td className="border px-4 py-2">{task.createdBy}</td>
+                  <td className="border px-4 py-2">
+                    <Link href={`/u/${task.createdBy}`}>
+                      <span className="text-blue-500 hover:underline">{task.createdBy}</span>
+                    </Link>
+                  </td>
+                  <td className="border px-4 py-2">{task.status || 'Pending'}</td>
+                  <td className="border px-4 py-2">
+                    {task.status === 'Approved' || task.status === 'Rejected' ? (
+                      <span className="text-gray-500">-</span>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => updateTaskStatus(task._id, 'Approved')}
+                          className="bg-green-500 text-white px-2 py-1 rounded mr-2"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => updateTaskStatus(task._id, 'Rejected')}
+                          className="bg-red-500 text-white px-2 py-1 rounded"
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
-
-      {/* Other dashboard components */}
     </div>
   );
 };

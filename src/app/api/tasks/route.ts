@@ -1,27 +1,49 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@src/lib/dbConnect';
 import Task from '@src/models/taskModel';
-import UserModel, { IUser } from '@src/models/userModel';
 import { authOptions } from '../auth/[...nextauth]/options';
+import UserModel, { IUser } from '@src/models/userModel';
 import { getServerSession } from 'next-auth';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     // Connect to the database
     await dbConnect();
 
-    // Fetch all tasks
-    const tasks = await Task.find({}, {
-      title: 1,
-      description: 1,
-      rating: 1,
-      category: 1,
-      duration: 1,
-      createdBy: 1,
-      reward: 1,
-      createdAt: 1,
-      status: 1
-    });
+    const url = new URL(request.url);
+    const query = url.searchParams;
+
+    // Extract filter and sort parameters from the query
+    const status = query.get('status') || '';
+    const category = query.get('category') || '';
+    const duration = query.get('duration') || '';
+    const reward = query.get('reward') || '';
+    const sortBy = query.get('sortBy') || 'createdAt';
+
+    // Build the filter object based on the query parameters
+    const filter: any = {};
+    if (status && status !== 'all') {
+      filter.status = status;
+    }
+    if (category && category !== 'all') {
+      filter.category = category;
+    }
+    if (duration) {
+      filter.duration = { $lte: Number(duration) }; // Assuming duration is a number and filtering less than or equal to
+    }
+    if (reward) {
+      filter.reward = { $gte: Number(reward) }; // Assuming reward is a number and filtering greater than or equal to
+    }
+
+    // Fetch tasks with filters and sorting
+    const sortOptions: { [key: string]: 1 | -1 } = {};
+    if (sortBy === 'createdAt') {
+      sortOptions.createdAt = -1; // Sort by latest
+    } else if (sortBy === '-createdAt') {
+      sortOptions.createdAt = 1; // Sort by oldest
+    }
+
+    const tasks = await Task.find(filter).sort(sortOptions).exec();
 
     // Return the tasks
     return NextResponse.json({
@@ -35,7 +57,8 @@ export async function GET() {
   }
 }
 
-// POST endpoint to create a new task
+
+// POST endpoint remains unchanged
 export async function POST(request: Request) {
   await dbConnect();
   const session = await getServerSession(authOptions);

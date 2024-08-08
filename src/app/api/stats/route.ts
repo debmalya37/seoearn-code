@@ -97,7 +97,8 @@ const tasksAggregationPipeline = [
             rating: 1,
             category: 1,
             createdAt: 1,
-            createdBy: 1
+            createdBy: 1,
+            status: 1
             }
         }
         ]

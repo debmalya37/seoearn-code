@@ -1,19 +1,24 @@
 "use client";
+
 import React, { FC, useCallback, useEffect, useState } from "react";
 import TaskCard from "@src/components/TaskCard";
-import TaskDetails from "@src/components/TaskDetails";
 import AddTaskModal from "@src/components/AddTaskModal";
-import Nav from "@src/components/Nav";
 import { ITask } from "@src/models/taskModel";
 import { useToast } from "@src/components/ui/use-toast";
-import { useSession, signOut, getSession } from "next-auth/react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { taskSchema } from "@src/schemas/TaskSchema";
+import { useSession, getSession } from "next-auth/react";
 import axios, { AxiosError } from "axios";
-import { ApiResponse } from "@src/types/ApiResponse";
 import Link from "next/link";
 import { Button } from "@src/components/ui/button";
+import { ApiResponse } from "@src/types/ApiResponse";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectValue,
+} from "@src/components/ui/select"; // Import shadcn UI Select components
+import { Input } from "@src/components/ui/input";
 
 export interface TaskData {
   title: string;
@@ -33,6 +38,13 @@ const TasksPage: FC = () => {
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
+  const [filters, setFilters] = useState({
+    status: '',
+    category: '',
+    duration: '',
+    reward: '',
+  });
+  const [sortBy, setSortBy] = useState('createdAt');
   const { toast } = useToast();
   const { data: session } = useSession();
 
@@ -40,29 +52,25 @@ const TasksPage: FC = () => {
     setTasks((prevTasks) => prevTasks.filter((task) => task._id !== taskId));
   };
 
-  const form = useForm({
-    resolver: zodResolver(taskSchema),
-  });
-
-  const { register, watch, setValue } = form;
-
   const fetchTasks = useCallback(
-    async (refresh: boolean) => {
+    async () => {
       setIsLoading(true);
       try {
         const session = await getSession();
-        const response = await axios.get<ApiResponse>("/api/tasks", {
+        const query = new URLSearchParams({
+          ...filters,
+          sortBy
+        }).toString();
+        const response = await axios.get<ApiResponse>(`/api/tasks?${query}`, {
           headers: {
             Authorization: `Bearer ${session?.accessToken}`,
           },
         });
         setTasks(response.data.tasks || []);
-        if (refresh) {
-          toast({
-            title: "Refresh Messages",
-            description: "Showing latest tasks",
-          });
-        }
+        toast({
+          title: "Tasks Updated",
+          description: "Tasks have been updated based on filters and sorting.",
+        });
       } catch (error) {
         const axiosError = error as AxiosError<ApiResponse>;
         toast({
@@ -74,7 +82,7 @@ const TasksPage: FC = () => {
         setIsLoading(false);
       }
     },
-    [setIsLoading, setTasks, toast]
+    [filters, sortBy, toast]
   );
 
   const handleSubmitAddTask = async (task: TaskData) => {
@@ -86,7 +94,7 @@ const TasksPage: FC = () => {
         },
       });
       if (response.data.success) {
-        fetchTasks(false);
+        fetchTasks();
         toast({
           title: "Task added",
           description: response.data.message,
@@ -104,8 +112,8 @@ const TasksPage: FC = () => {
 
   useEffect(() => {
     if (!session || !session.user) return;
-    fetchTasks(true);
-  }, [session, setValue, fetchTasks]);
+    fetchTasks();
+  }, [session, fetchTasks]);
 
   const handleOpenAddTaskModal = () => {
     setIsAddTaskModalOpen(true);
@@ -119,20 +127,33 @@ const TasksPage: FC = () => {
     setSearchInput(e.target.value);
   };
 
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+  };
+
+  const handleSelectFilterChange = (name: string) => (value: string) => {
+    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+  };
+
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
+  };
+
   const filteredTasks = tasks.filter((task) =>
     task.title.toLowerCase().includes(searchInput.toLowerCase())
   );
 
   if (!session || !session.user) {
-    return <Link href="/sign-in">PLEASE LOGIN</Link>;
+    return <Link href="/sign-in"><Button>PLEASE LOGIN</Button></Link>;
   }
 
   return (
     <>
-      <div className="flex h-screen">
+      <div className="flex h-full">
         {/* Sidebar */}
         {/* Task List */}
-        <div className="w-3/5 bg-purple-100 p-4">
+        <div className="w-4/5 bg-purple-100 p-4 h-full">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold">All Tasks</h1>
             <input
@@ -142,6 +163,58 @@ const TasksPage: FC = () => {
               value={searchInput}
               onChange={handleSearchChange}
             />
+            <div className="flex space-x-4">
+              <Select onValueChange={handleSelectFilterChange('status')}>
+                <SelectTrigger className="border rounded-md py-2 px-4">
+                  <SelectValue placeholder="Select Status" />
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="Pending">Pending</SelectItem>
+                      <SelectItem value="In Progress">In Progress</SelectItem>
+                      <SelectItem value="Approved">Approved</SelectItem>
+                      <SelectItem value="Rejected">Rejected</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </SelectTrigger>
+              </Select>
+              <Select onValueChange={handleSelectFilterChange('category')}>
+                <SelectTrigger className="border rounded-md py-2 px-4">
+                  <SelectValue placeholder="Select Category" />
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      {/* Add category options here */}
+                    </SelectGroup>
+                  </SelectContent>
+                </SelectTrigger>
+              </Select>
+              <Input
+                type="number"
+                name="duration"
+                placeholder="Max Duration"
+                onChange={handleFilterChange}
+                className="border rounded-md py-2 px-4"
+              />
+              <Input
+                type="number"
+                name="reward"
+                placeholder="Min Reward"
+                onChange={handleFilterChange}
+                className="border rounded-md py-2 px-4"
+              />
+              <Select onValueChange={handleSortChange}>
+                <SelectTrigger className="border rounded-md py-2 px-4">
+                  <SelectValue placeholder="Sort by" />
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="createdAt">Sort by Latest</SelectItem>
+                      <SelectItem value="-createdAt">Sort by Oldest</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </SelectTrigger>
+              </Select>
+            </div>
           </div>
           <div className="space-y-4">
             {filteredTasks.length > 0 ? (
@@ -175,22 +248,16 @@ const TasksPage: FC = () => {
           </div>
         </div>
         {/* Task Details */}
-        <div className="w-2/5 bg-yellow-50 p-4">
-          <TaskDetails task={selectedTask} />
-        </div>
-        <button
-          onClick={handleOpenAddTaskModal}
-          className="fixed bottom-4 right-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-        >
-          Add New Task
-        </button>
-        <AddTaskModal
-          isOpen={isAddTaskModalOpen}
-          onClose={handleCloseAddTaskModal}
-          onSubmit={handleSubmitAddTask}
-          createdBy={session.user.email}
-        />
+        {/* <div className="w-2/5 bg-yellow-50 p-4">
+          <TaskDetails
+            task={selectedTask}
+          />
+        </div> */}
       </div>
+      <AddTaskModal
+        isOpen={isAddTaskModalOpen}
+        onClose={handleCloseAddTaskModal}
+        onSubmit={handleSubmitAddTask} createdBy={session.user.email}      />
     </>
   );
 };

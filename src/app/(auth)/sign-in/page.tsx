@@ -1,7 +1,7 @@
 // app/sign-in/page.tsx
 "use client";
 import { getProviders, signIn } from 'next-auth/react';
-
+import { Button } from '@src/components/ui/button';
 const SignIn = async () => {
   const providers = await getProviders();
 
