@@ -20,7 +20,6 @@ const Profile = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | ArrayBuffer | null>(profilepicDemo);
-  const [referralCode, setReferralCode] = useState<string | null>(null);
   const [dob, setDob] = useState<Date | null>(null);
   const [age, setAge] = useState<number | null>(null);
   const [gender, setGender] = useState<string | null>(null);
@@ -29,6 +28,8 @@ const Profile = () => {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [paymentId, setPaymentId] = useState<string>("");
   const [paymentPreference, setPaymentPreference] = useState<string>("");
+  // const [username, setUsername] = useState<string>("");
+  const [referralCode, setReferralCode] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -91,6 +92,9 @@ const Profile = () => {
           setCountryCode(user.countryCode || "");
           setGender(user.gender || "");
           setCountry(user.country || "");
+          // const newReferralCode = generateReferralCode(user.username, user.phoneNumber);
+          // setReferralCode(newReferralCode);
+          // setValue("referralCode", newReferralCode);
         } else {
           setError("Failed to fetch user data");
         }
@@ -125,6 +129,7 @@ const Profile = () => {
       data.countryCode = countryCode;
       data.dob = dob;
       data.country = country;
+      data.referralCode = referralCode;
       
       const response = await axios.post("/api/profile", data);
 
@@ -313,7 +318,7 @@ const Profile = () => {
                     Referral Code
                   </span>
                   <div className="flex">
-                    <input
+                  <input
                       type="text"
                       className="form-input mt-1 block w-full"
                       {...register("referralCode")}

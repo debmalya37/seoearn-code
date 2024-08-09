@@ -51,6 +51,12 @@ const TasksPage: FC = () => {
   const handleDeleteMessage = (taskId: string) => {
     setTasks((prevTasks) => prevTasks.filter((task) => task._id !== taskId));
   };
+  const sortOptions = [
+    { value: 'createdAt', label: 'Sort by Latest' },
+    { value: '-createdAt', label: 'Sort by Oldest' },
+    { value: 'reward', label: 'Sort by Highest Reward' },
+    { value: '-reward', label: 'Sort by Lowest Reward' }
+  ];
 
   const fetchTasks = useCallback(
     async () => {
@@ -144,6 +150,7 @@ const TasksPage: FC = () => {
     task.title.toLowerCase().includes(searchInput.toLowerCase())
   );
 
+
   if (!session || !session.user) {
     return <Link href="/sign-in"><Button>PLEASE LOGIN</Button></Link>;
   }
@@ -208,8 +215,11 @@ const TasksPage: FC = () => {
                   <SelectValue placeholder="Sort by" />
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="createdAt">Sort by Latest</SelectItem>
-                      <SelectItem value="-createdAt">Sort by Oldest</SelectItem>
+                      {sortOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectGroup>
                   </SelectContent>
                 </SelectTrigger>

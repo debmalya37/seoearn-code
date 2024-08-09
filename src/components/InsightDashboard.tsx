@@ -35,15 +35,15 @@ const InsightDashboard: React.FC = () => {
         </div>
         <div className="p-4 border rounded">
           <h4 className="text-lg font-semibold">Total Earnings</h4>
-          <p>${insights.taskStats.totalEarnings.toFixed(2)}</p>
+          <p>${insights.taskStats.totalEarnings}</p>
         </div>
         <div className="p-4 border rounded">
           <h4 className="text-lg font-semibold">Total Deposits</h4>
-          <p>${insights.taskStats.totalDeposits.toFixed(2)}</p>
+          <p>${insights.taskStats.totalDeposits}</p>
         </div>
         <div className="p-4 border rounded">
           <h4 className="text-lg font-semibold">Total Withdrawals</h4>
-          <p>${insights.taskStats.totalWithdrawals.toFixed(2)}</p>
+          <p>${insights.taskStats.totalWithdrawals}</p>
         </div>
       </div>
     </div>

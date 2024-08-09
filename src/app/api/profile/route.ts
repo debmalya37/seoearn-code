@@ -42,6 +42,7 @@ export async function GET(req: NextRequest) {
     }, { status: 500 });
   }
 }
+// post method
 
 export async function POST(req: NextRequest) {
   await dbConnect();
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
         profilePicture: profilePicture,
         paymentPreference: paymentPreference,
         paymentId: paymentId,
-        referralCode: referralCode // Assuming you are passing referralCode
+        referralCode: referralCode
       },
       { new: true }
     );
@@ -87,7 +88,6 @@ export async function POST(req: NextRequest) {
         message: 'Failed to update user'
       }, { status: 404 });
     }
-    console.log(updatedUser);
     return NextResponse.json({
       success: true,
       message: "User updated successfully",
@@ -102,3 +102,4 @@ export async function POST(req: NextRequest) {
     }, { status: 500 });
   }
 }
+

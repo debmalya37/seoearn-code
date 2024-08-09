@@ -1,13 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 
-export const generateReferralCode = (username: string, userId: string): string => {
-  // Take the first 3 characters of the username and the last 3 characters of the user ID
-  const usernamePart = username.slice(0, 3);
-  const userIdPart = userId;
-  return `${usernamePart}${userIdPart}`;
+export const generateReferralCode = (username: string, phoneNumber: string): string => {
+  const usernamePart = username.slice(0, 3).toUpperCase();
+  const phonePart = phoneNumber.slice(-4); // Last 4 digits of phone number
+  return `${usernamePart}${phonePart}`;
 };
 
 export const generateReferralLink = (referralCode: string): string => {
-  const domain = process.env.DOMAIN || 'https://seoearningspace.com'; // Use environment variable for the domain
+  const domain = process.env.DOMAIN || 'https://seoearningspace.com';
   return `${domain}/sign-up?ref=${referralCode}`;
 };

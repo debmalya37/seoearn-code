@@ -29,18 +29,22 @@ export async function GET(request: Request) {
       filter.category = category;
     }
     if (duration) {
-      filter.duration = { $lte: Number(duration) }; // Assuming duration is a number and filtering less than or equal to
+      filter.duration = { $lte: Number(duration) }; 
     }
     if (reward) {
-      filter.reward = { $gte: Number(reward) }; // Assuming reward is a number and filtering greater than or equal to
+      filter.reward = { $gte: Number(reward) }; 
     }
 
-    // Fetch tasks with filters and sorting
+    // Build the sort object based on the sortBy parameter
     const sortOptions: { [key: string]: 1 | -1 } = {};
     if (sortBy === 'createdAt') {
       sortOptions.createdAt = -1; // Sort by latest
     } else if (sortBy === '-createdAt') {
       sortOptions.createdAt = 1; // Sort by oldest
+    } else if (sortBy === 'reward') {
+      sortOptions.reward = -1; // Sort by highest reward
+    } else if (sortBy === '-reward') {
+      sortOptions.reward = 1; // Sort by lowest reward
     }
 
     const tasks = await Task.find(filter).sort(sortOptions).exec();
@@ -56,7 +60,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: false, message: 'Failed to fetch tasks' }, { status: 500 });
   }
 }
-
 
 // POST endpoint remains unchanged
 export async function POST(request: Request) {
