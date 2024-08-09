@@ -35,6 +35,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 }
 // update task PUT
+
+
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
     await dbConnect();
 
@@ -48,11 +50,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     try {
-        const { rating, description, status } = await request.json();
+        const { status, description, rating } = await request.json(); // Expecting JSON body
 
         const updatedTask = await Task.findByIdAndUpdate(
             id,
-            { rating, description, status },
+            { status, description, rating },
             { new: true }
         );
 
@@ -68,12 +70,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
             { status: 200 }
         );
     } catch (error) {
+        console.error('Error updating task:', error);
+
         return NextResponse.json(
             { success: false, message: "Internal server error" },
             { status: 500 }
         );
     }
 }
+
 
 
 

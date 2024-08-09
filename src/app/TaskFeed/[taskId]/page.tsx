@@ -5,23 +5,15 @@ import axios from "axios";
 import { ITask } from "@src/models/taskModel";
 import { useToast } from "@src/components/ui/use-toast";
 import { useParams } from "next/navigation";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectValue,
-} from "@src/components/ui/select"; // Adjust the import according to your project structure
-import { Input } from "@src/components/ui/input";
 import { Button } from "@src/components/ui/button";
-import { Textarea } from "@src/components/ui/Textarea";
+
 const TaskDetails: FC = () => {
   const { taskId } = useParams();
   const [task, setTask] = useState<ITask | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [formState, setFormState] = useState({ rating: "", description: "", status: "" });
+  const [formState, setFormState] = useState({
+    status: "In Progress",
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -31,9 +23,7 @@ const TaskDetails: FC = () => {
         if (response.data.success) {
           setTask(response.data.task);
           setFormState({
-            rating: response.data.task.rating.toString() || "",
-            description: response.data.task.description || "",
-            status: response.data.task.status || "",
+            status: "In Progress",
           });
         } else {
           toast({
@@ -58,18 +48,17 @@ const TaskDetails: FC = () => {
     }
   }, [taskId, toast]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormState({ ...formState, [e.target.name]: e.target.value });
-  };
-
-  const handleStatusChange = (value: string) => {
-    setFormState({ ...formState, status: value });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`/api/tasks/${taskId}`, formState);
+      const response = await axios.put(`/api/tasks/${taskId}`, {
+        status: formState.status,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       if (response.data.success) {
         toast({
           title: "Success",
@@ -116,42 +105,8 @@ const TaskDetails: FC = () => {
         <p><strong>Rating:</strong> {task.rating}</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-700">Description</label>
-          <Textarea
-            name="description"
-            value={formState.description}
-            onChange={handleChange}
-            className="mt-1 block w-full"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Rating</label>
-          <Input
-            type="number"
-            name="rating"
-            value={formState.rating}
-            onChange={handleChange}
-            className="mt-1 block w-full"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Status</label>
-          <Select value={formState.status} onValueChange={handleStatusChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="In Progress">In Progress</SelectItem>
-                <SelectItem value="Approved">Approved</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
         <Button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
-          Update Task
+          Submit Task
         </Button>
       </form>
     </div>
@@ -159,3 +114,82 @@ const TaskDetails: FC = () => {
 };
 
 export default TaskDetails;
+
+
+      // formData.append('rating', formState.rating);
+      // formData.append('description', formState.description);
+
+// formData.append('notes', formState.notes);
+// if (formState.file) {
+//   formData.append('file', formState.file);
+// }
+
+{/* <Button onClick={handleStatusChange} className="mt-4 bg-green-500 text-white py-2 px-4 rounded">
+Submit Task
+</Button> */}
+// const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+    //     if (!['image/png', 'image/jpeg'].includes(file.type) || file.size > 250 * 1024) {
+      //       toast({
+        //         title: "Invalid file",
+        //         description: "File must be PNG, JPG, or JPEG and less than 250KB",
+        //         variant: "destructive",
+  //       });
+  //       return;
+  //     }
+  //     setFormState({ ...formState, file });
+  //   }
+  // };
+  {/* <div>
+    <label className="block text-gray-700">Additional Notes</label>
+    <Textarea
+    name="notes"
+    value={formState.notes}
+    onChange={handleChange}
+    className="mt-1 block w-full"
+    />
+  </div> */}
+      {/* <div>
+        <label className="block text-gray-700">Description</label>
+        <Textarea
+        name="description"
+        value={formState.description}
+        onChange={handleChange}
+        className="mt-1 block w-full"
+        />
+      </div> */}
+      {/* <div>
+        <label className="block text-gray-700">Rating</label>
+        <Input
+        type="number"
+        name="rating"
+        value={formState.rating}
+        onChange={handleChange}
+        className="mt-1 block w-full"
+        />
+        </div>
+        <div>
+        <label className="block text-gray-700">Status</label>
+        <Select value={formState.status} onValueChange={handleStatusChange}>
+        <SelectTrigger>
+        <SelectValue placeholder="Select status" />
+        </SelectTrigger>
+        <SelectContent>
+        <SelectGroup>
+        <SelectItem value="Pending">Pending</SelectItem>
+        <SelectItem value="In Progress">In Progress</SelectItem>
+        <SelectItem value="Approved">Approved</SelectItem>
+        </SelectGroup>
+        </SelectContent>
+        </Select>
+      </div> */}
+  {/* <div>
+    <label className="block text-gray-700">Upload File</label>
+    <Input
+      type="file"
+      accept=".png, .jpg, .jpeg"
+      onChange={handleFileChange}
+      className="mt-1 block w-full"
+      />
+    </div> */}

@@ -123,7 +123,7 @@ const CreateAdvertisement: FC = () => {
                   tasks.map((task) => (
                     <tr key={String(task._id)}> {/* Convert _id to string */}
                       <td className="border px-4 py-2">
-                        <Link href={`/TaskFeed/${task._id}`}>
+                        <Link href={`/Ads/${task._id}`}>
                           {task.title}
                         </Link>
                       </td>

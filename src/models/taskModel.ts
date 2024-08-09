@@ -9,10 +9,17 @@ export interface ITask extends Document {
   rating: number;
   category: string;
   duration: string;
-  createdBy: string; // Adjusted to ObjectId
+  createdBy: string;
   reward: number;
   createdAt: Date;
+  submissions: Array<{
+    submittedBy: string; // User ID of the submitter
+    screenshotUrl?: string; // URL of the uploaded screenshot
+    text?: string; // Textual details about the submission
+    status: string; // 'pending', 'approved', 'rejected'
+  }>;
 }
+
 
 // Define the Task schema
 const TaskSchema: Schema = new Schema({
@@ -53,7 +60,13 @@ const TaskSchema: Schema = new Schema({
   status: {
     type: String,
     required: true
-  }
+  },
+  
+    requests: [{
+      userId: { type: mongoose.Types.ObjectId, ref: 'User' },
+      message: { type: String, required: false },
+      status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
+    }]
 });
 
 // Ensure the Task model uses the ITask interface

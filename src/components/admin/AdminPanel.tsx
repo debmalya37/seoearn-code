@@ -12,7 +12,6 @@ const AdminDashboard = () => {
       const data = await res.json();
       setStats(data);
     };
-
     fetchStats();
   }, []);
 
@@ -133,7 +132,7 @@ const AdminDashboard = () => {
               {taskStats.taskList.map((task: any, index: number) => (
                 <tr key={index}>
                   <td className="border px-4 py-2">
-                    <Link href={`/TaskFeed/${task._id}`}>
+                    <Link href={`/Admin/Utask/${task._id}`}>
                       <span className="text-blue-500 hover:underline">{task.title}</span>
                     </Link>
                   </td>
