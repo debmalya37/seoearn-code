@@ -6,6 +6,7 @@
 // import StatsSection from '@src/components/home/StatsSection';
 import { Button } from '@src/components/ui/button';
 import { signOut, useSession } from 'next-auth/react';
+import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
 import Head from 'next/head';
 import Image from 'next/image';
 import png1 from "../../asset/1.png";
@@ -32,7 +33,7 @@ export default function Home() {
         <main className="">
           <div className="flex items-center justify-between bg-purple-300 p-2 border border-gray-300 rounded mt-0 relative">
             Welcome, {session.user?.email} 
-            <Image src={session.user?.image} alt='user logo'/>
+            {/* <Image src={session.user?.image} alt='user logo'/> */}
 
             <Button className="w-20 md:w-auto bg-orange-500" onClick={() => signOut()}>SignOut</Button>
           </div>
@@ -110,12 +111,54 @@ export default function Home() {
               </div>
             </section>
           </main>
+        {/* start footer */}
+        <footer className="bg-purple-700 text-white py-8">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          {/* Social Media Icons */}
+          <div className="mb-4 md:mb-0">
+            <ul className="flex space-x-4">
+              <li>
+                <Link href="https://facebook.com" passHref>
+                  <span className="hover:text-gray-300" aria-label="Facebook">
+                    <FaFacebookF />
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="https://twitter.com" passHref>
+                  <span className="hover:text-gray-300" aria-label="Twitter">
+                    <FaTwitter />
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="https://instagram.com" passHref>
+                  <span className="hover:text-gray-300" aria-label="Instagram">
+                    <FaInstagram />
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="https://linkedin.com" passHref>
+                  <span className="hover:text-gray-300" aria-label="LinkedIn">
+                    <FaLinkedinIn />
+                  </span>
+                </Link>
+              </li>
+            </ul>
+          </div>
 
-          <footer className="bg-purple-700 text-white py-4">
-            <div className="container mx-auto text-center">
-              <p>&copy; 2024 SEO Earning Space. All rights reserved.</p>
-            </div>
-          </footer>
+          {/* Footer Text */}
+          <div className="text-center md:text-left mb-4 md:mb-0">
+            <p className="text-sm">Proudly powered by <strong>Kyrptaroid</strong></p>
+            <p className="text-sm">&copy; SEO Earning Space, 2024. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+            {/*  end footer  */}
         </main>
         </>
       ) : (
@@ -143,9 +186,14 @@ export default function Home() {
               </Link>
             </main>
 
-            <footer className="bg-purple-700 text-white py-4">
+            <footer className="bg-purple-700 text-white py-4 relative overflow-hidden">
               <div className="container mx-auto text-center">
                 <p>&copy; 2024 SEO Earning Space. All rights reserved.</p>
+                <div className="absolute bottom-0 left-0 right-0 flex justify-center">
+                  <span className="text-sm text-gray-300 animate-pulse">
+                    Done by Kryptaroid
+                  </span>
+                </div>
               </div>
             </footer>
           </div>

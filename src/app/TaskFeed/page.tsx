@@ -181,6 +181,7 @@ const TasksPage: FC = () => {
                       <SelectItem value="In Progress">In Progress</SelectItem>
                       <SelectItem value="Approved">Approved</SelectItem>
                       <SelectItem value="Rejected">Rejected</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </SelectTrigger>

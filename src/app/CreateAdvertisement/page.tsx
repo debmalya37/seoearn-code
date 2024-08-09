@@ -8,7 +8,6 @@ import { ITask } from "@src/models/taskModel";
 import Link from "next/link";
 import AddTaskModal from "@src/components/AddTaskModal";
 import { ApiResponse } from "@src/types/ApiResponse";
-// import Notification from "@src/components/Notification";
 import InsightDashboard from "@src/components/InsightDashboard";
 import { Button } from "@src/components/ui/button";
 
@@ -26,6 +25,7 @@ export interface AdsTaskData {
 const CreateAdvertisement: FC = () => {
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [tasks, setTasks] = useState<ITask[]>([]);
+  const [inProgressTasks, setInProgressTasks] = useState<ITask[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { data: session } = useSession();
@@ -36,6 +36,7 @@ const CreateAdvertisement: FC = () => {
   const handleToggleDashboard = () => {
     setShowDashboard(!showDashboard);
   };
+
   const fetchAdsTask = useCallback(
     async (refresh: boolean) => {
       setIsLoading(true);
@@ -47,9 +48,15 @@ const CreateAdvertisement: FC = () => {
             Authorization: `Bearer ${session?.accessToken}`,
           },
         });
-        setTasks(response.data.tasks || []);
+
+        const fetchedTasks: ITask[] = response.data.tasks || [];
+        setTasks(fetchedTasks);
         setTaskStats(response.data.taskPipeLine || {});
         setNotifications(response.data.notifications || []);
+
+        // Update in-progress tasks
+        setInProgressTasks(fetchedTasks.filter(task => task.status === 'In Progress'));
+
         if (refresh) {
           toast({
             title: "Refresh Tasks",
@@ -67,7 +74,7 @@ const CreateAdvertisement: FC = () => {
         setIsLoading(false);
       }
     },
-    [setIsLoading, setTasks, setTaskStats, setNotifications, toast]
+    [setIsLoading, setTasks, setTaskStats, setNotifications, setInProgressTasks, toast]
   );
 
   useEffect(() => {
@@ -88,6 +95,36 @@ const CreateAdvertisement: FC = () => {
     console.log("New Task:", task);
   };
 
+  const updateTaskStatus = async (taskId: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Refetch tasks after updating status
+        const response = await axios.get<ApiResponse>('/api/tasks');
+        const fetchedTasks: ITask[] = response.data.tasks ?? []; // Use default empty array if tasks are undefined
+        setInProgressTasks(fetchedTasks.filter(task => task.status === 'In Progress'));
+
+        toast({
+          title: "Task Status Updated",
+          description: `Task ${taskId} status changed to ${newStatus}`,
+        });
+      } else {
+        console.error('Failed to update task status');
+      }
+    } catch (error) {
+      console.error('Error updating task status:', error);
+    }
+  };
+
   if (!session || !session.user) {
     return <Link href="/sign-in">PLEASE LOGIN</Link>;
   }
@@ -96,98 +133,126 @@ const CreateAdvertisement: FC = () => {
     <div className="p-4">
       <span>Welcome to Your Advertisement Dashboard,&nbsp; {session.user.username}!</span>
       <hr className="my-4" />
-      {/* <di className="grid grid-cols-1 md:grid-cols-2 gap-4"> */}
-        {/* <di className="col-span-1"> */}
-          <h2 className="text-2xl font-semibold mb-4">Your Posted Advertisements</h2>
-          <button
-            onClick={handleOpenAddTaskModal}
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-          >
-            +
-          </button>
-          <div className="bg-white p-6 rounded shadow overflow-auto max-h-96 mt-4">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Reward</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+      <h2 className="text-2xl font-semibold mb-4">Your Posted Advertisements</h2>
+      <button
+        onClick={handleOpenAddTaskModal}
+        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+      >
+        +
+      </button>
+      <div className="bg-white p-6 rounded shadow overflow-auto max-h-96 mt-4">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Title</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Rating</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Category</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Reward</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {tasks.length > 0 ? (
+              tasks.map((task) => (
+                <tr key={String(task._id)}> {/* Convert _id to string */}
+                  <td className="border px-4 py-2">
+                    <Link href={`/Ads/${task._id}`}>
+                      {task.title}
+                    </Link>
+                  </td>
+                  <td className="border px-4 py-2">{task.description}</td>
+                  <td className="border px-4 py-2">{task.rating}</td>
+                  <td className="border px-4 py-2">{task.category}</td>
+                  <td className="border px-4 py-2">{task.duration}</td>
+                  <td className="border px-4 py-2">{task.reward}</td>
+                  <td className="border px-4 py-2">{new Date(task.createdAt).toLocaleString()}</td>
                 </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {tasks.length > 0 ? (
-                  tasks.map((task) => (
-                    <tr key={String(task._id)}> {/* Convert _id to string */}
-                      <td className="border px-4 py-2">
-                        <Link href={`/Ads/${task._id}`}>
-                          {task.title}
-                        </Link>
-                      </td>
-                      <td className="border px-4 py-2">{task.description}</td>
-                      <td className="border px-4 py-2">{task.rating}</td>
-                      <td className="border px-4 py-2">{task.category}</td>
-                      <td className="border px-4 py-2">{task.duration}</td>
-                      <td className="border px-4 py-2">{task.reward}</td>
-                      <td className="border px-4 py-2">{new Date(task.createdAt).toLocaleString()}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td className="border px-4 py-2" colSpan={7}>
-                      No tasks found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        {/* </di> */}
+              ))
+            ) : (
+              <tr>
+                <td className="border px-4 py-2" colSpan={7}>
+                  No tasks found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {/* </di> */}
       <h3 className="mt-8 text-lg font-semibold">Stats of Your Tasks:</h3>
       <div className="col-span-1">
         <Button
-        onClick={handleToggleDashboard}
-        className="p-2 bg-blue-500 text-white rounded shadow"
-      >
-        {showDashboard ? 'Hide Dashboard' : 'Show Dashboard'}
-      </Button>
-
-      {showDashboard && <InsightDashboard />}
-          {/* <InsightDashboard insights={taskStats} /> */}
-          {/* <Notification notifications={notifications} /> */}
-        </div>
-      <div className="flex justify-between items-center mt-4 pb-6">
-        <div>
-          <p>Total Clicks: {taskStats?.clicks?.totalClicks || 0}</p>
-          <p>Total Female Clicks: {taskStats?.clicks?.totalFemaleClicks || 0}</p>
-          <p>Total Male Clicks: {taskStats?.clicks?.totalMaleClicks || 0}</p>
-          <p>Average Age of Clickers: {taskStats?.clicks?.avgAge || 0}</p>
-        </div>
-        <div className="space-x-2">
-          <button className="text-purple-700">1</button>
-          <button className="text-purple-700">2</button>
-          <button className="text-purple-700">3</button>
-          <button className="text-purple-700">4</button>
-          <button className="text-purple-700">5</button>
-          <button className="text-purple-700">6</button>
-          <button className="text-purple-700">7</button>
-        </div>
-        <button className="text-purple-700">Next</button>
+          onClick={handleToggleDashboard}
+          className="p-2 bg-blue-500 text-white rounded shadow"
+        >
+          {showDashboard ? 'Hide Dashboard' : 'Show Dashboard'}
+        </Button>
+        {showDashboard && <InsightDashboard />}
       </div>
+
+      <div className="mt-8">
+        <h2 className="text-xl font-bold mb-4">In-Progress Tasks</h2>
+        <div className="bg-white p-6 rounded shadow overflow-auto max-h-96">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Rating</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {inProgressTasks.length > 0 ? (
+                inProgressTasks.map((task) => (
+                  <tr key={String(task._id)}> {/* Convert _id to string */}
+                    <td className="border px-4 py-2">
+                      <Link href={`/Ads/${task._id}`}>
+                        {task.title}
+                      </Link>
+                    </td>
+                    <td className="border px-4 py-2">{task.description}</td>
+                    <td className="border px-4 py-2">{task.rating}</td>
+                    <td className="border px-4 py-2">{task.category}</td>
+                    <td className="border px-4 py-2">{new Date(task.createdAt).toLocaleString()}</td>
+                    <td className="border px-4 py-2">
+                      <Button
+                        onClick={() => updateTaskStatus(String(task._id), 'Completed')}
+                        className="bg-green-500 text-white p-1 rounded hover:bg-green-600"
+                      >
+                        Mark as Completed
+                      </Button>
+                      <Button
+                        onClick={() => updateTaskStatus(String(task._id), 'Rejected')}
+                        className="bg-red-500 text-white p-1 rounded hover:bg-red-600 ml-2"
+                      >
+                        Reject
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="border px-4 py-2" colSpan={6}>
+                    No in-progress tasks
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <AddTaskModal
         isOpen={isAddTaskModalOpen}
         onClose={handleCloseAddTaskModal}
-        onSubmit={handleSubmitAddTask}
-        createdBy={session?.user.email}
-      />
+        onSubmit={handleSubmitAddTask} createdBy={session.user.username}      />
     </div>
   );
 };
 
 export default CreateAdvertisement;
-
