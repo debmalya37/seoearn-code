@@ -30,7 +30,6 @@ const CreateAdvertisement: FC = () => {
   const { toast } = useToast();
   const { data: session } = useSession();
   const [taskStats, setTaskStats] = useState<any>({});
-  const [notifications, setNotifications] = useState<any[]>([]);
   const [showDashboard, setShowDashboard] = useState<boolean>(false);
 
   const handleToggleDashboard = () => {
@@ -52,7 +51,7 @@ const CreateAdvertisement: FC = () => {
         const fetchedTasks: ITask[] = response.data.tasks || [];
         setTasks(fetchedTasks);
         setTaskStats(response.data.taskPipeLine || {});
-        setNotifications(response.data.notifications || []);
+      
 
         // Update in-progress tasks
         setInProgressTasks(fetchedTasks.filter(task => task.status === 'In Progress'));
@@ -74,7 +73,7 @@ const CreateAdvertisement: FC = () => {
         setIsLoading(false);
       }
     },
-    [setIsLoading, setTasks, setTaskStats, setNotifications, setInProgressTasks, toast]
+    [setIsLoading, setTasks, setTaskStats, setInProgressTasks, toast]
   );
 
   useEffect(() => {
