@@ -45,7 +45,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
     createdAt: new Date().toISOString(),
     reward: 0,
     status: 'Pending', // Default status value
-    is18Plus: false, // Default value for is18Plus
+     // Default value for is18Plus
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -60,7 +60,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = e.target;
-    setTaskData({ ...taskData, is18Plus: checked });
+    setTaskData({ ...taskData });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -154,7 +154,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   min="0"
                 />
               </div>
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <input
                   type="checkbox"
                   id="is18Plus"
@@ -164,7 +164,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   className="mr-2"
                 />
                 <label htmlFor="is18Plus">18+ Task</label>
-              </div>
+              </div> */}
               {/* Status field is removed to make it non-editable */}
               <button
                 type="submit"

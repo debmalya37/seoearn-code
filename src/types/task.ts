@@ -1,7 +1,7 @@
 // src/types/task.ts
 
 export interface TaskData {
-    is18Plus: Boolean | undefined;
+    // is18Plus: Boolean | undefined;
     title: string;
     description: string;
     rating: number;
