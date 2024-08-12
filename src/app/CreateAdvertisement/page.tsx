@@ -89,9 +89,29 @@ const CreateAdvertisement: FC = () => {
     setIsAddTaskModalOpen(false);
   };
 
-  const handleSubmitAddTask = (task: AdsTaskData) => {
-    // Handle adding the task (e.g., send API request, update state, etc.)
-    console.log("New Task:", task);
+  const handleSubmitAddTask = async (task: AdsTaskData) => {
+    try {
+      const session = await getSession();
+      const response = await axios.post<ApiResponse>("/api/tasks", task, {
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      });
+      if (response.data.success) {
+        fetchAdsTask(true);
+        toast({
+          title: "Task added",
+          description: response.data.message,
+        });
+        setIsAddTaskModalOpen(false);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add task",
+        variant: "destructive",
+      });
+    }
   };
 
   const updateTaskStatus = async (taskId: string, newStatus: string) => {

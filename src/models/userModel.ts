@@ -76,7 +76,7 @@ const UserSchema = new Schema<IUser>({
   // deviceIdentifier: { type: String },
   balance: { type: Number, default: 0 },
   earnings: { type: Number, default: 0 },
-  referralCode: { type: String, unique: true },
+  referralCode: { type: String },
   referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   referralEarnings: { type: Number, default: 0 },
   referralCount: { type: Number, default: 0 },
