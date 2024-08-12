@@ -19,10 +19,10 @@ export async function sendVerificationEmail(
             subject: "SEO EARN || Verification Code",
             react: VerificationEmail({username, otp: verifyCode}),
         })
-        return {success: true, message: "Verification email send successfully"}
+        return {success: true, message: "Verification email send successfully", totalTasks: 0}
     } catch (emailError) {
         console.log("Error sending verification email",emailError)
-        return {success: false, message: "failed to send verification email"}
+        return {success: false, message: "failed to send verification email", totalTasks: 0}
      }
 }
 
