@@ -17,7 +17,7 @@ import {
   SelectGroup,
   SelectItem,
   SelectValue,
-} from "@src/components/ui/select"; // Import shadcn UI Select components
+} from "@src/components/ui/select"; 
 import { Input } from "@src/components/ui/input";
 
 export interface TaskData {
@@ -30,6 +30,7 @@ export interface TaskData {
   reward: number;
   status?: string;
   createdAt?: string;
+  // is18Plus?: Boolean;
 }
 
 const TasksPage: FC = () => {
@@ -45,18 +46,10 @@ const TasksPage: FC = () => {
     reward: '',
   });
   const [sortBy, setSortBy] = useState('createdAt');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const { toast } = useToast();
   const { data: session } = useSession();
-
-  const handleDeleteMessage = (taskId: string) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task._id !== taskId));
-  };
-  const sortOptions = [
-    { value: 'createdAt', label: 'Sort by Latest' },
-    { value: '-createdAt', label: 'Sort by Oldest' },
-    { value: 'reward', label: 'Sort by Highest Reward' },
-    { value: '-reward', label: 'Sort by Lowest Reward' }
-  ];
 
   const fetchTasks = useCallback(
     async () => {
@@ -65,7 +58,9 @@ const TasksPage: FC = () => {
         const session = await getSession();
         const query = new URLSearchParams({
           ...filters,
-          sortBy
+          sortBy,
+          page: String(currentPage),
+          limit: '10'
         }).toString();
         const response = await axios.get<ApiResponse>(`/api/tasks?${query}`, {
           headers: {
@@ -73,6 +68,7 @@ const TasksPage: FC = () => {
           },
         });
         setTasks(response.data.tasks || []);
+        setTotalPages(Math.ceil(response.data.totalTasks / 10));
         toast({
           title: "Tasks Updated",
           description: "Tasks have been updated based on filters and sorting.",
@@ -88,7 +84,7 @@ const TasksPage: FC = () => {
         setIsLoading(false);
       }
     },
-    [filters, sortBy, toast]
+    [filters, sortBy, currentPage, toast]
   );
 
   const handleSubmitAddTask = async (task: TaskData) => {
@@ -146,10 +142,13 @@ const TasksPage: FC = () => {
     setSortBy(value);
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   const filteredTasks = tasks.filter((task) =>
     task.title.toLowerCase().includes(searchInput.toLowerCase())
   );
-
 
   if (!session || !session.user) {
     return <Link href="/sign-in"><Button>PLEASE LOGIN</Button></Link>;
@@ -158,8 +157,6 @@ const TasksPage: FC = () => {
   return (
     <>
       <div className="flex h-full">
-        {/* Sidebar */}
-        {/* Task List */}
         <div className="w-4/5 bg-purple-100 p-4 h-full">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold">All Tasks</h1>
@@ -201,31 +198,31 @@ const TasksPage: FC = () => {
                 type="number"
                 name="duration"
                 placeholder="Max Duration"
-                onChange={handleFilterChange}
                 className="border rounded-md py-2 px-4"
+                value={filters.duration}
+                onChange={handleFilterChange}
               />
               <Input
                 type="number"
                 name="reward"
                 placeholder="Min Reward"
-                onChange={handleFilterChange}
                 className="border rounded-md py-2 px-4"
+                value={filters.reward}
+                onChange={handleFilterChange}
               />
               <Select onValueChange={handleSortChange}>
                 <SelectTrigger className="border rounded-md py-2 px-4">
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder="Sort By" />
                   <SelectContent>
                     <SelectGroup>
-                      {sortOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="createdAt">Date Created</SelectItem>
+                      <SelectItem value="reward">Reward</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </SelectTrigger>
               </Select>
             </div>
+            <Button onClick={handleOpenAddTaskModal}>Add Task</Button>
           </div>
           <div className="space-y-4">
             {filteredTasks.length > 0 ? (
@@ -237,6 +234,8 @@ const TasksPage: FC = () => {
                     rating={task.rating}
                     category={task.category}
                     status={task.status || "Pending"}
+                    reward={task.reward}
+                    // is18Plus={task.is18Plus}
                     createdAt={task.createdAt} id={(task._id) as string} />
                 </Link><br /></>
               ))
@@ -244,31 +243,29 @@ const TasksPage: FC = () => {
               <p>No tasks found</p>
             )}
           </div>
-          <div className="flex justify-between items-center mt-4 pb-6">
-            <button className="text-purple-700">Previous</button>
-            <div className="space-x-2">
-              <button className="text-purple-700">1</button>
-              <button className="text-purple-700">2</button>
-              <button className="text-purple-700">3</button>
-              <button className="text-purple-700">4</button>
-              <button className="text-purple-700">5</button>
-              <button className="text-purple-700">6</button>
-              <button className="text-purple-700">7</button>
-            </div>
-            <button className="text-purple-700">Next</button>
+          <div className="flex justify-between mt-4">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
           </div>
-        </div>
-        {/* Task Details */}
-        {/* <div className="w-2/5 bg-yellow-50 p-4">
-          <TaskDetails
-            task={selectedTask}
-          />
-        </div> */}
-      </div>
-      <AddTaskModal
+          <AddTaskModal
         isOpen={isAddTaskModalOpen}
         onClose={handleCloseAddTaskModal}
         onSubmit={handleSubmitAddTask} createdBy={session.user.email}      />
+        </div>
+      </div>
     </>
   );
 };

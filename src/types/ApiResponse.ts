@@ -2,6 +2,7 @@ import { ITask } from "@src/models/taskModel";
 import  {IMessage}  from "@src/models/userModel";
 import  Task  from "@src/models/userModel";
 export interface ApiResponse{
+    totalTasks: number;
     taskPipeLine?: {};
     taskStats?: any;
     success: boolean;

@@ -5,22 +5,22 @@ import { authOptions } from '../auth/[...nextauth]/options';
 import UserModel, { IUser } from '@src/models/userModel';
 import { getServerSession } from 'next-auth';
 
+
 export async function GET(request: Request) {
   try {
-    // Connect to the database
     await dbConnect();
 
     const url = new URL(request.url);
     const query = url.searchParams;
 
-    // Extract filter and sort parameters from the query
     const status = query.get('status') || '';
     const category = query.get('category') || '';
     const duration = query.get('duration') || '';
     const reward = query.get('reward') || '';
     const sortBy = query.get('sortBy') || 'createdAt';
+    const page = parseInt(query.get('page') || '1', 10);
+    const limit = parseInt(query.get('limit') || '10', 10);
 
-    // Build the filter object based on the query parameters
     const filter: any = {};
     if (status && status !== 'all') {
       filter.status = status;
@@ -35,31 +35,31 @@ export async function GET(request: Request) {
       filter.reward = { $gte: Number(reward) }; 
     }
 
-    // Build the sort object based on the sortBy parameter
     const sortOptions: { [key: string]: 1 | -1 } = {};
     if (sortBy === 'createdAt') {
-      sortOptions.createdAt = -1; // Sort by latest
+      sortOptions.createdAt = -1;
     } else if (sortBy === '-createdAt') {
-      sortOptions.createdAt = 1; // Sort by oldest
+      sortOptions.createdAt = 1;
     } else if (sortBy === 'reward') {
-      sortOptions.reward = -1; // Sort by highest reward
+      sortOptions.reward = -1;
     } else if (sortBy === '-reward') {
-      sortOptions.reward = 1; // Sort by lowest reward
+      sortOptions.reward = 1;
     }
 
-    const tasks = await Task.find(filter).sort(sortOptions).exec();
+    const totalTasks = await Task.countDocuments(filter);
+    const tasks = await Task.find(filter).sort(sortOptions).skip((page - 1) * limit).limit(limit).exec();
 
-    // Return the tasks
     return NextResponse.json({
       success: true,
-      totalTasks: tasks.length,
-      tasks: tasks
+      totalTasks,
+      tasks
     });
   } catch (error) {
     console.error('Error fetching tasks:', error);
     return NextResponse.json({ success: false, message: 'Failed to fetch tasks' }, { status: 500 });
   }
 }
+
 
 // POST endpoint remains unchanged
 export async function POST(request: Request) {
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { title, description, rating, category, duration, reward, status } = await request.json();
+    const { title, description, rating, category, duration, reward, status, is18Plus } = await request.json();
 
     // Validation checks
     if (!title || !description || !category || !duration || !reward) {
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       );
     }
     
-    const newTask = await Task.create({ title, description, rating, category, duration, createdBy: user._id, reward, status });
+    const newTask = await Task.create({ title, description, rating, category, duration, createdBy: user._id, reward, status, is18Plus });
 
     if (!user.tasks) {
       user.tasks = [];

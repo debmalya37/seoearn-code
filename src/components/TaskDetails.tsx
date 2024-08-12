@@ -28,6 +28,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task }) => {
         <span className="text-purple-700 font-bold">Reward: </span>
         ${task.reward}
       </div>
+      {/* <div className="mb-2">
+        <span className="text-purple-700 font-bold">18+: </span>
+        ${task.is18Plus}
+      </div> */}
       <div className="mb-2">
         <span className="text-purple-700 font-bold">Created At: </span>
         {task.createdAt}

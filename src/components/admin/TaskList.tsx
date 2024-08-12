@@ -7,6 +7,7 @@ interface Task {
   time: string;
   earning: number;
   status: string;
+  is18Plus: boolean;
 }
 
 interface TaskListProps {
@@ -37,6 +38,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onReviewTask, onDeleteTask }
               <td>{task.time}</td>
               <td>{task.status}</td>
               <td>${task.earning}</td>
+              <td>${task.is18Plus}</td>
               <td>
                 <button
                   className="bg-blue-500 text-white px-4 py-2 rounded mr-2"

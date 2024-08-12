@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
   const userEmail = session.user.email;
   try {
     const foundUser = await UserModel.findOne({ email: userEmail });
+    console.log(foundUser)
 
     if (!foundUser) {
       return NextResponse.json({

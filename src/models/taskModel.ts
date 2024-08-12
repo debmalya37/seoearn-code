@@ -12,6 +12,7 @@ export interface ITask extends Document {
   createdBy: string;
   reward: number;
   createdAt: Date;
+  is18Plus?: Boolean,
   submissions: Array<{
     submittedBy: string; // User ID of the submitter
     screenshotUrl?: string; // URL of the uploaded screenshot
@@ -61,7 +62,10 @@ const TaskSchema: Schema = new Schema({
     type: String,
     required: true
   },
-  
+  is18Plus: {
+    type: Boolean,
+    default: false
+  } ,
     requests: [{
       userId: { type: mongoose.Types.ObjectId, ref: 'User' },
       message: { type: String, required: false },

@@ -34,13 +34,6 @@ const categoryOptions = [
   "Other"
 ];
 
-const statusOptions = [
-  "Pending",
-  "In Progress",
-  "Approved",
-  "Rejected" // Add any other status options you need
-];
-
 const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, createdBy }) => {
   const [taskData, setTaskData] = useState<TaskData>({
     title: '',
@@ -51,7 +44,8 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
     createdBy: createdBy, // Set createdBy to the username or userId
     createdAt: new Date().toISOString(),
     reward: 0,
-    status: 'Pending',
+    status: 'Pending', // Default status value
+    is18Plus: false, // Default value for is18Plus
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -64,9 +58,9 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
     setTaskData({ ...taskData, category: value });
   };
 
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target;
-    setTaskData({ ...taskData, status: value });
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = e.target;
+    setTaskData({ ...taskData, is18Plus: checked });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -117,6 +111,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   className="border p-2 w-full"
                   required
                   min="0"
+                  max="10" // Limit the rating to a maximum of 10
                 />
               </div>
               <div className="mb-4">
@@ -160,20 +155,17 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="status" className="block mb-1">Status:</label>
-                <select
-                  id="status"
-                  name="status"
-                  value={taskData.status}
-                  onChange={handleStatusChange}
-                  className="border p-2 w-full"
-                  required
-                >
-                  {statusOptions.map((option, index) => (
-                    <option key={index} value={option}>{option}</option>
-                  ))}
-                </select>
+                <input
+                  type="checkbox"
+                  id="is18Plus"
+                  name="is18Plus"
+                  checked={taskData.is18Plus}
+                  onChange={handleCheckboxChange}
+                  className="mr-2"
+                />
+                <label htmlFor="is18Plus">18+ Task</label>
               </div>
+              {/* Status field is removed to make it non-editable */}
               <button
                 type="submit"
                 className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"

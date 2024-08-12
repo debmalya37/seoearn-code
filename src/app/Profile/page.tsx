@@ -9,7 +9,6 @@ import { FiUser, FiMail, FiPhone, FiCalendar, FiMapPin, FiUserPlus, FiCreditCard
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import profilepicDemo from "../../assets/rcb-pic-logo.jpeg";
-import { generateReferralCode } from "../utils/referral";
 import CountrySelect from "../../components/CountrySelect";
 import Select from 'react-select';
 
