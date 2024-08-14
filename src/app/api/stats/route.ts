@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
+import dbConnect from '@src/lib/dbConnect';
 import User from '@src/models/userModel';
 import Task from '@src/models/taskModel';
-import dbConnect from '@src/lib/dbConnect';
 
 export async function GET() {
     try {
-        
         await dbConnect();
 
         // Fetch user stats
@@ -27,7 +25,8 @@ export async function GET() {
         const totalTasks = await Task.countDocuments({});
         const taskList = await Task.find({}, 'title description rating category createdAt createdBy status is18Plus');
 
-        return NextResponse.json({
+        // Set cache control headers to prevent caching
+        const response = NextResponse.json({
             userStats: {
                 totalUsers,
                 avgAge,
@@ -41,6 +40,9 @@ export async function GET() {
                 taskList
             }
         });
+        response.headers.set('Cache-Control', 'no-store');
+
+        return response;
     } catch (error) {
         console.error('Error fetching stats:', error);
         return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });

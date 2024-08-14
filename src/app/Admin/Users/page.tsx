@@ -27,38 +27,38 @@ interface StatsResponse {
 
 const fetchStats = async (): Promise<StatsResponse> => {
   try {
-    const res = await fetch('http://localhost:3000/api/stats', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    console.log(res);
-    if (!res.ok) {
-      const errorData = await res.json();
-      console.error('Failed to fetch stats:', errorData.error || 'Unknown error');
-      throw new Error(errorData.error || 'Failed to fetch stats');
-    }
-
-    return await res.json();
-  } catch (error: any) {
-    console.error('Error fetching stats:', error.message);
-    return {
-      userStats: {
-        totalUsers: 0,
-        avgAge: 0,
-        totalMaleUsers: 0,
-        totalFemaleUsers: 0,
-        activeUsers: 0,
-        userList: []
-      },
-      taskStats: {
-        totalTasks: 0,
-        taskList: []
+      const res = await fetch(`http://localhost:3000/api/stats?_=${new Date().getTime()}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
+      if (!res.ok) {
+          const errorData = await res.json();
+          console.error('Failed to fetch stats:', errorData.error || 'Unknown error');
+          throw new Error(errorData.error || 'Failed to fetch stats');
       }
-    };
+
+      return await res.json();
+  } catch (error: any) {
+      console.error('Error fetching stats:', error.message);
+      return {
+          userStats: {
+              totalUsers: 0,
+              avgAge: 0,
+              totalMaleUsers: 0,
+              totalFemaleUsers: 0,
+              activeUsers: 0,
+              userList: []
+          },
+          taskStats: {
+              totalTasks: 0,
+              taskList: []
+          }
+      };
   }
 };
+
 
 const UsersPage = async () => {
   const { userStats } = await fetchStats();
