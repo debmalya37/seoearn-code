@@ -7,7 +7,6 @@ interface AddTaskModalProps {
   onSubmit: (task: TaskData) => void;
   createdBy: string; // Assuming the username or userId is provided as a prop
 }
-
 const categoryOptions = [
   "Nothing is selected",
   "Registration only",
@@ -33,7 +32,6 @@ const categoryOptions = [
   "Choose a referrer on SEOSPRINT",
   "Other"
 ];
-
 const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, createdBy }) => {
   const [taskData, setTaskData] = useState<TaskData>({
     title: '',
@@ -41,26 +39,24 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
     rating: 0,
     category: '',
     duration: '',
-    createdBy: createdBy, // Set createdBy to the username or userId
+    createdBy: createdBy,
     createdAt: new Date().toISOString(),
     reward: 0,
-    status: 'Pending', // Default status value
-     // Default value for is18Plus
+    status: 'Pending',
+    maxUsersCanDo: 1 // Ensure this is a number
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setTaskData({ ...taskData, [name]: value });
+    setTaskData(prevState => ({
+      ...prevState,
+      [name]: name === 'maxUsersCanDo' ? Number(value) : value // Ensure maxUsersCanDo is treated as a number
+    }));
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
-    setTaskData({ ...taskData, category: value });
-  };
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { checked } = e.target;
-    setTaskData({ ...taskData });
+    setTaskData(prevState => ({ ...prevState, category: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -69,7 +65,6 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
     onClose();
   };
 
-  // Return part
   return (
     <>
       {isOpen && (
@@ -111,7 +106,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   className="border p-2 w-full"
                   required
                   min="0"
-                  max="10" // Limit the rating to a maximum of 10
+                  max="10"
                 />
               </div>
               <div className="mb-4">
@@ -142,7 +137,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="reward" className="block mb-1">Reward:</label>
+                <label htmlFor="reward" className="block mb-1">Reward ($):</label>
                 <input
                   type="number"
                   id="reward"
@@ -152,20 +147,22 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   className="border p-2 w-full"
                   required
                   min="0"
+                  step={0.1}
                 />
               </div>
-              {/* <div className="mb-4">
+              <div className="mb-4">
+                <label htmlFor="maxUsersCanDo" className="block mb-1">Max Users Can Do:</label>
                 <input
-                  type="checkbox"
-                  id="is18Plus"
-                  name="is18Plus"
-                  checked={taskData.is18Plus}
-                  onChange={handleCheckboxChange}
-                  className="mr-2"
+                  type="number"
+                  id="maxUsersCanDo"
+                  name="maxUsersCanDo"
+                  value={taskData.maxUsersCanDo}
+                  onChange={handleChange}
+                  className="border p-2 w-full"
+                  required
+                  min="1"
                 />
-                <label htmlFor="is18Plus">18+ Task</label>
-              </div> */}
-              {/* Status field is removed to make it non-editable */}
+              </div>
               <button
                 type="submit"
                 className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"

@@ -3,6 +3,7 @@ import { string } from 'zod';
 
 // Define the ITask interface extending Document from Mongoose
 export interface ITask extends Document {
+  maxUsersCanDo: number;
   status: string;
   title: string;
   description: string;
@@ -18,6 +19,9 @@ export interface ITask extends Document {
     screenshotUrl?: string; // URL of the uploaded screenshot
     text?: string; // Textual details about the submission
     status: string; // 'pending', 'approved', 'rejected'
+    taskDoneBy?: Array<string>; // Array of user IDs who have completed the task
+    maxUsersCanDo: number;   // Maximum number of users who can work on the task
+
   }>;
 }
 
@@ -69,8 +73,17 @@ const TaskSchema: Schema = new Schema({
     requests: [{
       userId: { type: mongoose.Types.ObjectId, ref: 'User' },
       message: { type: String, required: false },
-      status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
-    }]
+      status: { type: String, enum: ['Pending', 'Approved', 'Rejected', 'Completed', 'In Progress'], default: 'Pending' }
+    }],
+    taskDoneBy: [{
+      type: mongoose.Types.ObjectId,
+      ref: 'User'
+    }],
+    maxUsersCanDo: {
+      type: Number,
+      required: true,
+      default: 1 // Set a default value or modify as needed
+    }
 });
 
 // Ensure the Task model uses the ITask interface

@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@src/components/ui/select"; 
 import { Input } from "@src/components/ui/input";
+import { number } from "zod";
 
 export interface TaskData {
   title: string;
@@ -30,6 +31,7 @@ export interface TaskData {
   reward: number;
   status?: string;
   createdAt?: string;
+  maxUsersCanDo: number;
   // is18Plus?: Boolean;
 }
 
@@ -146,8 +148,11 @@ const TasksPage: FC = () => {
     setCurrentPage(page);
   };
 
+  // Updated search logic to filter by title, description, and category
   const filteredTasks = tasks.filter((task) =>
-    task.title.toLowerCase().includes(searchInput.toLowerCase())
+    task.title.toLowerCase().includes(searchInput.toLowerCase()) ||
+    task.description.toLowerCase().includes(searchInput.toLowerCase()) ||
+    task.category.toLowerCase().includes(searchInput.toLowerCase())
   );
 
   if (!session || !session.user) {
@@ -162,7 +167,7 @@ const TasksPage: FC = () => {
             <h1 className="text-2xl font-bold">All Tasks</h1>
             <input
               type="text"
-              placeholder="search"
+              placeholder="Search by title, description or category"
               className="border rounded-md py-2 px-4"
               value={searchInput}
               onChange={handleSearchChange}
@@ -216,7 +221,7 @@ const TasksPage: FC = () => {
                   <SelectContent>
                     <SelectGroup>
                       <SelectItem value="createdAt">Date Created</SelectItem>
-                      <SelectItem value="reward">Reward</SelectItem>
+                      <SelectItem value="reward">Reward ($)</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </SelectTrigger>
@@ -235,8 +240,9 @@ const TasksPage: FC = () => {
                     category={task.category}
                     status={task.status || "Pending"}
                     reward={task.reward}
-                    // is18Plus={task.is18Plus}
-                    createdAt={task.createdAt} id={(task._id) as string} />
+                    createdAt={task.createdAt} 
+                    maxUsersCanDo={task.maxUsersCanDo}
+                    id={String(task._id)} />
                 </Link><br /></>
               ))
             ) : (
@@ -261,9 +267,11 @@ const TasksPage: FC = () => {
             </button>
           </div>
           <AddTaskModal
-        isOpen={isAddTaskModalOpen}
-        onClose={handleCloseAddTaskModal}
-        onSubmit={handleSubmitAddTask} createdBy={session.user.email}      />
+            isOpen={isAddTaskModalOpen}
+            onClose={handleCloseAddTaskModal}
+            onSubmit={handleSubmitAddTask} 
+            createdBy={session.user.email} 
+          />
         </div>
       </div>
     </>

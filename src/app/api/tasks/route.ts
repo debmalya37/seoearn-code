@@ -88,7 +88,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { title, description, rating, category, duration, reward, status} = await request.json();
+    const { title, description, rating, category, duration, reward, status, maxUsersCanDo} = await request.json();
 
     // Validation checks
     if (!title || !description || !category || !duration || !reward) {
@@ -101,13 +101,14 @@ export async function POST(request: Request) {
       );
     }
     
-    const newTask = await Task.create({ title, description, rating, category, duration, createdBy: user._id, reward, status });
+    const newTask = await Task.create({ title, description, rating, category, duration, createdBy: user._id, reward, status, maxUsersCanDo });
 
     if (!user.tasks) {
       user.tasks = [];
     }
     user.tasks.push(newTask.id);
     await user.save();
+    console.log("new task: ", newTask);
 
     return NextResponse.json({ success: true, message: "Task Created", task: newTask }, { status: 201 });
   } catch (error) {

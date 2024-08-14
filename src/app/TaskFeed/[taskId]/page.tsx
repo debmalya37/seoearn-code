@@ -102,6 +102,7 @@ const TaskDetails: FC = () => {
         <p><strong>Duration:</strong> {task.duration}</p>
         <p><strong>Reward:</strong> {task.reward}</p>
         <p><strong>Status:</strong> {task.status}</p>
+        <p><strong>Max users can do:</strong> {task.maxUsersCanDo}</p>
         <p><strong>Rating:</strong> {task.rating}</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">

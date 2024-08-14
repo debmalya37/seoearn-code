@@ -99,6 +99,7 @@ const AdminTask: FC = () => {
         <p><strong>Reward:</strong> {task.reward}</p>
         <p><strong>Status:</strong> {task.status}</p>
         <p><strong>Rating:</strong> {task.rating}</p>
+        <p><strong>Max users can do:</strong> {task.maxUsersCanDo}</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -110,6 +111,7 @@ const AdminTask: FC = () => {
             value={rating}
             onChange={handleRatingChange}
             min={0}
+            max={10}
             step={0.1}
             className="mt-1 block w-full"
           />

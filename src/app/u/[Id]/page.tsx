@@ -40,6 +40,8 @@ const UserProfile = ({ params }: { params: { Id: string } }) => {
         <Image
           src={user.profilePicture || defaultProfile}
           alt={user.username}
+          width={32}
+          height={32}
           className="w-32 h-32 rounded-full mr-6 border-4 border-purple-300"
         />
         <div>

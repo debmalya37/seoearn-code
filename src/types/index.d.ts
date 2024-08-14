@@ -11,6 +11,7 @@ export interface Task {
     status?: 'pending' | 'in-progress' | 'completed';
     createdAt: Date;
     createdBy?: Types.ObjectId;
+    maxUsersCanDo: number;
     
   }
   

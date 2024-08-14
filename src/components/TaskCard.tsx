@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation'; // Import useRouter from next/navigation
 import { ITask } from "@src/models/taskModel";
@@ -13,9 +14,10 @@ interface TaskCardProps {
   reward: number;
   createdAt: Date;
   // is18Plus: Boolean;
+  maxUsersCanDo: number;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ id, title, description, rating, category, status, createdAt, reward }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ id, title, description, rating, category, status, createdAt, reward, maxUsersCanDo }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter(); // Initialize useRouter
 
@@ -54,8 +56,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ id, title, description, rating, cat
         <span className="ml-2">{rating} ⭐</span>
       </div>
       <div className="mt-2 flex items-center">
-        <span className="text-purple-700 font-bold">Reward: </span>
+        <span className="text-purple-700 font-bold">Reward ($) : </span>
         <span className="ml-2">{reward}</span>
+      </div>
+      <div className="mt-2 flex items-center">
+        <span className="text-purple-700 font-bold">Max Users can do : </span>
+        <span className="ml-2">{maxUsersCanDo}</span>
       </div>
       <div className="mt-2">
         <span className="text-purple-700 font-bold">Created At: </span>

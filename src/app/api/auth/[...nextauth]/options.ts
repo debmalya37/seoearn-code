@@ -3,7 +3,6 @@ import GoogleProvider from 'next-auth/providers/google';
 import GitHubProvider from 'next-auth/providers/github';
 import dbConnect from '@src/lib/dbConnect';
 import UserModel from '@src/models/userModel';
-import { generateReferralCode } from '@src/app/utils/referral';
 
 const SECRET_KEY = process.env.JWT_TOKEN || 'your-secret-key';
 
@@ -52,12 +51,12 @@ export const authOptions: NextAuthOptions = {
             const newUser = new UserModel({
               email: user.email,
               username: user.email?.split('@')[0],
+              profilePicture: user?.image,
               isVerified: true,
               googleId: account?.provider === 'google' ? user.id : undefined,
               githubId: account?.provider === 'github' ? user.id : undefined,
               name: user.name,
-              referralCode: user.email?.split('@')[0]
-              
+              referralCode: user.email?.split('@')[0],
             });
             await newUser.save();
             console.log("New user created: ", newUser);
@@ -71,12 +70,45 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
     },
+    async jwt({ token, user, account }) {
+      if (account) {
+        token.idToken = account.id_token;
+        token.isVerified = (user?.isVerified as boolean) || false;
+        token.isAcceptingMessages = (user?.isAcceptingMessages as boolean) || false;
+        token.username = user?.username || '';
+        token.accessToken = account.access_token as string;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user._id = token.id;
+        session.user.isVerified = token.isVerified;
+        session.user.isAcceptingMessages = token.isAcceptingMessages;
+        session.user.username = token.username;
+        session.accessToken = token.accessToken;
+      }
+      return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // Redirect to the user's profile page after sign-in
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      else if (new URL(url).origin === baseUrl) return url;
+      return `${baseUrl}/profile`; // Redirect to profile page or any other desired page
+    },
+  },
+  pages: {
+    signIn: '/sign-in',
+    signOut: '/',
   },
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
   secret: SECRET_KEY,
 };
+
+export default authOptions;
+
 
 
 //  DFWDF

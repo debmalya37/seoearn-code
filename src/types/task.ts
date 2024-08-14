@@ -11,5 +11,6 @@ export interface TaskData {
     createdAt?: string;
     reward: number;
     status?: string; // Assuming `status` might be an optional field
+    maxUsersCanDo: number;
   }
   

@@ -128,7 +128,7 @@ const CreateAdvertisement: FC = () => {
 
       if (data.success) {
         // Refetch tasks after updating status
-        const response = await axios.get<ApiResponse>('/api/tasks');
+        const response = await axios.get<ApiResponse>('/api/ownTask');
         const fetchedTasks: ITask[] = response.data.tasks ?? []; // Use default empty array if tasks are undefined
         setInProgressTasks(fetchedTasks.filter(task => task.status === 'In Progress'));
 
@@ -201,7 +201,7 @@ const CreateAdvertisement: FC = () => {
       </div>
 
       <h3 className="mt-8 text-lg font-semibold">Stats of Your Tasks:</h3>
-      <div className="col-span-1">
+      {/* <div className="col-span-1">
         <Button
           onClick={handleToggleDashboard}
           className="p-2 bg-blue-500 text-white rounded shadow"
@@ -209,7 +209,7 @@ const CreateAdvertisement: FC = () => {
           {showDashboard ? 'Hide Dashboard' : 'Show Dashboard'}
         </Button>
         {showDashboard && <InsightDashboard />}
-      </div>
+      </div> */}
 
       <div className="mt-8">
         <h2 className="text-xl font-bold mb-4">In-Progress Tasks</h2>
@@ -222,6 +222,7 @@ const CreateAdvertisement: FC = () => {
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Rating</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Category</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+                {/* <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Submitted By</th> */}
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
