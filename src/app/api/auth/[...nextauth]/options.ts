@@ -94,7 +94,7 @@ export const authOptions: NextAuthOptions = {
       // Redirect to the user's profile page after sign-in
       if (url.startsWith('/')) return `${baseUrl}${url}`;
       else if (new URL(url).origin === baseUrl) return url;
-      return `${baseUrl}/profile`; // Redirect to profile page or any other desired page
+      return `${baseUrl}/Profile`; // Redirect to profile page or any other desired page
     },
   },
   pages: {

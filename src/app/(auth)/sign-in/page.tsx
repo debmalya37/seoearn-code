@@ -34,7 +34,7 @@ const SignIn = () => {
         {Object.values(providers).map((provider) => (
           <div key={provider.name} className="mb-4">
             <Button
-              onClick={() => signIn(provider.id, { callbackUrl: '/profile' })}
+              onClick={() => signIn(provider.id, { callbackUrl: '/Profile' })}
             >
               Sign in with {provider.name}
             </Button>

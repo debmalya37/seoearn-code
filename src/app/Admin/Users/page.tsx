@@ -1,9 +1,5 @@
-"use client";  // Ensure this is a client-side component
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Sidebar from '@src/components/admin/Sidebar';
-import { useSession } from 'next-auth/react';
-import Link from 'next/link';
 
 interface User {
   _id: string;
@@ -14,62 +10,58 @@ interface User {
   isVerified: boolean;
 }
 
-const UsersPage = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const { data: session } = useSession();
-
-  useEffect(() => {
-    // Function to fetch data from the API
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch('/api/users');
-        if (!response.ok) {
-          // Handle HTTP errors
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to fetch users');
-        }
-        const data = await response.json();
-        if (data && data.users) {
-          setUsers(data.users);  // Update state with fetched users
-        } else {
-          throw new Error('Invalid data structure received');
-        }
-      } catch (error: any) {
-        setError(error.message);  // Handle any errors
-      } finally {
-        setIsLoading(false);  // Set loading to false after fetch completes
-      }
-    };
-
-    fetchUsers();  // Call the fetch function
-  }, []);  // Empty dependency array means this effect runs once after the initial render
-
-  if (isLoading) {
-    return <div>Loading...</div>;  // Display loading indicator
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;  // Display error message if any
-  }
-
-  if (!session || !session.user || (session.user.email !== 'debmalyasen37@gmail.com' && session.user.email !== 'souvik007b@gmail.com')) {
-    return (
-        <div className="flex justify-center items-center h-full">
-            <div className="text-center">
-                <h1 className="text-2xl font-bold">Access Denied</h1>
-                <p className="mt-4">Please sign in as an admin to view this page.</p>
-                <Link href="/sign-in">
-                    <span className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
-                        Sign In
-                    </span>
-                </Link>
-            </div>
-        </div>
-    );
+interface StatsResponse {
+  userStats: {
+    totalUsers: number;
+    avgAge: number;
+    totalMaleUsers: number;
+    totalFemaleUsers: number;
+    activeUsers: number;
+    userList: User[];
+  };
+  taskStats: {
+    totalTasks: number;
+    taskList: any[]; // Adjust based on your Task schema
+  };
 }
 
+const fetchStats = async (): Promise<StatsResponse> => {
+  try {
+    const res = await fetch('http://localhost:3000/api/stats', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log(res);
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error('Failed to fetch stats:', errorData.error || 'Unknown error');
+      throw new Error(errorData.error || 'Failed to fetch stats');
+    }
+
+    return await res.json();
+  } catch (error: any) {
+    console.error('Error fetching stats:', error.message);
+    return {
+      userStats: {
+        totalUsers: 0,
+        avgAge: 0,
+        totalMaleUsers: 0,
+        totalFemaleUsers: 0,
+        activeUsers: 0,
+        userList: []
+      },
+      taskStats: {
+        totalTasks: 0,
+        taskList: []
+      }
+    };
+  }
+};
+
+const UsersPage = async () => {
+  const { userStats } = await fetchStats();
 
   return (
     <div className="flex">
@@ -88,12 +80,10 @@ const UsersPage = () => {
               </tr>
             </thead>
             <tbody>
-              {users.length > 0 ? (
-                users.map((user: User) => (
+              {userStats.userList.length > 0 ? (
+                userStats.userList.map((user: User) => (
                   <tr key={user._id}>
-                    
-                    <td className="py-2 px-4 border"><Link href={`/u/${user.username}`}>{user.username}</Link></td>
-                    
+                    <td className="py-2 px-4 border">{user.username}</td>
                     <td className="py-2 px-4 border">{user.email}</td>
                     <td className="py-2 px-4 border">{user.gender}</td>
                     <td className="py-2 px-4 border">{user.age}</td>
@@ -107,6 +97,14 @@ const UsersPage = () => {
               )}
             </tbody>
           </table>
+        </div>
+        <div className="mt-6">
+          <h2 className="text-xl font-bold mb-4">User Statistics</h2>
+          <p>Total Users: {userStats.totalUsers}</p>
+          <p>Average Age: {userStats.avgAge.toFixed(2)}</p>
+          <p>Total Male Users: {userStats.totalMaleUsers}</p>
+          <p>Total Female Users: {userStats.totalFemaleUsers}</p>
+          <p>Active Users: {userStats.activeUsers}</p>
         </div>
       </div>
     </div>
