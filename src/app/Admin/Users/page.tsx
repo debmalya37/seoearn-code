@@ -12,53 +12,34 @@ interface User {
 
 interface StatsResponse {
   userStats: {
-    totalUsers: number;
-    avgAge: number;
-    totalMaleUsers: number;
-    totalFemaleUsers: number;
-    activeUsers: number;
     userList: User[];
-  };
-  taskStats: {
-    totalTasks: number;
-    taskList: any[]; // Adjust based on your Task schema
   };
 }
 
 const fetchStats = async (): Promise<StatsResponse> => {
   try {
-      const res = await fetch(`http://localhost:3000/api/stats?_=${new Date().getTime()}`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-      });
-      if (!res.ok) {
-          const errorData = await res.json();
-          console.error('Failed to fetch stats:', errorData.error || 'Unknown error');
-          throw new Error(errorData.error || 'Failed to fetch stats');
-      }
+    const res = await fetch(`http:www.seoearningspace.com/api/stats`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error('Failed to fetch stats:', errorData.error || 'Unknown error');
+      throw new Error(errorData.error || 'Failed to fetch stats');
+    }
 
-      return await res.json();
+    return await res.json();
   } catch (error: any) {
-      console.error('Error fetching stats:', error.message);
-      return {
-          userStats: {
-              totalUsers: 0,
-              avgAge: 0,
-              totalMaleUsers: 0,
-              totalFemaleUsers: 0,
-              activeUsers: 0,
-              userList: []
-          },
-          taskStats: {
-              totalTasks: 0,
-              taskList: []
-          }
-      };
+    console.error('Error fetching stats:', error.message);
+    return {
+      userStats: {
+        userList: []
+      }
+    };
   }
 };
-
 
 const UsersPage = async () => {
   const { userStats } = await fetchStats();
@@ -98,14 +79,7 @@ const UsersPage = async () => {
             </tbody>
           </table>
         </div>
-        <div className="mt-6">
-          <h2 className="text-xl font-bold mb-4">User Statistics</h2>
-          <p>Total Users: {userStats.totalUsers}</p>
-          <p>Average Age: {userStats.avgAge.toFixed(2)}</p>
-          <p>Total Male Users: {userStats.totalMaleUsers}</p>
-          <p>Total Female Users: {userStats.totalFemaleUsers}</p>
-          <p>Active Users: {userStats.activeUsers}</p>
-        </div>
+        {/* Optional: Pagination component can be added here if user list is large */}
       </div>
     </div>
   );
