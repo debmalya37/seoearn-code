@@ -121,7 +121,11 @@ const TasksPage = () => {
                         <tbody>
                             {tasks.map((task) => (
                                 <tr key={task._id}>
-                                    <td className="py-2 px-4 border">{task.title}</td>
+                                    <td className="py-2 px-4 border">
+                                        <Link href={`/Admin/Utask/${task._id}`}>
+                                        <span className="text-blue-500 hover:underline">{task.title}</span>
+                                        </Link>
+                                    </td>
                                     <td className="py-2 px-4 border">{task.description}</td>
                                     <td className="py-2 px-4 border">{task.rating}</td>
                                     <td className="py-2 px-4 border">{task.status}</td>
