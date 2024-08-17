@@ -99,7 +99,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/sign-in',
-    signOut: '/',
+    signOut: '/sign-in',
   },
   session: {
     strategy: 'jwt',

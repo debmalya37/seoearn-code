@@ -81,7 +81,7 @@ const Dashboard = () => {
         return <div>{error}</div>;
     }
 
-    if (!session || !session.user || (session.user.email !== 'debmalyasen37@gmail.com' && session.user.email !== 'souvik007b@gmail.com')) {
+    if (!session || !session.user || (session.user.email !== 'debmalyasen37@gmail.com' && session.user.email !== 'souvik007b@gmail.com' && session.user.email !== "yashverdhan01@gamil.com" && session.user.email !== "debmalyasen15@gmail.com")) {
         return (
             <div className="flex justify-center items-center h-full">
                 <div className="text-center">

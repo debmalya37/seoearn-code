@@ -73,7 +73,7 @@ const UsersPage = async () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="py-2 px-4 border text-center">No users found</td>
+                  <td colSpan={5} className="py-2 px-4 border text-center">Live Users Coming Soon!!</td>
                 </tr>
               )}
             </tbody>
