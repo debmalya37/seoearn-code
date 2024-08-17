@@ -16,7 +16,7 @@ interface Task {
 }
 
 async function fetchTasks(page: number, limit: number) {
-    const res = await fetch(`http://www.seoearningspace.com/api/tasks?page=${page}&limit=${limit}`);
+    const res = await fetch(`http://seoearningspace.com/api/tasks?page=${page}&limit=${limit}`);
     const data = await res.json();
     if (data.success && Array.isArray(data.tasks)) {
         return {
@@ -93,27 +93,12 @@ const TasksPage = ({ initialTasks, initialTotalTasks }: { initialTasks: Task[], 
         }
     };
 
-    // if (!session || !session.user || (session.user.email !== 'debmalyasen37@gmail.com' && session.user.email !== 'souvik007b@gmail.com')) {
-    //     return (
-    //         <div className="flex justify-center items-center h-full">
-    //             <div className="text-center">
-    //                 <h1 className="text-2xl font-bold">Access Denied</h1>
-    //                 <p className="mt-4">Please sign in as an admin to view this page.</p>
-    //                 <Link href="/sign-in">
-    //                     <span className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
-    //                         Sign In
-    //                     </span>
-    //                 </Link>
-    //             </div>
-    //         </div>
-    //     );
-    // }
-
     return (
         <div className="flex">
             <Sidebar />
             <div className="flex-1 p-6">
                 <h1 className="text-2xl font-bold mb-4">Tasks</h1>
+                <span>Refreshing is important, go to dashbaord , refresh the dashboard and come back to tasks</span>
                 <div className="overflow-x-auto">
                     <table className="min-w-full bg-white">
                         <thead>
@@ -141,18 +126,24 @@ const TasksPage = ({ initialTasks, initialTotalTasks }: { initialTasks: Task[], 
                                     <td className="py-2 px-4 border">${task.reward}</td>
                                     <td className="py-2 px-4 border">{task.maxUsersCanDo}</td>
                                     <td className="py-2 px-4 border">
-                                        <button
-                                            onClick={() => handleApprove(task._id)}
-                                            className="bg-green-500 text-white px-4 py-1 rounded mr-2 hover:bg-green-600"
-                                        >
-                                            Approve
-                                        </button>
-                                        <button
-                                            onClick={() => handleReject(task._id)}
-                                            className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
-                                        >
-                                            Reject
-                                        </button>
+                                        {task.status === 'approved' || task.status === 'rejected' ? (
+                                            <span className="text-gray-500">N/A</span>
+                                        ) : (
+                                            <>
+                                                <button
+                                                    onClick={() => handleApprove(task._id)}
+                                                    className="bg-green-500 text-white px-4 py-1 rounded mr-2 hover:bg-green-600"
+                                                >
+                                                    Approve
+                                                </button>
+                                                <button
+                                                    onClick={() => handleReject(task._id)}
+                                                    className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+                                                >
+                                                    Reject
+                                                </button>
+                                            </>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
