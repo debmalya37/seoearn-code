@@ -162,7 +162,7 @@ const Profile = () => {
 
   const copyReferralLink = () => {
     if (referralCode) {
-      const referralLink = `${window.location.origin}/sign-up?ref=${referralCode}`;
+      const referralLink = `${window.location.origin}/sign-in?ref=${referralCode}`;
       navigator.clipboard.writeText(referralLink).then(
         () => {
           setSuccess("Referral link copied to clipboard");
