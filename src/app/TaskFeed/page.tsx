@@ -271,9 +271,9 @@ const TasksPage: FC = () => {
                     category={task.category}
                     status={task.status || "Pending"}
                     reward={task.reward}
-                    budget={task.budget || task.reward} 
+                    // budget={task.budget || task.reward} 
                     createdAt={task.createdAt} 
-                    maxUsersCanDo={task.maxUsersCanDo}
+                    // maxUsersCanDo={task.maxUsersCanDo}
                     id={String(task._id)} />
                 </Link><br /></>
               ))

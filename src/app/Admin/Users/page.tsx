@@ -18,7 +18,7 @@ interface StatsResponse {
 
 const fetchStats = async (): Promise<StatsResponse> => {
   try {
-    const res = await fetch(`http://www.seoearningspace.com/api/stats`, {
+    const res = await fetch(`https://www.seoearningspace.com/api/stats`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

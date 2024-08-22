@@ -139,9 +139,9 @@ const TaskDetails: FC = () => {
         <p><strong>Created At:</strong> {new Date(task.createdAt).toLocaleString()}</p>
         <p><strong>Duration:</strong> {task.duration}</p>
         <p><strong>Reward:</strong> {task.reward}</p>
-        <p><strong>Total Ad Budget:</strong> {task.budget}</p>
+        {/* <p><strong>Total Ad Budget:</strong> {task.budget}</p> */}
         <p><strong>Status:</strong> {task.status}</p>
-        <p><strong>Max users can do:</strong> {task.maxUsersCanDo}</p>
+        {/* <p><strong>Max users can do:</strong> {task.maxUsersCanDo}</p> */}
         <p><strong>Rating:</strong> {task.rating}</p>
       </div>
       <div>
@@ -154,13 +154,13 @@ const TaskDetails: FC = () => {
         />
       </div> 
       <div>
-        <label className="block text-gray-700">Upload File</label>
-        <Input
+        {/* <label className="block text-gray-700">Upload File</label> */}
+        {/* <Input
           type="file"
           accept=".png, .jpg, .jpeg"
           // onChange={handleFileChange}
           className="mt-1 block w-full"
-        />
+        /> */}
       </div> 
       <form onSubmit={handleSubmit} className="space-y-4">
         <Button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
