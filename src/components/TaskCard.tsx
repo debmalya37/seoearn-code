@@ -12,12 +12,13 @@ interface TaskCardProps {
   category: string;
   status: string;
   reward: number;
+  budget: number;
   createdAt: Date;
   // is18Plus: Boolean;
   maxUsersCanDo: number;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ id, title, description, rating, category, status, createdAt, reward, maxUsersCanDo }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ id, title, description, rating, category, status, createdAt, reward, budget, maxUsersCanDo }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter(); // Initialize useRouter
 
@@ -58,6 +59,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ id, title, description, rating, cat
       <div className="mt-2 flex items-center">
         <span className="text-purple-700 font-bold">Reward ($) : </span>
         <span className="ml-2">{reward}</span>
+      </div>
+      <div className="mt-2 flex items-center">
+        <span className="text-purple-700 font-bold">Budget ($) : </span>
+        <span className="ml-2">{budget}</span>
       </div>
       <div className="mt-2 flex items-center">
         <span className="text-purple-700 font-bold">Max Users can do : </span>

@@ -12,6 +12,7 @@ interface Task {
     rating: number;
     status: string;
     reward: number;
+    budget: number;
     maxUsersCanDo: number;
 }
 
@@ -108,6 +109,7 @@ const TasksPage = ({ initialTasks, initialTotalTasks }: { initialTasks: Task[], 
                                 <th className="py-2 px-4 border">Rating</th>
                                 <th className="py-2 px-4 border">Status</th>
                                 <th className="py-2 px-4 border">Reward</th>
+                                <th className="py-2 px-4 border">Budget</th>
                                 <th className="py-2 px-4 border">Max users can do</th>
                                 <th className="py-2 px-4 border">Actions</th>
                             </tr>
@@ -124,6 +126,7 @@ const TasksPage = ({ initialTasks, initialTotalTasks }: { initialTasks: Task[], 
                                     <td className="py-2 px-4 border">{task.rating}</td>
                                     <td className="py-2 px-4 border">{task.status}</td>
                                     <td className="py-2 px-4 border">${task.reward}</td>
+                                    <td className="py-2 px-4 border">${task.budget}</td>
                                     <td className="py-2 px-4 border">{task.maxUsersCanDo}</td>
                                     <td className="py-2 px-4 border">
                                         {task.status === 'approved' || task.status === 'rejected' ? (

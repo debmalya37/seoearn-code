@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@src/lib/dbConnect';
 import Task from '@src/models/taskModel';
-import { authOptions } from '../auth/[...nextauth]/options';
 import UserModel, { IUser } from '@src/models/userModel';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth/[...nextauth]/options';
 
-
+// Handler for GET requests
 export async function GET(request: Request) {
   try {
     await dbConnect();
-
     const url = new URL(request.url);
     const query = url.searchParams;
 
@@ -29,25 +28,29 @@ export async function GET(request: Request) {
       filter.category = category;
     }
     if (duration) {
-      filter.duration = { $lte: Number(duration) }; 
+      filter.duration = { $lte: Number(duration) };
     }
     if (reward) {
-      filter.reward = { $gte: Number(reward) }; 
+      filter.reward = { $gte: Number(reward) };
     }
 
     const sortOptions: { [key: string]: 1 | -1 } = {};
     if (sortBy === 'createdAt') {
-      sortOptions.createdAt = -1;
+      sortOptions.createdAt = -1; // Latest to Oldest
     } else if (sortBy === '-createdAt') {
-      sortOptions.createdAt = 1;
+      sortOptions.createdAt = 1; // Oldest to Latest
     } else if (sortBy === 'reward') {
-      sortOptions.reward = -1;
+      sortOptions.reward = -1; // Highest to Lowest
     } else if (sortBy === '-reward') {
-      sortOptions.reward = 1;
+      sortOptions.reward = 1; // Lowest to Highest
     }
 
     const totalTasks = await Task.countDocuments(filter);
-    const tasks = await Task.find(filter).sort(sortOptions).skip((page - 1) * limit).limit(limit).exec();
+    const tasks = await Task.find(filter)
+      .sort(sortOptions)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
 
     return NextResponse.json({
       success: true,
@@ -56,68 +59,63 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error('Error fetching tasks:', error);
-    return NextResponse.json({ success: false, message: 'Failed to fetch tasks' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: 'Failed to fetch tasks' },
+      { status: 500 }
+    );
   }
 }
 
-
-// POST endpoint remains unchanged
+// Handler for POST requests
 export async function POST(request: Request) {
-  await dbConnect();
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Not Authenticated",
-      },
-      { status: 401 }
-    );
-  }
-  const userEmail = session.user.email;
-  const user = await UserModel.findOne({ email: userEmail }) as IUser;
-
-  if (!user) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: "User not found",
-      },
-      { status: 404 }
-    );
-  }
-
   try {
-    const { title, description, rating, category, duration, reward, status, maxUsersCanDo} = await request.json();
-
-    // Validation checks
-    if (!title || !description || !category || !duration || !reward) {
+    await dbConnect();
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Missing required fields",
-        },
+        { success: false, message: 'Not Authenticated' },
+        { status: 401 }
+      );
+    }
+
+    const userEmail = session.user.email;
+    const user = await UserModel.findOne({ email: userEmail }) as IUser;
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    const { title, description, rating, category, duration, reward, budget, status, maxUsersCanDo } = await request.json();
+
+    if (!title || !description || !category || !duration || !reward || !budget) {
+      return NextResponse.json(
+        { success: false, message: 'Missing required fields' },
         { status: 400 }
       );
     }
-    
-    const newTask = await Task.create({ title, description, rating, category, duration, createdBy: user._id, reward, status, maxUsersCanDo });
+
+    const newTask = await Task.create({
+      title, description, rating, category, duration, createdBy: user._id, reward, budget, status, maxUsersCanDo
+    });
 
     if (!user.tasks) {
       user.tasks = [];
     }
     user.tasks.push(newTask.id);
     await user.save();
-    console.log("new task: ", newTask);
+    console.log("New task created:", newTask);
 
-    return NextResponse.json({ success: true, message: "Task Created", task: newTask }, { status: 201 });
+    return NextResponse.json({
+      success: true,
+      message: 'Task Created',
+      task: newTask
+    }, { status: 201 });
   } catch (error) {
-    console.error("Failed to add new task", error);
+    console.error('Failed to add new task', error);
     return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to add task",
-      },
+      { success: false, message: 'Failed to add task' },
       { status: 500 }
     );
   }

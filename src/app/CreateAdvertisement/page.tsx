@@ -18,6 +18,7 @@ export interface AdsTaskData {
   category: string;
   duration: string;
   reward: number;
+  budget: number;
   status?: string;
   createdAt?: string;
 }
@@ -169,6 +170,7 @@ const CreateAdvertisement: FC = () => {
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Category</th>
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Duration</th>
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Reward</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Budget</th>
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Created At</th>
             </tr>
           </thead>
@@ -186,6 +188,7 @@ const CreateAdvertisement: FC = () => {
                   <td className="border px-4 py-2">{task.category}</td>
                   <td className="border px-4 py-2">{task.duration}</td>
                   <td className="border px-4 py-2">{task.reward}</td>
+                  <td className="border px-4 py-2">{task.budget}</td>
                   <td className="border px-4 py-2">{new Date(task.createdAt).toLocaleString()}</td>
                 </tr>
               ))

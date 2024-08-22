@@ -49,12 +49,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     try {
-        const { status, description, rating } = await request.json(); // Expecting JSON body
+        const { status, notes, fileUrl, description, rating } = await request.json(); // Expecting JSON body
 
         
         const updatedTask = await Task.findByIdAndUpdate(
             id,
-            { status, description, rating },
+            { status, notes,fileUrl, description, rating },
             { new: true }
             );
             

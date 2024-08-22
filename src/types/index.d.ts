@@ -5,8 +5,11 @@ export interface Task {
     user: string;
     title: string;
     description: string;
+    notes?: string;
+    fileUrl?: string;
     category: string;
-    reward?: number; // If reward is optional
+    reward?: number;
+    budget?: number;
     rating?: number; // If rating is optional
     status?: 'pending' | 'in-progress' | 'completed';
     createdAt: Date;

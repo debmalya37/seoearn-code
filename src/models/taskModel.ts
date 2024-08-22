@@ -7,15 +7,18 @@ export interface ITask extends Document {
   status: string;
   title: string;
   description: string;
+  notes?: string;
+  fileUrl?: string;
   rating: number;
   category: string;
   duration: string;
   createdBy: string;
   reward: number;
+  budget: number;
   createdAt: Date;
   is18Plus?: Boolean,
-  submissions: Array<{
-    submittedBy: string; // User ID of the submitter
+  submissions?: Array<{
+    submittedBy?: string; // User ID of the submitter
     screenshotUrl?: string; // URL of the uploaded screenshot
     text?: string; // Textual details about the submission
     status: string; // 'pending', 'approved', 'rejected'
@@ -35,6 +38,12 @@ const TaskSchema: Schema = new Schema({
   description: {
     type: String,
     required: true,
+  },
+  notes: {
+    type: String,
+  },
+  fileUrl: {
+    type: String,
   },
   rating: {
     type: Number,
@@ -56,6 +65,10 @@ const TaskSchema: Schema = new Schema({
   reward: {
     type: Number,
     required: true,
+  },
+  budget: { 
+    type: Number, 
+    required: true 
   },
   createdAt: {
     type: Date,

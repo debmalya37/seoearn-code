@@ -6,6 +6,9 @@ import { ITask } from "@src/models/taskModel";
 import { useToast } from "@src/components/ui/use-toast";
 import { useParams } from "next/navigation";
 import { Button } from "@src/components/ui/button";
+import { Textarea } from "@src/components/ui/Textarea";
+import { Input } from "@src/components/ui/input";
+// import { uploadToCloudinary } from "@src/utils/cloudinary"; // Utility function to handle Cloudinary upload
 
 const TaskDetails: FC = () => {
   const { taskId } = useParams();
@@ -13,6 +16,8 @@ const TaskDetails: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [formState, setFormState] = useState({
     status: "In Progress",
+    notes: "",
+    fileUrl: "",
   });
   const { toast } = useToast();
 
@@ -23,6 +28,7 @@ const TaskDetails: FC = () => {
         if (response.data.success) {
           setTask(response.data.task);
           setFormState({
+            ...formState,
             status: "In Progress",
           });
         } else {
@@ -48,16 +54,46 @@ const TaskDetails: FC = () => {
     }
   }, [taskId, toast]);
 
+  // const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     try {
+  //       const fileUrl = await uploadToCloudinary(file); // Upload file to Cloudinary
+  //       setFormState((prevState) => ({
+  //         ...prevState,
+  //         fileUrl,
+  //       }));
+  //       toast({
+  //         title: "File Uploaded",
+  //         description: "File has been uploaded successfully",
+  //         variant: "default",
+  //       });
+  //     } catch (error) {
+  //       toast({
+  //         title: "Error",
+  //         description: "Failed to upload file",
+  //         variant: "destructive",
+  //       });
+  //     }
+  //   }
+  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`/api/tasks/${taskId}`, {
-        status: formState.status,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await axios.put(
+        `/api/tasks/${taskId}`,
+        {
+          status: formState.status,
+          notes: formState.notes,
+          fileUrl: formState.fileUrl,
         },
-      });
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.data.success) {
         toast({
@@ -66,6 +102,7 @@ const TaskDetails: FC = () => {
           variant: "default",
         });
         setTask(response.data.task);
+        console.log(task)
       } else {
         toast({
           title: "Error",
@@ -96,15 +133,35 @@ const TaskDetails: FC = () => {
       <div className="bg-gray-100 p-4 rounded-lg mb-4">
         <p><strong>Title:</strong> {task.title}</p>
         <p><strong>Description:</strong> {task.description}</p>
+        <p><strong>additional Notes:</strong> {task.notes}</p>
         <p><strong>Category:</strong> {task.category}</p>
         <p><strong>Created By:</strong> {task.createdBy}</p>
         <p><strong>Created At:</strong> {new Date(task.createdAt).toLocaleString()}</p>
         <p><strong>Duration:</strong> {task.duration}</p>
         <p><strong>Reward:</strong> {task.reward}</p>
+        <p><strong>Total Ad Budget:</strong> {task.budget}</p>
         <p><strong>Status:</strong> {task.status}</p>
         <p><strong>Max users can do:</strong> {task.maxUsersCanDo}</p>
         <p><strong>Rating:</strong> {task.rating}</p>
       </div>
+      <div>
+        <label className="block text-gray-700">Additional Notes</label>
+        <Textarea
+          name="notes"
+          value={formState.notes}
+          onChange={(e) => setFormState({ ...formState, notes: e.target.value })}
+          className="mt-1 block w-full"
+        />
+      </div> 
+      <div>
+        <label className="block text-gray-700">Upload File</label>
+        <Input
+          type="file"
+          accept=".png, .jpg, .jpeg"
+          // onChange={handleFileChange}
+          className="mt-1 block w-full"
+        />
+      </div> 
       <form onSubmit={handleSubmit} className="space-y-4">
         <Button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
           Submit Task
@@ -115,6 +172,7 @@ const TaskDetails: FC = () => {
 };
 
 export default TaskDetails;
+
 
 
       // formData.append('rating', formState.rating);
@@ -142,16 +200,10 @@ Submit Task
   //     setFormState({ ...formState, file });
   //   }
   // };
-  {/* <div>
-    <label className="block text-gray-700">Additional Notes</label>
-    <Textarea
-    name="notes"
-    value={formState.notes}
-    onChange={handleChange}
-    className="mt-1 block w-full"
-    />
-  </div> */}
-      {/* <div>
+   
+
+  
+      {/*== <div>
         <label className="block text-gray-700">Description</label>
         <Textarea
         name="description"
@@ -159,7 +211,7 @@ Submit Task
         onChange={handleChange}
         className="mt-1 block w-full"
         />
-      </div> */}
+      </div> 
       {/* <div>
         <label className="block text-gray-700">Rating</label>
         <Input
@@ -184,7 +236,7 @@ Submit Task
         </SelectGroup>
         </SelectContent>
         </Select>
-      </div> */}
+      </div> 
   {/* <div>
     <label className="block text-gray-700">Upload File</label>
     <Input

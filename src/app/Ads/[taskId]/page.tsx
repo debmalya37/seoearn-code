@@ -93,11 +93,15 @@ const OwnTaskDetails: FC = () => {
       <div className="bg-gray-100 p-4 rounded-lg mb-4">
         <p><strong>Title:</strong> {task.title}</p>
         <p><strong>Description:</strong> {task.description}</p>
+        <p><strong>Additional Notes:</strong> {task.notes || "N/A"}</p>
+        <p><strong>File Uploaded:</strong> {task.fileUrl || "N/A"}</p> 
         <p><strong>Category:</strong> {task.category}</p>
         <p><strong>Created By:</strong> {task.createdBy}</p>
         <p><strong>Created At:</strong> {new Date(task.createdAt).toLocaleString()}</p>
         <p><strong>Duration:</strong> {task.duration}</p>
         <p><strong>Reward:</strong> {task.reward}</p>
+        <p><strong>Total Ad Budget:</strong> {task.budget || task.reward}</p>
+        <p><strong>Max users can do:</strong> {task.maxUsersCanDo}</p>
         <p><strong>Status:</strong> {task.status}</p>
         <p><strong>Rating:</strong> {task.rating}</p>
       </div>

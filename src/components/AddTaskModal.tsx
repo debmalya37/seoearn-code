@@ -1,12 +1,13 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import { TaskData } from '@src/types/task';
 
 interface AddTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (task: TaskData) => void;
-  createdBy: string; // Assuming the username or userId is provided as a prop
+  createdBy: string;
 }
+
 const categoryOptions = [
   "Nothing is selected",
   "Registration only",
@@ -32,6 +33,7 @@ const categoryOptions = [
   "Choose a referrer on SEOSPRINT",
   "Other"
 ];
+
 const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, createdBy }) => {
   const [taskData, setTaskData] = useState<TaskData>({
     title: '',
@@ -42,15 +44,26 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
     createdBy: createdBy,
     createdAt: new Date().toISOString(),
     reward: 0,
+    budget: 0, // Add budget field
     status: 'Pending',
-    maxUsersCanDo: 1 // Ensure this is a number
+    maxUsersCanDo: 1
   });
+
+  useEffect(() => {
+    const calculatedMaxUsers = taskData.budget > 0 && taskData.reward > 0
+      ? Math.floor(taskData.budget / taskData.reward)
+      : 1;
+    setTaskData(prevState => ({
+      ...prevState,
+      maxUsersCanDo: calculatedMaxUsers
+    }));
+  }, [taskData.budget, taskData.reward]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setTaskData(prevState => ({
       ...prevState,
-      [name]: name === 'maxUsersCanDo' ? Number(value) : value // Ensure maxUsersCanDo is treated as a number
+      [name]: name === 'maxUsersCanDo' || name === 'reward' || name === 'budget' ? Number(value) : value
     }));
   };
 
@@ -106,7 +119,8 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   className="border p-2 w-full"
                   required
                   min="0"
-                  max="10"
+                  max="5"
+                  step={0.1}
                 />
               </div>
               <div className="mb-4">
@@ -119,21 +133,39 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   className="border p-2 w-full"
                   required
                 >
-                  {categoryOptions.map((option, index) => (
-                    <option key={index} value={option}>{option}</option>
+                  {categoryOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
                   ))}
                 </select>
               </div>
               <div className="mb-4">
-                <label htmlFor="duration" className="block mb-1">Duration:</label>
+                <label htmlFor="duration" className="block mb-1">Duration (in hours):</label>
                 <input
-                  type="text"
+                  type="number"
                   id="duration"
                   name="duration"
                   value={taskData.duration}
                   onChange={handleChange}
                   className="border p-2 w-full"
                   required
+                  min="0"
+                  step={0.1}
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="budget" className="block mb-1">Budget ($):</label>
+                <input
+                  type="number"
+                  id="budget"
+                  name="budget"
+                  value={taskData.budget}
+                  onChange={handleChange}
+                  className="border p-2 w-full"
+                  required
+                  min="0"
+                  step={0.01}
                 />
               </div>
               <div className="mb-4">
@@ -147,7 +179,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   className="border p-2 w-full"
                   required
                   min="0"
-                  step={0.1}
+                  step={0.01}
                 />
               </div>
               <div className="mb-4">
@@ -157,10 +189,8 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                   id="maxUsersCanDo"
                   name="maxUsersCanDo"
                   value={taskData.maxUsersCanDo}
-                  onChange={handleChange}
                   className="border p-2 w-full"
-                  required
-                  min="1"
+                  disabled // This field is calculated and cannot be edited
                 />
               </div>
               <button
