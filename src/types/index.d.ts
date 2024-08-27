@@ -18,3 +18,12 @@ export interface Task {
     
   }
   
+export interface User {
+  _id: string;
+  username: string;
+  email: string;
+  gender?: string;
+  age?: number;
+  isVerified: boolean;
+  // Add more fields if necessary
+}

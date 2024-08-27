@@ -1,88 +1,53 @@
-import React from 'react';
-import Sidebar from '@src/components/admin/Sidebar';
+// src/app/Admin/Users/page.tsx
+import Sidebar from "@src/components/admin/Sidebar";
+import UserListCard from "@src/components/UserListCard";
+import { fetchUsers } from "@src/actions/useractions"; // Import the server action
 
-interface User {
+interface IUserCard {
   _id: string;
   username: string;
+  name: string;
   email: string;
-  gender: string;
   age: number;
+  gender: string;
   isVerified: boolean;
 }
 
-interface StatsResponse {
-  userStats: {
-    userList: User[];
-  };
-}
-
-const fetchStats = async (): Promise<StatsResponse> => {
-  try {
-    const res = await fetch(`https://www.seoearningspace.com/api/stats`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!res.ok) {
-      const errorData = await res.json();
-      console.error('Failed to fetch stats:', errorData.error || 'Unknown error');
-      throw new Error(errorData.error || 'Failed to fetch stats');
-    }
-
-    return await res.json();
-  } catch (error: any) {
-    console.error('Error fetching stats:', error.message);
-    return {
-      userStats: {
-        userList: []
-      }
-    };
-  }
-};
-
-const UsersPage = async () => {
-  const { userStats } = await fetchStats();
+export default async function UsersPage() {
+  const users: IUserCard[] = await fetchUsers(); // Use the server action
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen bg-gray-100 p-4">
       <Sidebar />
-      <div className="flex-1 p-6">
-        <h1 className="text-2xl font-bold mb-4">Users</h1>
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white">
-            <thead>
-              <tr>
-                <th className="py-2 px-4 border">Username</th>
-                <th className="py-2 px-4 border">Email</th>
-                <th className="py-2 px-4 border">Gender</th>
-                <th className="py-2 px-4 border">Age</th>
-                <th className="py-2 px-4 border">Verified</th>
-              </tr>
-            </thead>
-            <tbody>
-              {userStats.userList.length > 0 ? (
-                userStats.userList.map((user: User) => (
-                  <tr key={user._id}>
-                    <td className="py-2 px-4 border">{user.username}</td>
-                    <td className="py-2 px-4 border">{user.email}</td>
-                    <td className="py-2 px-4 border">{user.gender}</td>
-                    <td className="py-2 px-4 border">{user.age}</td>
-                    <td className="py-2 px-4 border">{user.isVerified ? 'Yes' : 'No'}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className="py-2 px-4 border text-center">Live Users Coming Soon!!</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      <div className="w-full max-w-screen-lg mx-auto space-y-2">
+        {/* Header Row */}
+        <div className="bg-gray-200 p-2 rounded-lg shadow-md flex items-center border-b border-gray-300 font-medium text-gray-700">
+          <span className="flex-1 text-center">Username</span>
+          <span className="flex-1 text-center">Name</span>
+          <span className="flex-1 text-center">Email</span>
+          <span className="flex-1 text-center">Age</span>
+          <span className="flex-1 text-center">Gender</span>
+          <span className="flex-1 text-center">Verified</span>
         </div>
-        {/* Optional: Pagination component can be added here if user list is large */}
+
+        {/* User List */}
+        {Array.isArray(users) && users.length > 0 ? (
+          users.map((user) => (
+            <UserListCard
+              key={user._id}
+              id={user._id}
+              name={user.name}
+              username={user.username}
+              email={user.email}
+              age={user.age}
+              gender={user.gender}
+              isVerified={user.isVerified}
+            />
+          ))
+        ) : (
+          <div className="text-center">No users available</div>
+        )}
       </div>
     </div>
   );
-};
-
-export default UsersPage;
+}

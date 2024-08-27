@@ -7,24 +7,25 @@ export async function GET() {
   try {
     await dbConnect();
 
-    // Fetch user stats
     const userList = await User.find({}, 'username email gender age isVerified');
-
-    // Fetch task stats (if needed)
-    // const totalTasks = await Task.countDocuments({});
-    // const taskList = await Task.find({}, 'title description rating category createdAt createdBy status is18Plus');
-
-    // Set cache control headers to prevent caching
+    
+    
     const response = NextResponse.json({
       userStats: { userList }
     });
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
-
+    
     return response;
   } catch (error) {
     console.error('Error fetching stats:', error);
     return NextResponse.json({ error: 'Failed to fetch stats', details: error }, { status: 500 });
   }
 }
+
+// Fetch task stats (if needed)
+// const totalTasks = await Task.countDocuments({});
+// const taskList = await Task.find({}, 'title description rating category createdAt createdBy status is18Plus');
+// Set cache control headers to prevent caching
+// Fetch user stats

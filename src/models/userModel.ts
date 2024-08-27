@@ -41,14 +41,13 @@ export interface IUser extends Document {
   messages?: IMessage[];
   tasks?: Types.ObjectId[];
   referredBy?: Types.ObjectId;
-  // deviceIdentifier?: string;
-  balance?: number;
+  balance: number; // To track user's wallet balance
   earnings?: number;
   referralCode?: string;
   referrals?: Types.Array<Types.ObjectId>;
   referralEarnings?: number;
   referralCount?: number;
-  country?: String;
+  country?: string;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -57,9 +56,9 @@ const UserSchema = new Schema<IUser>({
   username: { type: String, required: true, trim: true, unique: true },
   phoneNumber: { type: Number },
   password: { type: String },
-  gender: { type: String, enum: ['male', 'female', 'other']},
-  age: { type: Number , min: 0},
-  dob: {type: Date},
+  gender: { type: String, enum: ['male', 'female', 'other'] },
+  age: { type: Number, min: 0 },
+  dob: { type: Date },
   profilePicture: { type: String },
   paymentPreference: { type: String },
   paymentGateway: { type: String },
@@ -73,14 +72,13 @@ const UserSchema = new Schema<IUser>({
   messages: [MessageSchema],
   tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
   referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  // deviceIdentifier: { type: String },
-  balance: { type: Number, default: 0 },
+  balance: { type: Number, default: 0 }, // Field to track user's wallet balance
   earnings: { type: Number, default: 0 },
   referralCode: { type: String },
   referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   referralEarnings: { type: Number, default: 0 },
   referralCount: { type: Number, default: 0 },
-  country: {type: String},
+  country: { type: String },
 });
 
 const UserModel = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

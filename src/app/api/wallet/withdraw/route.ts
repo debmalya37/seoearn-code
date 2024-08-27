@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import dbConnect from '@src/lib/dbConnect';
 import UserModel from '@src/models/userModel';
-import { authOptions } from '../auth/[...nextauth]/options';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@src/app/api/auth/[...nextauth]/options'; 
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -15,19 +15,19 @@ export async function POST(req: NextRequest) {
   try {
     const { amount } = await req.json();
 
-    if (amount < 20) {
-      return NextResponse.json({ message: 'Minimum deposit amount is $20' }, { status: 400 });
-    }
-
     const user = await UserModel.findOne({ email: session.user.email });
     if (!user) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    user.balance = (user.balance || 0) + amount;
+    if (user.balance < amount) {
+      return NextResponse.json({ message: 'Insufficient funds' }, { status: 400 });
+    }
+
+    user.balance -= amount;
     await user.save();
 
-    return NextResponse.json({ message: 'Deposit successful', balance: user.balance }, { status: 200 });
+    return NextResponse.json({ message: 'Withdrawal successful', balance: user.balance }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
