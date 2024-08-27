@@ -3,12 +3,41 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PaymentForm from '@src/components/PaymentForm';
 import WalletBalance from '@src/components/WalletBalance';
+import { useSession } from 'next-auth/react';
 
 const WalletPage = () => {
-  const [balance, setBalance] = useState<number>(0); // Initialize balance state
-  const userId = "exampleUserId"; // Replace with actual user ID
+  const [balance, setBalance] = useState<number>(0);
+  const [userId, setUserId] = useState<string | null>(null);
+  const { data: session, status } = useSession();
 
-  const fetchBalance = useCallback(async () => {
+  const fetchUserProfile = useCallback(async () => {
+    if (status === 'loading') return; // Wait for the session to load
+
+    if (!session || !session.user || !session.user.email) {
+      console.error('User not authenticated');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/profile');
+      if (!response.ok) {
+        throw new Error('Failed to fetch user profile');
+      }
+      const data = await response.json();
+
+      if (data.success && data.user) {
+        setUserId(data.user._id); // Set the userId from the profile API response
+        // Optionally set username or other profile data if needed
+        fetchBalance(data.user._id); // Fetch balance with the obtained userId
+      } else {
+        throw new Error(data.message || 'Failed to fetch user profile');
+      }
+    } catch (err: any) {
+      console.error(err.message);
+    }
+  }, [session, status]);
+
+  const fetchBalance = async (userId: string) => {
     try {
       const response = await fetch(`/api/wallet/balance?userId=${userId}`);
       if (!response.ok) {
@@ -23,16 +52,14 @@ const WalletPage = () => {
     } catch (err: any) {
       console.error(err.message);
     }
-  }, [userId]);
+  };
 
   useEffect(() => {
-    fetchBalance();
-  }, [fetchBalance]);
+    fetchUserProfile();
+  }, [fetchUserProfile]);
 
-  const handleBalanceChange = async (newBalance: number) => {
+  const handleBalanceChange = (newBalance: number) => {
     setBalance(newBalance);
-    // Optionally, you could refresh the balance from the server
-    // await fetchBalance();
   };
 
   return (
