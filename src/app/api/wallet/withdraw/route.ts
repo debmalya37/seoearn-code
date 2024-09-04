@@ -1,3 +1,4 @@
+// src/app/api/wallet/withdraw.ts
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@src/lib/dbConnect';
 import UserModel from '@src/models/userModel';
@@ -25,10 +26,19 @@ export async function POST(req: NextRequest) {
     }
 
     user.balance -= amount;
+
+    // Push the transaction into the user's transactions array
+    user.transactions.push({
+      type: 'withdrawal',
+      amount,
+      status: 'completed',
+    });
+
     await user.save();
 
     return NextResponse.json({ message: 'Withdrawal successful', balance: user.balance }, { status: 200 });
   } catch (error) {
+    console.error('Withdrawal error:', error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }

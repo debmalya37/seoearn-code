@@ -1,3 +1,4 @@
+// src/app/api/wallet/deposit.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import dbConnect from '@src/lib/dbConnect';
@@ -25,10 +26,19 @@ export async function POST(req: NextRequest) {
     }
 
     user.balance = (user.balance || 0) + amount;
+    
+    // Push the transaction into the user's transactions array
+    user.transactions.push({
+      type: 'deposit',
+      amount,
+      status: 'completed',
+    });
+
     await user.save();
 
     return NextResponse.json({ message: 'Deposit successful', balance: user.balance }, { status: 200 });
   } catch (error) {
+    console.error('Deposit error:', error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }

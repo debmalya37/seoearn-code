@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PaymentForm from '@src/components/PaymentForm';
 import WalletBalance from '@src/components/WalletBalance';
 import { useSession } from 'next-auth/react';
+import TransactionHistory from '@src/components/TransactionHistory';
 
 const WalletPage = () => {
   const [balance, setBalance] = useState<number>(0);
@@ -64,11 +65,12 @@ const WalletPage = () => {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Your Wallet</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">Your Wallet</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <WalletBalance balance={balance} />
-      <div className="flex gap-4 mt-4">
         <PaymentForm action="deposit" onSuccess={handleBalanceChange} />
         <PaymentForm action="withdraw" onSuccess={handleBalanceChange} />
+        <TransactionHistory userId={userId} className="mt-8" />
       </div>
     </div>
   );

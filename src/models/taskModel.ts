@@ -22,8 +22,8 @@ export interface ITask extends Document {
     screenshotUrl?: string; // URL of the uploaded screenshot
     text?: string; // Textual details about the submission
     status: string; // 'pending', 'approved', 'rejected'
-    taskDoneBy?: Array<string>; // Array of user IDs who have completed the task
-    maxUsersCanDo: number;   // Maximum number of users who can work on the task
+    taskDoneBy?: mongoose.Types.ObjectId[]; // Array of user IDs who have completed the task
+    maxUsersCanDo: number;
 
   }>;
 }
@@ -90,13 +90,13 @@ const TaskSchema: Schema = new Schema({
     }],
     taskDoneBy: [{
       type: mongoose.Types.ObjectId,
-      ref: 'User'
+      ref: 'User',
     }],
     maxUsersCanDo: {
       type: Number,
       required: true,
-      default: 1 // Set a default value or modify as needed
-    }
+      default: 1, // Set a default value or modify as needed
+    },
 });
 
 // Ensure the Task model uses the ITask interface

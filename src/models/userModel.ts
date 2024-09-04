@@ -17,8 +17,35 @@ const MessageSchema: Schema<IMessage> = new mongoose.Schema({
   },
 });
 
+export interface ITransaction extends Document {
+  type: 'deposit' | 'withdrawal';
+  amount: number;
+  date: Date;
+  status: 'pending' | 'completed' | 'failed';
+}
+
+const TransactionSchema: Schema<ITransaction> = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: ['deposit', 'withdrawal'],
+    required: true,
+  },
+  amount: {
+    type: Number,
+    required: true,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'completed', 'failed'],
+    default: 'pending',
+  },
+});
+
 export interface IUser extends Document {
-  user: never[];
   _id: Types.ObjectId;
   email: string;
   name: string;
@@ -41,13 +68,14 @@ export interface IUser extends Document {
   messages?: IMessage[];
   tasks?: Types.ObjectId[];
   referredBy?: Types.ObjectId;
-  balance: number; // To track user's wallet balance
+  balance: number;
   earnings?: number;
   referralCode?: string;
   referrals?: Types.Array<Types.ObjectId>;
   referralEarnings?: number;
   referralCount?: number;
   country?: string;
+  transactions?: ITransaction[];  // Added transactions field
 }
 
 const UserSchema = new Schema<IUser>({
@@ -72,13 +100,14 @@ const UserSchema = new Schema<IUser>({
   messages: [MessageSchema],
   tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
   referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  balance: { type: Number, default: 0 }, // Field to track user's wallet balance
+  balance: { type: Number, default: 0 },
   earnings: { type: Number, default: 0 },
   referralCode: { type: String },
   referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   referralEarnings: { type: Number, default: 0 },
   referralCount: { type: Number, default: 0 },
   country: { type: String },
+  transactions: [TransactionSchema]  // Field to track user's transaction history
 });
 
 const UserModel = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
