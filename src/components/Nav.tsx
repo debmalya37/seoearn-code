@@ -62,7 +62,7 @@ const Nav =  () => {
           <Link href="/" className="text-orange-300 hover:text-white transition-colors duration-200">Home</Link>
           <Link href="/TaskFeed" className="text-orange-300 hover:text-white transition-colors duration-200">TaskFeed</Link>
           <Link href="/CreateAdvertisement" className="text-orange-300 hover:text-white transition-colors duration-200">Advertisement</Link>
-          <Link href="/Payment" className="text-orange-300 hover:text-white transition-colors duration-200">Payment</Link>
+          <Link href="/Wallet" className="text-orange-300 hover:text-white transition-colors duration-200">Payment</Link>
           <Link href="/Referral" className="text-orange-300 hover:text-white transition-colors duration-200">Referral</Link>
           <Link href="/Profile" className="text-orange-300 hover:text-white transition-colors duration-200">Profile</Link>
         </div>

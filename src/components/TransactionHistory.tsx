@@ -1,9 +1,7 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 interface TransactionHistoryProps {
-  userId: string | null;
+  transactions: Transaction[];
   className?: string;
 }
 
@@ -14,28 +12,7 @@ interface Transaction {
   date: string;
 }
 
-const TransactionHistory: React.FC<TransactionHistoryProps> = ({ userId, className }) => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchTransactions = async () => {
-      try {
-        const response = await fetch(`/api/wallet/transaction?userId=${userId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch transactions');
-        }
-        const data = await response.json();
-        setTransactions(data.transactions);
-      } catch (err: any) {
-        console.error(err.message);
-      }
-    };
-
-    fetchTransactions();
-  }, [userId]);
-
+const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, className }) => {
   return (
     <div className={`p-6 bg-white shadow-lg rounded-lg ${className}`}>
       <h3 className="text-lg font-semibold mb-4">Transaction History</h3>
