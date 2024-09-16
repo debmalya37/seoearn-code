@@ -29,7 +29,6 @@ const WalletActionButton: React.FC<WalletActionButtonProps> = ({ userId, action,
       >
         {buttonLabel}
       </button>
-      {/* Show form only if showForm is true */}
       {showForm && <PaymentForm userId={userId} action={action} onSuccess={handleSuccess} />}
     </div>
   );
