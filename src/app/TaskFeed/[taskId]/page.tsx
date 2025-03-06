@@ -8,14 +8,16 @@ import { useParams } from "next/navigation";
 import { Button } from "@src/components/ui/button";
 import { Textarea } from "@src/components/ui/Textarea";
 import { Input } from "@src/components/ui/input";
-// import { uploadToCloudinary } from "@src/utils/cloudinary"; // Utility function to handle Cloudinary upload
+import { useSession } from "next-auth/react";
 
 const TaskDetails: FC = () => {
   const { taskId } = useParams();
   const [task, setTask] = useState<ITask | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { data: session } = useSession();
+  // Initialize form state with a default status if needed.
   const [formState, setFormState] = useState({
-    status: "In Progress",
+    status: "Completed",
     notes: "",
     fileUrl: "",
   });
@@ -27,14 +29,12 @@ const TaskDetails: FC = () => {
         const response = await axios.get(`/api/tasks/${taskId}`);
         if (response.data.success) {
           setTask(response.data.task);
-          setFormState({
-            ...formState,
-            status: "In Progress",
-          });
+          // Optionally, set form state based on the fetched task
         } else {
           toast({
             title: "Error",
-            description: response.data.message || "Failed to fetch task details",
+            description:
+              response.data.message || "Failed to fetch task details",
             variant: "destructive",
           });
         }
@@ -54,39 +54,18 @@ const TaskDetails: FC = () => {
     }
   }, [taskId, toast]);
 
-  // const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     try {
-  //       const fileUrl = await uploadToCloudinary(file); // Upload file to Cloudinary
-  //       setFormState((prevState) => ({
-  //         ...prevState,
-  //         fileUrl,
-  //       }));
-  //       toast({
-  //         title: "File Uploaded",
-  //         description: "File has been uploaded successfully",
-  //         variant: "default",
-  //       });
-  //     } catch (error) {
-  //       toast({
-  //         title: "Error",
-  //         description: "Failed to upload file",
-  //         variant: "destructive",
-  //       });
-  //     }
-  //   }
-  // };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // When the submit button is clicked, the PUT endpoint is called.
+      // The API will update the task and add the logged-in user (based on session) to taskDoneBy.
       const response = await axios.put(
         `/api/tasks/${taskId}`,
         {
           status: formState.status,
           notes: formState.notes,
           fileUrl: formState.fileUrl,
+          // If needed, you can include additional fields here.
         },
         {
           headers: {
@@ -102,11 +81,11 @@ const TaskDetails: FC = () => {
           variant: "default",
         });
         setTask(response.data.task);
-        console.log(task)
       } else {
         toast({
           title: "Error",
-          description: response.data.message || "Failed to update task details",
+          description:
+            response.data.message || "Failed to update task details",
           variant: "destructive",
         });
       }
@@ -131,38 +110,50 @@ const TaskDetails: FC = () => {
     <div className="p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4">Task Details</h1>
       <div className="bg-gray-100 p-4 rounded-lg mb-4">
-        <p><strong>Title:</strong> {task.title}</p>
-        <p><strong>Description:</strong> {task.description}</p>
-        <p><strong>additional Notes:</strong> {task.notes}</p>
-        <p><strong>Category:</strong> {task.category}</p>
-        <p><strong>Created By:</strong> {task.createdBy}</p>
-        <p><strong>Created At:</strong> {new Date(task.createdAt).toLocaleString()}</p>
-        <p><strong>Duration:</strong> {task.duration}</p>
-        <p><strong>Reward:</strong> {task.reward}</p>
-        {/* <p><strong>Total Ad Budget:</strong> {task.budget}</p> */}
-        <p><strong>Status:</strong> {task.status}</p>
-        {/* <p><strong>Max users can do:</strong> {task.maxUsersCanDo}</p> */}
-        <p><strong>Rating:</strong> {task.rating}</p>
+        <p>
+          <strong>Title:</strong> {task.title}
+        </p>
+        <p>
+          <strong>Description:</strong> {task.description}
+        </p>
+        <p>
+          <strong>Additional Notes:</strong> {task.notes}
+        </p>
+        <p>
+          <strong>Category:</strong> {task.category}
+        </p>
+        <p>
+          <strong>Created By:</strong> {task.createdBy}
+        </p>
+        <p>
+          <strong>Created At:</strong>{" "}
+          {new Date(task.createdAt).toLocaleString()}
+        </p>
+        <p>
+          <strong>Duration:</strong> {task.duration}
+        </p>
+        <p>
+          <strong>Reward:</strong> {task.reward}
+        </p>
+        <p>
+          <strong>Status:</strong> {task.status}
+        </p>
+        <p>
+          <strong>Rating:</strong> {task.rating}
+        </p>
       </div>
       <div>
         <label className="block text-gray-700">Additional Notes</label>
         <Textarea
           name="notes"
           value={formState.notes}
-          onChange={(e) => setFormState({ ...formState, notes: e.target.value })}
+          onChange={(e) =>
+            setFormState({ ...formState, notes: e.target.value })
+          }
           className="mt-1 block w-full"
         />
-      </div> 
-      <div>
-        {/* <label className="block text-gray-700">Upload File</label> */}
-        {/* <Input
-          type="file"
-          accept=".png, .jpg, .jpeg"
-          // onChange={handleFileChange}
-          className="mt-1 block w-full"
-        /> */}
-      </div> 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      </div>
+      <form onSubmit={handleSubmit} className="space-y-4 mt-4">
         <Button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
           Submit Task
         </Button>
@@ -172,77 +163,3 @@ const TaskDetails: FC = () => {
 };
 
 export default TaskDetails;
-
-
-
-      // formData.append('rating', formState.rating);
-      // formData.append('description', formState.description);
-
-// formData.append('notes', formState.notes);
-// if (formState.file) {
-//   formData.append('file', formState.file);
-// }
-
-{/* <Button onClick={handleStatusChange} className="mt-4 bg-green-500 text-white py-2 px-4 rounded">
-Submit Task
-</Button> */}
-// const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-    //     if (!['image/png', 'image/jpeg'].includes(file.type) || file.size > 250 * 1024) {
-      //       toast({
-        //         title: "Invalid file",
-        //         description: "File must be PNG, JPG, or JPEG and less than 250KB",
-        //         variant: "destructive",
-  //       });
-  //       return;
-  //     }
-  //     setFormState({ ...formState, file });
-  //   }
-  // };
-   
-
-  
-      {/*== <div>
-        <label className="block text-gray-700">Description</label>
-        <Textarea
-        name="description"
-        value={formState.description}
-        onChange={handleChange}
-        className="mt-1 block w-full"
-        />
-      </div> 
-      {/* <div>
-        <label className="block text-gray-700">Rating</label>
-        <Input
-        type="number"
-        name="rating"
-        value={formState.rating}
-        onChange={handleChange}
-        className="mt-1 block w-full"
-        />
-        </div>
-        <div>
-        <label className="block text-gray-700">Status</label>
-        <Select value={formState.status} onValueChange={handleStatusChange}>
-        <SelectTrigger>
-        <SelectValue placeholder="Select status" />
-        </SelectTrigger>
-        <SelectContent>
-        <SelectGroup>
-        <SelectItem value="Pending">Pending</SelectItem>
-        <SelectItem value="In Progress">In Progress</SelectItem>
-        <SelectItem value="Approved">Approved</SelectItem>
-        </SelectGroup>
-        </SelectContent>
-        </Select>
-      </div> 
-  {/* <div>
-    <label className="block text-gray-700">Upload File</label>
-    <Input
-      type="file"
-      accept=".png, .jpg, .jpeg"
-      onChange={handleFileChange}
-      className="mt-1 block w-full"
-      />
-    </div> */}

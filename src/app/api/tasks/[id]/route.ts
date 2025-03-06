@@ -1,83 +1,116 @@
 import Task from "@src/models/taskModel";
+import UserModel from "@src/models/userModel";
 import dbConnect from "@src/lib/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
 import { Types } from "mongoose";
+import { getServerSession } from "next-auth";
+import authOptions from "../../auth/[...nextauth]/options";
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  await dbConnect();
+  const { id } = params;
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-    await dbConnect();
+  if (!Types.ObjectId.isValid(id)) {
+    return NextResponse.json(
+      { success: false, message: "Invalid task ID" },
+      { status: 400 }
+    );
+  }
 
-    const { id } = params;
-
-    if (!Types.ObjectId.isValid(id)) {
-        return NextResponse.json(
-            { success: false, message: "Invalid task ID" },
-            { status: 400 }
-        );
+  try {
+    const task = await Task.findById(id).exec();
+    if (!task) {
+      return NextResponse.json(
+        { success: false, message: "Task not found" },
+        { status: 404 }
+      );
     }
-
-    try {
-        const task = await Task.findById(id).exec();
-        if (!task) {
-            return NextResponse.json(
-                { success: false, message: "Task not found" },
-                { status: 404 }
-            );
-        }
-        return NextResponse.json(
-            { success: true, task },
-            { status: 200 }
-        );
-    } catch (error) {
-        return NextResponse.json(
-            { success: false, message: "Failed to fetch task" },
-            { status: 500 }
-        );
-    }
+    return NextResponse.json({ success: true, task }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch task" },
+      { status: 500 }
+    );
+  }
 }
 
-// Update task (PUT)
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-    await dbConnect();
+// Update task (PUT) – adds the current user to the taskDoneBy array
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  await dbConnect();
+  const { id } = params;
 
-    const { id } = params;
+  if (!Types.ObjectId.isValid(id)) {
+    return NextResponse.json(
+      { success: false, message: "Invalid task ID" },
+      { status: 400 }
+    );
+  }
 
-    if (!Types.ObjectId.isValid(id)) {
-        return NextResponse.json(
-            { success: false, message: "Invalid task ID" },
-            { status: 400 }
-        );
+  try {
+    // Retrieve the current session to get the logged-in user
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { success: false, message: "Not authenticated" },
+        { status: 401 }
+      );
     }
 
-    try {
-        const { status, notes, fileUrl, description, rating } = await request.json(); // Expecting JSON body
+    // Destructure the fields you expect from the request body.
+    // (Adjust the destructuring as needed.)
+    const { status, notes, fileUrl, description, rating } =
+      await request.json();
 
-        
-        const updatedTask = await Task.findByIdAndUpdate(
-            id,
-            { status, notes,fileUrl, description, rating },
-            { new: true }
-            );
-            
-            if (!updatedTask) {
-                return NextResponse.json(
-                { success: false, message: "Failed to update task" },
-                { status: 404 }
-                );
-        }
-        
-        return NextResponse.json(
-            { success: true, message: "Task updated successfully", task: updatedTask },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error('Error updating task:', error);
-
-        return NextResponse.json(
-            { success: false, message: "Internal server error" },
-            { status: 500 }
-            );
-        }
+    // Find the user document based on session email
+    const userDoc = await UserModel.findOne({ email: session.user.email });
+    if (!userDoc) {
+      return NextResponse.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      );
     }
+
+    // Update the task by setting the provided fields and
+    // add the current user's _id to the taskDoneBy array.
+    // $addToSet ensures the same user is not added multiple times.
+    const updatedTask = await Task.findByIdAndUpdate(
+      id,
+      {
+        status,
+        notes,
+        fileUrl,
+        description,
+        rating,
+        $addToSet: { taskDoneBy: userDoc._id }
+      },
+      { new: true }
+    );
+
+    if (!updatedTask) {
+      return NextResponse.json(
+        { success: false, message: "Failed to update task" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: true, message: "Task updated successfully", task: updatedTask },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error updating task:", error);
+    return NextResponse.json(
+      { success: false, message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
     
     
     

@@ -12,11 +12,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
         <AuthProvider>
-      <body>
-          <Nav/>
-        {children}
-        <Toaster/>
-      </body>
+        <body className="h-screen flex">
+          {/* Navbar (left side) */}
+          <Nav />
+          
+          {/* Main Content (right side) */}
+          <div className="flex-1 overflow-auto">
+            {children}
+          </div>
+
+          {/* Toaster for notifications */}
+          <Toaster />
+        </body>
         </AuthProvider>        
     </html>
   )

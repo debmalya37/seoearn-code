@@ -11,7 +11,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import profilepicDemo from "../../assets/rcb-pic-logo.jpeg";
 import CountrySelect from "../../components/CountrySelect";
 import Select from 'react-select';
-
+import Sidebar from "@src/components/Sidebar";
 const Profile = () => {
   const { data: session, status } = useSession();
   const { register, handleSubmit, setValue, watch } = useForm();
@@ -183,9 +183,33 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex flex-col items-center mt-0 bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-400">
-      <div className="bg-gradient-to-r from-green-200 via-orange-100 to-green-100 rounded-lg shadow-2xl p-8 w-full max-w-4xl mt-10 mb-5">
-        <h1 className="text-3xl font-bold mb-8 text-center">User Profile</h1>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <Sidebar />
+      <div className="profile-container max-w-4xl w-full p-8">
+      <div className="relative w-32 h-32">
+                <Image
+                  src={profilePicture as string}
+                  alt="Profile Picture"
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-full border-4 border-blue-500"
+                />
+                <button
+          type="button"
+          onClick={triggerFileInput}
+          className="absolute bottom-2 right-2 bg-blue-600 text-white rounded-full p-2 shadow hover:bg-blue-700"
+        >
+          Edit
+        </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleProfilePictureChange}
+                  className="hidden"
+                  accept="image/*"
+                />
+              </div>
+      <h2 className="mt-4 text-2xl font-semibold">User Profile</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -287,29 +311,8 @@ const Profile = () => {
                 />
               </label>
             </div>
-            <div className="flex flex-col items-center justify-center">
-              <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-indigo-500">
-                <Image
-                  src={profilePicture as string}
-                  alt="Profile Picture"
-                  layout="fill"
-                  objectFit="cover"
-                />
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleProfilePictureChange}
-                  className="hidden"
-                  accept="image/*"
-                />
-                <button
-                  type="button"
-                  onClick={triggerFileInput}
-                  className="absolute inset-0 bg-black bg-opacity-50 text-white flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300"
-                >
-                  Change Picture
-                </button>
-              </div>
+            <div className="flex flex-col items-center mb-8">
+              
               <div className="text-center mt-4">
                 <label className="block mb-2">
                   <span className="text-gray-800 flex items-center">

@@ -17,6 +17,7 @@ export interface ITask extends Document {
   budget: number;
   createdAt: Date;
   is18Plus?: Boolean,
+  taskDoneBy?: mongoose.Types.ObjectId[]; 
   submissions?: Array<{
     submittedBy?: string; // User ID of the submitter
     screenshotUrl?: string; // URL of the uploaded screenshot

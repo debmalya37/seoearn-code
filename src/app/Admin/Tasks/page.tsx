@@ -17,7 +17,7 @@ interface Task {
 }
 
 async function fetchTasks(page: number, limit: number) {
-    const res = await fetch(`https://www.seoearningspace.com/api/tasks?page=${page}&limit=${limit}`);
+    const res = await fetch(`http://localhost:3000/api/tasks?page=${page}&limit=${limit}`);
     const data = await res.json();
     if (data.success && Array.isArray(data.tasks)) {
         return {

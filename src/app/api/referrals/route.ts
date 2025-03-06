@@ -12,44 +12,57 @@ export async function GET(req: NextRequest) {
     // Get the session user
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
-      return NextResponse.json({
-        success: false,
-        message: 'Not authenticated'
-      }, { status: 401 });
+      return NextResponse.json(
+        { success: false, message: 'Not authenticated' },
+        { status: 401 }
+      );
     }
 
-    const user = session.user;
-    const userId = user._id;
-
-    // Find the user by ID
-    const foundUser = await User.findOne({email: session.user.email}).populate('referrals');
+    // Find the user by email and populate referrals
+    const foundUser = await User.findOne({ email: session.user.email }).populate('referrals');
     if (!foundUser) {
-      return NextResponse.json({
-        success: false,
-        message: "User not found"
-      }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      );
     }
 
-    // Get the referral data
+    // If the user doesn't have a referral code, generate one using the email prefix and a random 4-digit number
+    if (!foundUser.referralCode) {
+      const emailPrefix = foundUser.email.split("@")[0];
+      const randomNumber = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
+      const referralCode = emailPrefix + randomNumber;
+      foundUser.referralCode = referralCode;
+      await foundUser.save();
+    }
+
+    // Generate the referral link using the request origin
+    const origin = req.nextUrl.origin;
+    const referralLink = `${origin}/?ref=${foundUser.referralCode}`;
+
+    // Prepare referral stats
     const totalReferrals = foundUser.referrals.length;
     const referralList = foundUser.referrals.map((referral: any) => ({
       name: referral.username,
       email: referral.email
     }));
 
-    return NextResponse.json({
-      referralStats: {
-        totalReferrals,
-        referralList,
-        referralCode: foundUser.referralCode
-      }
-    }, { status: 200 });
-
+    return NextResponse.json(
+      {
+        referralStats: {
+          totalReferrals,
+          referralList,
+          referralCode: foundUser.referralCode,
+          referralLink,
+        }
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Error fetching referrals:', error);
-    return NextResponse.json({
-      success: false,
-      message: 'Internal server error'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

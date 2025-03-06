@@ -70,7 +70,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ id, title, description, rating, cat
       </div>
       <button
         onClick={handleReadMore}
-        className="text-blue-600 mt-2"
+        className="text-white mt-2"
       >
         View Details
       </button>

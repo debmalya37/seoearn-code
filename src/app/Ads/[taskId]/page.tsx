@@ -14,6 +14,8 @@ const OwnTaskDetails: FC = () => {
   const [task, setTask] = useState<ITask | null>(null);
   const [description, setDescription] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  // State to hold the emails of users who completed the task
+  const [taskDoneByEmails, setTaskDoneByEmails] = useState<string[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -45,6 +47,31 @@ const OwnTaskDetails: FC = () => {
       fetchTask();
     }
   }, [taskId, toast]);
+
+  // After the task is loaded, fetch the email for each user in task.taskDoneBy
+  useEffect(() => {
+    const fetchEmails = async () => {
+      if (task && task.taskDoneBy && task.taskDoneBy.length > 0) {
+        try {
+          const emailPromises = task.taskDoneBy.map(async (userId) => {
+            const res = await axios.get(`/api/users/${userId}`);
+            if (res.data.success) {
+              return res.data.email;
+            }
+            return null;
+          });
+          const emails = await Promise.all(emailPromises);
+          setTaskDoneByEmails(emails.filter((email) => email !== null));
+        } catch (error) {
+          console.error("Error fetching user emails:", error);
+        }
+      } else {
+        setTaskDoneByEmails([]);
+      }
+    };
+
+    fetchEmails();
+  }, [task]);
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDescription(e.target.value);
@@ -91,23 +118,66 @@ const OwnTaskDetails: FC = () => {
     <div className="p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4">Task Details</h1>
       <div className="bg-gray-100 p-4 rounded-lg mb-4">
-        <p><strong>Title:</strong> {task.title}</p>
-        <p><strong>Description:</strong> {task.description}</p>
-        <p><strong>Additional Notes:</strong> {task.notes || "N/A"}</p>
-        <p><strong>File Uploaded:</strong> {task.fileUrl || "N/A"}</p> 
-        <p><strong>Category:</strong> {task.category}</p>
-        <p><strong>Created By:</strong> {task.createdBy}</p>
-        <p><strong>Created At:</strong> {new Date(task.createdAt).toLocaleString()}</p>
-        <p><strong>Duration:</strong> {task.duration}</p>
-        <p><strong>Reward:</strong> {task.reward}</p>
-        <p><strong>Total Ad Budget:</strong> {task.budget || task.reward}</p>
-        <p><strong>Max users can do:</strong> {task.maxUsersCanDo}</p>
-        <p><strong>Status:</strong> {task.status}</p>
-        <p><strong>Rating:</strong> {task.rating}</p>
+        <p>
+          <strong>Title:</strong> {task.title}
+        </p>
+        <p>
+          <strong>Description:</strong> {task.description}
+        </p>
+        <p>
+          <strong>Additional Notes:</strong> {task.notes || "N/A"}
+        </p>
+        <p>
+          <strong>File Uploaded:</strong> {task.fileUrl || "N/A"}
+        </p>
+        <p>
+          <strong>Category:</strong> {task.category}
+        </p>
+        <p>
+          <strong>Created By:</strong> {task.createdBy}
+        </p>
+        <p>
+          <strong>Created At:</strong> {new Date(task.createdAt).toLocaleString()}
+        </p>
+        <p>
+          <strong>Duration:</strong> {task.duration}
+        </p>
+        <p>
+          <strong>Reward:</strong> {task.reward}
+        </p>
+        <p>
+          <strong>Total Ad Budget:</strong> {task.budget || task.reward}
+        </p>
+        <p>
+          <strong>Max users can do:</strong> {task.maxUsersCanDo}
+        </p>
+        <p>
+          <strong>Status:</strong> {task.status}
+        </p>
+        <p>
+          <strong>Rating:</strong> {task.rating}
+        </p>
+        <div>
+          <strong>Task Done By Users:</strong>
+          {taskDoneByEmails.length > 0 ? (
+            <ul>
+              {taskDoneByEmails.map((email, index) => (
+                <li key={index}>{email}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>N/A</p>
+          )}
+        </div>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+          <label
+            htmlFor="description"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Description
+          </label>
           <Textarea
             id="description"
             name="description"

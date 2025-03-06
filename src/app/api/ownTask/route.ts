@@ -72,7 +72,15 @@ export async function GET(request: Request) {
 
     const [taskPipeLine] = await Task.aggregate(tasksAggregation);
 
-    const user = await UserModel.findOne({email: session.user.email}).populate('tasks') as IUser;
+    const user = await UserModel.findOne({ email: session.user.email }).populate({
+      path: 'tasks',
+      populate: {
+        path: 'taskDoneBy',
+        model: 'User',
+        select: 'username' // Only retrieve the username; adjust if you need more fields
+      }
+    }) as IUser;
+    
 
     if (!user) {
       return NextResponse.json(
