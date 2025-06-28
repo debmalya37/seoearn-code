@@ -25,10 +25,35 @@ export interface ITask extends Document {
     status: string; // 'pending', 'approved', 'rejected'
     taskDoneBy?: mongoose.Types.ObjectId[]; // Array of user IDs who have completed the task
     maxUsersCanDo: number;
+    requests?: IRequest[];
 
   }>;
 }
 
+// Define the shape of each request entry
+export interface IRequest {
+  _id: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  message?: string;
+  fileUrl?: string;
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Completed' | 'In Progress';
+  createdAt: Date;
+}
+
+const RequestSubSchema = new Schema<IRequest>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    message: { type: String },
+    fileUrl: { type: String },
+    status: {
+      type: String,
+      enum: ['Pending','Approved','Rejected','Completed','In Progress'],
+      default: 'Pending',
+    },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: true }  // <<< Let Mongoose auto‑generate this subdoc `_id`
+);
 
 // Define the Task schema
 const TaskSchema: Schema = new Schema({
@@ -84,11 +109,7 @@ const TaskSchema: Schema = new Schema({
     type: Boolean,
     default: false
   } ,
-    requests: [{
-      userId: { type: mongoose.Types.ObjectId, ref: 'User' },
-      message: { type: String, required: false },
-      status: { type: String, enum: ['Pending', 'Approved', 'Rejected', 'Completed', 'In Progress'], default: 'Pending' }
-    }],
+  requests: [RequestSubSchema],
     taskDoneBy: [{
       type: mongoose.Types.ObjectId,
       ref: 'User',

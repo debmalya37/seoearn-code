@@ -1,16 +1,11 @@
-import React from 'react';
+// src/components/WalletBalance.tsx
+'use client';
 
-interface WalletBalanceProps {
-  balance: number;
-}
-
-const WalletBalance: React.FC<WalletBalanceProps> = ({ balance }) => {
+export default function WalletBalance({ balance }: { balance: number }) {
   return (
-    <div className="p-4 border rounded bg-gray-100">
-      <h2 className="text-xl font-bold">Balance</h2>
-      <p className="text-lg">${balance.toFixed(2)}</p>
+    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h2 className="text-xl font-semibold">Current Balance</h2>
+      <p className="text-4xl font-bold mt-2">{balance.toFixed(2)}</p>
     </div>
   );
-};
-
-export default WalletBalance;
+}

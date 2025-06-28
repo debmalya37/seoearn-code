@@ -18,5 +18,5 @@ export const signUpSchema = z.object({
     .string()
     .regex(/^\d+$/, "age must be a number")
     .transform((val) => parseInt(val, 10)),
-  referredBy: z.string().optional(),
+    referralCode: z.string().optional(),
 });

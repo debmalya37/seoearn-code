@@ -1,28 +1,45 @@
-import { authOptions } from "@src/app/api/auth/[...nextauth]/options";
-import UserModel from "@src/models/userModel";
-import { Types } from "mongoose";
-import { getServerSession } from "next-auth";
+// src/helpers/referralEarnings.ts
+import UserModel from '@src/models/userModel';
+import { Types } from 'mongoose';
 
-const LEVEL_ONE_PERCENTAGE = 0.0025; // 0.25%
-const LEVEL_TWO_PERCENTAGE = 0.005;  // 0.5%
+const LEVEL_ONE_PERCENTAGE = 0.10;  // 10%
+const LEVEL_TWO_PERCENTAGE = 0.05;  // 5%
 
+/**
+ * Whenever `currentUserId` earns `amountEarned` (e.g. from completing a task),
+ * call this function to pay out referral commissions:
+ *   – 10% goes to the immediate referrer (if any),
+ *   –  5% goes to the referrer’s referrer (if any).
+ *
+ * Also increments each referrer’s `referralEarnings` field accordingly.
+ */
+export const handleReferralEarnings = async (
+  currentUserId: Types.ObjectId,
+  amountEarned: number
+) => {
+  // 1. Find the user who just earned money:
+  const currentUser = await UserModel.findById(currentUserId).exec();
+  if (!currentUser) return;
 
-export const handleReferralEarnings = async (userId: Types.ObjectId, taskEarnings: number) => {
-    const session = await getServerSession(authOptions);
-const user = await UserModel.findOne({email: session?.user.email});
-if (!user) throw new Error("User not found");
+  // 2. Level-1: the direct referrer (if any)
+  if (currentUser.referredBy) {
+    const levelOneUser = await UserModel.findById(currentUser.referredBy).exec();
+    if (levelOneUser) {
+      const levelOneCommission = amountEarned * LEVEL_ONE_PERCENTAGE;
+      levelOneUser.balance += levelOneCommission;
+      levelOneUser.referralEarnings = (levelOneUser.referralEarnings || 0) + levelOneCommission;
+      await levelOneUser.save();
 
-const levelOneUser = user.referredBy ? await UserModel.findById(user.referredBy) : null;
-if (levelOneUser) {
-const levelOneEarnings = taskEarnings * LEVEL_ONE_PERCENTAGE;
-levelOneUser.balance += levelOneEarnings;
-await levelOneUser.save();
-
-const levelTwoUser = levelOneUser.referredBy ? await UserModel.findById(levelOneUser.referredBy) : null;
-if (levelTwoUser) {
-    const levelTwoEarnings = taskEarnings * LEVEL_TWO_PERCENTAGE;
-    levelTwoUser.balance += levelTwoEarnings;
-    await levelTwoUser.save();
-}
-}
+      // 3. Level-2: the referrer of the referrer (if any)
+      if (levelOneUser.referredBy) {
+        const levelTwoUser = await UserModel.findById(levelOneUser.referredBy).exec();
+        if (levelTwoUser) {
+          const levelTwoCommission = amountEarned * LEVEL_TWO_PERCENTAGE;
+          levelTwoUser.balance += levelTwoCommission;
+          levelTwoUser.referralEarnings = (levelTwoUser.referralEarnings || 0) + levelTwoCommission;
+          await levelTwoUser.save();
+        }
+      }
+    }
+  }
 };

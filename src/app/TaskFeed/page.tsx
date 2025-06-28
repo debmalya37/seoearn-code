@@ -1,14 +1,15 @@
-"use client";
+// src/app/taskfeed/page.tsx
+'use client';
 
-import React, { FC, useCallback, useEffect, useState } from "react";
-import AddTaskModal from "@src/components/AddTaskModal";
-import { ITask } from "@src/models/taskModel";
-import { useToast } from "@src/components/ui/use-toast";
-import { useSession, getSession } from "next-auth/react";
-import axios, { AxiosError } from "axios";
-import Link from "next/link";
-import { Button } from "@src/components/ui/button";
-import { ApiResponse } from "@src/types/ApiResponse";
+import React, { FC, useCallback, useEffect, useState } from 'react';
+import AddTaskModal from '@src/components/AddTaskModal';
+import { ITask } from '@src/models/taskModel';
+import { useToast } from '@src/components/ui/use-toast';
+import { useSession, getSession } from 'next-auth/react';
+import axios, { AxiosError } from 'axios';
+import Link from 'next/link';
+import { Button } from '@src/components/ui/button';
+import { ApiResponse } from '@src/types/ApiResponse';
 import {
   Select,
   SelectTrigger,
@@ -16,35 +17,35 @@ import {
   SelectGroup,
   SelectItem,
   SelectValue,
-} from "@src/components/ui/select";
-import { Input } from "@src/components/ui/input";
-import Feedside from "@src/components/Feedside";
+} from '@src/components/ui/select';
+import { Input } from '@src/components/ui/input';
+import Feedside from '@src/components/Feedside';
 
-// Category options
+// Category options remain the same
 const categoryOptions = [
-  "Nothing is selected",
-  "Registration only",
-  "Registration with activity",
-  "Activity only",
-  "Bonuses",
-  "YouTube",
-  "Instagram",
-  "Vkontakte",
-  "FaceBook",
-  "Telegram",
-  "Other social networks",
-  "Review/vote",
-  "Posting",
-  "Copyright, rewrite",
-  "Captcha",
-  "Transfer of points, credits",
-  "Invest",
-  "Forex",
-  "Games",
-  "Mobile Apps",
-  "Downloading files",
-  "Choose a referrer on SEOSPRINT",
-  "Other",
+  'Nothing is selected',
+  'Registration only',
+  'Registration with activity',
+  'Activity only',
+  'Bonuses',
+  'YouTube',
+  'Instagram',
+  'Vkontakte',
+  'FaceBook',
+  'Telegram',
+  'Other social networks',
+  'Review/vote',
+  'Posting',
+  'Copyright, rewrite',
+  'Captcha',
+  'Transfer of points, credits',
+  'Invest',
+  'Forex',
+  'Games',
+  'Mobile Apps',
+  'Downloading files',
+  'Choose a referrer on SEOSPRINT',
+  'Other',
 ];
 
 export interface TaskData {
@@ -58,57 +59,57 @@ export interface TaskData {
   status?: string;
   createdAt?: string;
   maxUsersCanDo: number;
-  // is18Plus?: boolean;
 }
 
-const TasksPage: FC = () => {
+
+
+
+const TaskFeedPage: FC = () => {
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [searchInput, setSearchInput] = useState("");
+  const [searchInput, setSearchInput] = useState('');
   const [filters, setFilters] = useState({
-    status: "",
-    category: "",
-    duration: "",
-    reward: "",
+    status: 'all',
+    category: 'all',
+    duration: '',
+    reward: '',
   });
-  const [sortBy, setSortBy] = useState("createdAt"); // default sorting by creation date
+  const [sortBy, setSortBy] = useState('createdAt');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const { toast } = useToast();
   const { data: session } = useSession();
 
+  // Build query string, omitting `status` or `category` if they're "all"
+  const buildQueryString = () => {
+    const q: Record<string, string> = { sortBy, page: String(currentPage), limit: '12' };
+    if (filters.status !== 'all') q.status = filters.status;
+    if (filters.category !== 'all') q.category = filters.category;
+    if (filters.duration) q.duration = filters.duration;
+    if (filters.reward) q.reward = filters.reward;
+    return new URLSearchParams(q).toString();
+  };
+
   // Fetch tasks from server
   const fetchTasks = useCallback(async () => {
     setIsLoading(true);
     try {
-      const session = await getSession();
-      const query = new URLSearchParams({
-        ...filters,
-        sortBy,
-        page: String(currentPage),
-        limit: "10",
-      }).toString();
-
+      const sess = await getSession();
+      const query = buildQueryString();
       const response = await axios.get<ApiResponse>(`/api/tasks?${query}`, {
         headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
+          Authorization: `Bearer ${sess?.accessToken}`,
         },
       });
-
       setTasks(response.data.tasks || []);
-      setTotalPages(Math.ceil(response.data.totalTasks / 10));
-      toast({
-        title: "Tasks Updated",
-        description: "Tasks have been updated based on filters and sorting.",
-      });
+      setTotalPages(Math.ceil(response.data.totalTasks / 12));
     } catch (error) {
-      const axiosError = error as AxiosError<ApiResponse>;
+      const axiosErr = error as AxiosError<ApiResponse>;
       toast({
-        title: "Error",
-        description:
-          axiosError.response?.data.message || "Failed to fetch tasks",
-        variant: "destructive",
+        title: 'Error fetching tasks',
+        description: axiosErr.response?.data.message || 'Unable to load tasks',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -118,25 +119,25 @@ const TasksPage: FC = () => {
   // Add a new task
   const handleSubmitAddTask = async (task: TaskData) => {
     try {
-      const session = await getSession();
-      const response = await axios.post<ApiResponse>("/api/tasks", task, {
+      const sess = await getSession();
+      const response = await axios.post<ApiResponse>('/api/tasks', task, {
         headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
+          Authorization: `Bearer ${sess?.accessToken}`,
         },
       });
       if (response.data.success) {
         fetchTasks();
         toast({
-          title: "Task added",
+          title: 'Task added',
           description: response.data.message,
         });
         setIsAddTaskModalOpen(false);
       }
-    } catch (error) {
+    } catch {
       toast({
-        title: "Error",
-        description: "Failed to add task",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to add task',
+        variant: 'destructive',
       });
     }
   };
@@ -146,31 +147,25 @@ const TasksPage: FC = () => {
     fetchTasks();
   }, [session, fetchTasks]);
 
-  // Handlers for filters & search
-  const handleOpenAddTaskModal = () => {
-    setIsAddTaskModalOpen(true);
-  };
-  const handleCloseAddTaskModal = () => {
-    setIsAddTaskModalOpen(false);
-  };
+  // Handlers for search & filters
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
   };
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+    setFilters((prev) => ({ ...prev, [name]: value }));
   };
   const handleSelectFilterChange = (name: string) => (value: string) => {
-    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+    setFilters((prev) => ({ ...prev, [name]: value }));
   };
   const handleSortChange = (value: string) => {
     setSortBy(value);
   };
   const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
   };
 
-  // Filter tasks by search
   const filteredTasks = tasks.filter(
     (task) =>
       task.title.toLowerCase().includes(searchInput.toLowerCase()) ||
@@ -180,207 +175,224 @@ const TasksPage: FC = () => {
 
   if (!session || !session.user) {
     return (
-      <Link href="/sign-in">
-        <Button>PLEASE LOGIN</Button>
-      </Link>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <Link
+          href="/sign-in"
+          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+        >
+          Please Log In
+        </Link>
+      </div>
     );
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-gradient-to-br from-indigo-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors">
       {/* Left Sidebar */}
       <Feedside />
 
-      {/* Main Content: filters on top, tasks below */}
-      <div className="flex-1 flex flex-col bg-gray-100">
-        {/* Filters Section */}
-        <div className="p-4 border-b border-gray-300 bg-white text-black">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-            <h1 className="text-2xl font-bold mb-2 sm:mb-0">All Tasks</h1>
-            <div className="flex flex-col sm:flex-row items-center gap-4">
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Sticky Header: Search + Filters */}
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+              Task Feed
+            </h1>
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
               <input
                 type="text"
-                placeholder="Search by title, description or category"
-                className="border rounded-md py-2 px-4 w-80"
+                placeholder="Search tasks..."
                 value={searchInput}
                 onChange={handleSearchChange}
+                className="flex-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
-              <Button onClick={handleOpenAddTaskModal}>Add Task</Button>
+              <Button
+                onClick={() => setIsAddTaskModalOpen(true)}
+                className="whitespace-nowrap bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                + Add Task
+              </Button>
             </div>
           </div>
 
-          {/* Filter Rows */}
-          <div className="flex flex-wrap gap-4 text-black">
-            {/* Status */}
-            <Select onValueChange={handleSelectFilterChange("status")}>
-              <SelectTrigger className="border rounded-md py-2 px-4 text-black">
-                <SelectValue placeholder="Select Status" />
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="In Progress">In Progress</SelectItem>
-                    <SelectItem value="Approved">Approved</SelectItem>
-                    <SelectItem value="Rejected">Rejected</SelectItem>
-                    <SelectItem value="Completed">Completed</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
+          {/* Filters Row */}
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Status Filter */}
+            <Select onValueChange={handleSelectFilterChange('status')}>
+              <SelectTrigger className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg py-2 px-3">
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="In Progress">In Progress</SelectItem>
+                  <SelectItem value="Approved">Approved</SelectItem>
+                  <SelectItem value="Rejected">Rejected</SelectItem>
+                  <SelectItem value="Completed">Completed</SelectItem>
+                </SelectGroup>
+              </SelectContent>
             </Select>
 
-            {/* Category */}
-            <Select onValueChange={handleSelectFilterChange("category")}>
-              <SelectTrigger className="border rounded-md py-2 px-4 text-black">
-                <SelectValue placeholder="Select Category" />
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {categoryOptions.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
+            {/* Category Filter */}
+            <Select onValueChange={handleSelectFilterChange('category')}>
+              <SelectTrigger className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg py-2 px-3">
+                <SelectValue placeholder="Category" />
               </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categoryOptions.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
             </Select>
 
-            {/* Duration */}
+            {/* Duration Filter */}
             <Input
               type="number"
               name="duration"
-              placeholder="Max Duration"
-              className="border rounded-md py-2 px-4 text-black"
+              placeholder="Max Duration (min)"
               value={filters.duration}
               onChange={handleFilterChange}
+              className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg py-2 px-3"
             />
 
-            {/* Reward */}
+            {/* Reward Filter */}
             <Input
               type="number"
               name="reward"
-              placeholder="Min Reward"
-              className="border rounded-md py-2 px-4 text-black"
+              placeholder="Min Reward ($)"
               value={filters.reward}
               onChange={handleFilterChange}
+              className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg py-2 px-3"
             />
 
             {/* Sort By */}
             <Select onValueChange={handleSortChange}>
-              <SelectTrigger className="border rounded-md py-2 px-4 text-black">
+              <SelectTrigger className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg py-2 px-3">
                 <SelectValue placeholder="Sort By" />
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="createdAt">
-                      Date Created (Latest to Oldest)
-                    </SelectItem>
-                    <SelectItem value="-createdAt">
-                      Date Created (Oldest to Latest)
-                    </SelectItem>
-                    <SelectItem value="reward">
-                      Reward (Highest to Lowest)
-                    </SelectItem>
-                    <SelectItem value="-reward">
-                      Reward (Lowest to Highest)
-                    </SelectItem>
-                  </SelectGroup>
-                </SelectContent>
               </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="createdAt">Newest First</SelectItem>
+                  <SelectItem value="-createdAt">Oldest First</SelectItem>
+                  <SelectItem value="reward">Reward: High → Low</SelectItem>
+                  <SelectItem value="-reward">Reward: Low → High</SelectItem>
+                </SelectGroup>
+              </SelectContent>
             </Select>
           </div>
         </div>
 
-        {/* Task List Section */}
-        <div className="flex-1 p-4 overflow-y-auto">
-  {isLoading ? (
-    <p>Loading tasks...</p>
-  ) : filteredTasks.length > 0 ? (
-    <table className="table-auto w-full border-separate border-spacing-y-3">
-      <thead className="bg-green-700 text-white">
-        <tr>
-          <th className="px-4 py-2 text-left text-sm font-medium uppercase break-words">
-            Title
-          </th>
-          <th className="px-4 py-2 text-left text-sm font-medium uppercase break-words">
-            Description
-          </th>
-          <th className="px-4 py-2 text-left text-sm font-medium uppercase break-words">
-            Rating
-          </th>
-          <th className="px-4 py-2 text-left text-sm font-medium uppercase break-words">
-            Category
-          </th>
-          <th className="px-4 py-2 text-left text-sm font-medium uppercase break-words">
-            Status
-          </th>
-          <th className="px-4 py-2 text-left text-sm font-medium uppercase break-words">
-            Reward
-          </th>
-          <th className="px-4 py-2 text-left text-sm font-medium uppercase break-words">
-            Created At
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {filteredTasks.map((task) => (
-          <tr
-            key={String(task._id)}
-            className="bg-white shadow-lg hover:shadow-xl text-sm rounded-md"
-          >
-            <td className="px-4 py-2 break-words">
-              <Link
-                href={`/TaskFeed/${task._id}`}
-                className="text-blue-600 hover:underline"
+        {/* Task Cards Grid */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-full">
+              <p className="text-gray-700 dark:text-gray-300">Loading…</p>
+            </div>
+          ) : filteredTasks.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredTasks.map((task) => (
+                <div
+                  key={String(task._id)}
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow flex flex-col"
+                >
+                  {/* Cover / Emoji */}
+                  <div className="h-32 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-t-2xl flex items-center justify-center">
+                    <span className="text-5xl">📝</span>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-4 flex-1 flex flex-col">
+                    <Link
+                      href={`/TaskFeed/${task._id}`}
+                      className="hover:underline"
+                    >
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
+                        {task.title}
+                      </h2>
+                    </Link>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
+                      {task.description}
+                    </p>
+
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                        Rating: {task.rating}/5
+                      </span>
+                      <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-300">
+                        ${task.reward.toFixed(2)}
+                      </span>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(task.createdAt).toLocaleDateString()}
+                      </span>
+
+                      {/* Status badge */}
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded-full 
+                          ${
+                            task.status === 'Approved'
+                              ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200'
+                              : task.status === 'Rejected'
+                              ? 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200'
+                              : task.status === 'In Progress'
+                              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200'
+                              : task.status === 'Completed'
+                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200'
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                          }
+                        `}
+                      >
+                        {task.status || 'Pending'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex justify-center items-center h-full">
+              <p className="text-gray-700 dark:text-gray-300">No tasks found.</p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-8 flex justify-center space-x-3">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
               >
-                {task.title}
-              </Link>
-            </td>
-            <td className="px-4 py-2 break-words">{task.description}</td>
-            <td className="px-4 py-2 break-words">{task.rating}</td>
-            <td className="px-4 py-2 break-words">{task.category}</td>
-            <td className="px-4 py-2 break-words">
-              {task.status || "Pending"}
-            </td>
-            <td className="px-4 py-2 break-words">{task.reward}</td>
-            <td className="px-4 py-2 break-words">
-              {new Date(task.createdAt).toLocaleString()}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  ) : (
-    <p>No tasks found</p>
-  )}
-
-  {/* Pagination Controls */}
-  <div className="flex justify-between items-center mt-4">
-    <div className="flex space-x-2">
-      <Button
-        disabled={currentPage === 1}
-        onClick={() => handlePageChange(currentPage - 1)}
-      >
-        Previous
-      </Button>
-      <span>
-        Page {currentPage} of {totalPages}
-      </span>
-      <Button
-        disabled={currentPage === totalPages}
-        onClick={() => handlePageChange(currentPage + 1)}
-      >
-        Next
-      </Button>
-    </div>
-  </div>
-</div>
-
+                Previous
+              </button>
+              <span className="self-center text-gray-600 dark:text-gray-400">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Add Task Modal */}
       <AddTaskModal
         isOpen={isAddTaskModalOpen}
-        onClose={handleCloseAddTaskModal}
+        onClose={() => setIsAddTaskModalOpen(false)}
         onSubmit={handleSubmitAddTask}
         createdBy={session.user.email}
       />
@@ -388,4 +400,4 @@ const TasksPage: FC = () => {
   );
 };
 
-export default TasksPage;
+export default TaskFeedPage;

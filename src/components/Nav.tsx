@@ -18,6 +18,7 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 import pic from "../../asset/1.png";
+import NotificationBell from "./NotificationBell";
 
 const Nav = () => {
   const { data: session } = useSession();
@@ -27,6 +28,8 @@ const Nav = () => {
 
   return (
     <div className="relative">
+      
+      
       {/* Toggle Button (always visible in the top-left corner) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -40,7 +43,16 @@ const Nav = () => {
       </button>
 
       {isOpen && (
+        <>
+
+              
+
+
         <div className="h-screen w-64 bg-green-900 text-white flex flex-col items-center py-6">
+
+        <div className="flex absolute items-right justify-right ml-40 mt-4">
+                      <NotificationBell />
+              </div>
           {/* Profile Picture */}
           <div className="mb-6">
             <Image
@@ -50,8 +62,10 @@ const Nav = () => {
               height={70}
               className="rounded-full border-2 border-white"
             />
+
           </div>
         <LanguageToggle />
+        
           {/* Menu Items */}
           <ul className="space-y-4 w-full px-4">
             <li>
@@ -123,6 +137,7 @@ const Nav = () => {
             </button>
           )}
         </div>
+        </>
       )}
     </div>
   );

@@ -1,64 +1,94 @@
 // src/app/api/wallet/withdraw/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import dbConnect from '@src/lib/dbConnect';
-import UserModel from '@src/models/userModel';
-import { authOptions } from '@src/app/api/auth/[...nextauth]/options';
-
-const PAYEER_API_URL = 'https://payeer.com/api';
-const PAYEER_SHOP_ID = process.env.PAYEER_SHOP_ID;
-const PAYEER_SECRET_KEY = process.env.PAYEER_SECRET_KEY;
+import { NextRequest, NextResponse } from 'next/server'
+import dbConnect from '@src/lib/dbConnect'
+import UserModel from '@src/models/userModel'
+import Wallet from '@src/models/wallet'
+import { createPayout } from '@src/lib/payeer'    // ← import the payout helper you actually export
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  const { userId, amount, currency, cntId, account, curOut } = await req.json()
+
+  if (
+    !userId ||
+    typeof amount !== 'number' ||
+    amount <= 0 ||
+    !currency ||
+    !cntId ||
+    !account ||
+    !curOut
+  ) {
+    return NextResponse.json(
+      { success: false, message: 'Invalid request payload' },
+      { status: 400 }
+    )
   }
 
-  await dbConnect();
-  const { amount, accountNumber, currency = 'USD' } = await req.json();
-
-  const user = await UserModel.findOne({ email: session.user.email });
+  await dbConnect()
+  const user = await UserModel.findById(userId)
+  const wallet = user && (await Wallet.findOne({ userId }))
   if (!user) {
-    return NextResponse.json({ message: 'User not found' }, { status: 404 });
+    return NextResponse.json(
+      { success: false, message: 'User not found' },
+      { status: 404 }
+    )
+  }
+  if (!wallet || wallet.balance < amount) {
+    return NextResponse.json(
+      { success: false, message: 'Insufficient funds' },
+      { status: 400 }
+    )
   }
 
-  if (user.balance < amount) {
-    return NextResponse.json({ message: 'Insufficient funds' }, { status: 400 });
+  // 1) lock funds
+  wallet.balance -= amount
+  await wallet.save()
+
+  // 2) record a processing withdrawal transaction
+  const withdrawalTxn = {
+    type: 'withdrawal' as const,
+    amount,
+    status: 'processing' as const,
+    date: new Date(),
+    providerTxId: null as string | null,
+    details: { cntId, account, curOut },
+  }
+  user.transactions.push(withdrawalTxn)
+  await user.save()
+
+  // 3) call Payeer’s payouts API
+  const payout = await createPayout({
+    orderId:    user.transactions.at(-1)!._id.toString(),
+    amount,
+    curIn:      currency,
+    curOut,
+    cntId,
+    account,
+    comment:    `Withdrawal #${user.transactions.at(-1)!._id}`,
+  })
+
+  // 4) on failure, roll back
+  if (!payout.success) {
+    wallet.balance += amount
+    await wallet.save()
+
+    const lastTxn = user.transactions.at(-1)!
+    lastTxn.status = 'failed'
+    await user.save()
+
+    return NextResponse.json(
+      { success: false, message: payout.error },
+      { status: 500 }
+    )
   }
 
-  // Create withdrawal request
-  try {
-    const response = await fetch(`${PAYEER_API_URL}/withdraw`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        account: process.env.PAYEER_ACCOUNT,
-        apiId: process.env.PAYEER_API_ID,
-        apiPass: process.env.PAYEER_API_SECRET,
-        shop_id: PAYEER_SHOP_ID,
-        amount: amount,
-        currency,
-        account_number: accountNumber, // Target Payeer account
-        description: 'Withdrawal from wallet',
-      }),
-    });
+  // 5) on success, record Payeer’s history ID
+  const lastTxn = user.transactions.at(-1)!
+  lastTxn.providerTxId = payout.data.historyId || payout.data.history_id || null
+  await user.save()
 
-    const data = await response.json();
-    if (!data.success) {
-      return NextResponse.json({ success: false, message: 'Withdrawal failed' });
-    }
-
-    // Update user balance and save the transaction
-    user.balance -= amount;
-    user.transactions.push({ type: 'withdrawal', amount, status: 'completed' });
-    await user.save();
-
-    return NextResponse.json({ success: true, balance: user.balance });
-  } catch (error) {
-    console.error('Withdrawal error:', error);
-    return NextResponse.json({ message: 'Error processing withdrawal' }, { status: 500 });
-  }
+  return NextResponse.json({
+    success: true,
+    message: 'Withdrawal initiated',
+    providerTxId: lastTxn.providerTxId,
+  })
 }

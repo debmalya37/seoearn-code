@@ -1,39 +1,44 @@
-import React from 'react';
+// src/components/TransactionHistory.tsx
+'use client';
 
-interface TransactionHistoryProps {
-  transactions: Transaction[];
-  className?: string;
+interface Props {
+  transactions: {
+    id: string;
+    amount: number;
+    type: 'deposit' | 'withdrawal';
+    date: string;
+    status: string;
+  }[];
 }
 
-interface Transaction {
-  id: string;
-  amount: number;
-  type: 'deposit' | 'withdraw';
-  date: string;
-}
-
-const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, className }) => {
+export default function TransactionHistory({ transactions }: Props) {
   return (
-    <div className={`p-6 bg-white shadow-lg rounded-lg ${className}`}>
-      <h3 className="text-lg font-semibold mb-4">Transaction History</h3>
-      <ul>
-        {transactions.length === 0 ? (
-          <p className="text-gray-500">No transactions available.</p>
-        ) : (
-          transactions.map((transaction) => (
-            <li key={transaction.id} className="mb-4">
-              <div className="flex justify-between">
-                <span className={transaction.type === 'deposit' ? 'text-green-500' : 'text-red-500'}>
-                  {transaction.type === 'deposit' ? 'Deposit' : 'Withdraw'}: ${transaction.amount.toFixed(2)}
-                </span>
-                <span className="text-gray-500">{new Date(transaction.date).toLocaleDateString()}</span>
-              </div>
-            </li>
-          ))
-        )}
-      </ul>
+    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h2 className="text-xl font-semibold mb-4">Transaction History</h2>
+      {transactions.length === 0 ? (
+        <p className="text-gray-400">No transactions yet.</p>
+      ) : (
+        <table className="min-w-full text-left">
+          <thead>
+            <tr>
+              <th className="px-4 py-2">Date</th>
+              <th className="px-4 py-2">Type</th>
+              <th className="px-4 py-2">Amount</th>
+              <th className="px-4 py-2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((tx) => (
+              <tr key={tx.id} className="border-t border-gray-700">
+                <td className="px-4 py-2 text-sm">{new Date(tx.date).toLocaleString()}</td>
+                <td className="px-4 py-2 text-sm capitalize">{tx.type}</td>
+                <td className="px-4 py-2 text-sm">{tx.amount.toFixed(2)}</td>
+                <td className="px-4 py-2 text-sm">{tx.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
-};
-
-export default TransactionHistory;
+}

@@ -1,4 +1,42 @@
+// src/models/userModel.ts
 import mongoose, { Document, Schema, Types } from 'mongoose';
+
+export interface INotification {
+  message: string;
+  fromUsername: string;
+  date: Date;
+  read: boolean;
+}
+
+const NotificationSchema: Schema<INotification> = new mongoose.Schema({
+  message: { type: String, required: true },
+  fromUsername: { type: String, required: true },
+  date: { type: Date, default: Date.now },
+  read: { type: Boolean, default: false },
+});
+
+interface IBankAccount {
+  _id?: Types.ObjectId;
+  bankName: string;
+  accountHolderName: string;
+  accountNumber: string;
+  ifsc?: string;                // For India-style bank transfer
+  routingNumber?: string;       // For US-style ACH
+  verified: boolean;
+  verificationCode?: string;    // e.g., micro-deposit code
+  createdAt: Date;
+}
+
+const BankAccountSchema = new mongoose.Schema<IBankAccount>({
+  bankName: { type: String, required: true },
+  accountHolderName: { type: String, required: true },
+  accountNumber: { type: String, required: true },
+  ifsc: { type: String },
+  routingNumber: { type: String },
+  verified: { type: Boolean, default: false },
+  verificationCode: { type: String },
+  createdAt: { type: Date, default: Date.now },
+});
 
 export interface IMessage extends Document {
   content: string;
@@ -6,43 +44,26 @@ export interface IMessage extends Document {
 }
 
 const MessageSchema: Schema<IMessage> = new mongoose.Schema({
-  content: {
-    type: String,
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    required: true,
-    default: Date.now,
-  },
+  content: { type: String, required: true },
+  createdAt: { type: Date, required: true, default: Date.now },
 });
 
 export interface ITransaction extends Document {
   type: 'deposit' | 'withdrawal';
   amount: number;
   date: Date;
-  status: 'pending' | 'completed' | 'failed';
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  providerTxId?: string;          // Payeer’s transaction or payout ID
+  details?: Record<string, any>;  // extra metadata (e.g. payout destination)
 }
 
 const TransactionSchema: Schema<ITransaction> = new mongoose.Schema({
-  type: {
-    type: String,
-    enum: ['deposit', 'withdrawal'],
-    required: true,
-  },
-  amount: {
-    type: Number,
-    required: true,
-  },
-  date: {
-    type: Date,
-    default: Date.now,
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'completed', 'failed'],
-    default: 'pending',
-  },
+  type: { type: String, enum: ['deposit', 'withdrawal'], required: true },
+  amount: { type: Number, required: true },
+  date: { type: Date, default: Date.now },
+  status: { type: String, enum: ['pending', 'processing', 'completed', 'failed'], default: 'pending' },
+  providerTxId: { type: String, default: null },
+  details: { type: Schema.Types.Mixed, default: {} },
 });
 
 export interface IUser extends Document {
@@ -67,15 +88,18 @@ export interface IUser extends Document {
   paymentGateway?: string;
   messages?: IMessage[];
   tasks?: Types.ObjectId[];
-  referredBy?: Types.ObjectId;
+  referredBy?: string | null;
   balance: number;
   earnings?: number;
   referralCode?: string;
   referrals?: Types.Array<Types.ObjectId>;
+  notifications?: INotification[];
   referralEarnings?: number;
   referralCount?: number;
   country?: string;
-  transactions?: ITransaction[];  // Added transactions field
+  transactions?: ITransaction[]; 
+  isBlocked?: boolean;
+  bankAccounts: IBankAccount[];
 }
 
 const UserSchema = new Schema<IUser>({
@@ -99,17 +123,19 @@ const UserSchema = new Schema<IUser>({
   isAcceptingMessages: { type: Boolean, default: true },
   messages: [MessageSchema],
   tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
-  referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  referredBy: { type: String, default: null },
   balance: { type: Number, default: 0 },
   earnings: { type: Number, default: 0 },
-  referralCode: { type: String },
+  referralCode: { type: String, unique: true, sparse: true },
   referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  notifications: [NotificationSchema],
   referralEarnings: { type: Number, default: 0 },
   referralCount: { type: Number, default: 0 },
   country: { type: String },
-  transactions: [TransactionSchema]  // Field to track user's transaction history
+  transactions: [TransactionSchema],
+  isBlocked: { type: Boolean, default: false },
+  bankAccounts: [BankAccountSchema],
 });
 
 const UserModel = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
-
 export default UserModel;

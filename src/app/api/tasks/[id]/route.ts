@@ -111,10 +111,50 @@ export async function PUT(
   }
 }
 
-    
-    
-    
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+  await dbConnect();
+  const { id } = params;
+  if (!Types.ObjectId.isValid(id)) {
+    return NextResponse.json({ success: false, message: "Invalid task ID" }, { status: 400 });
+  }
 
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+  }
+
+  const { message, fileUrl } = await request.json();
+  const user = await UserModel.findOne({ email: session.user.email });
+  if (!user) {
+    return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
+  }
+
+  // Push into requests[]
+  const updated = await Task.findByIdAndUpdate(
+    id,
+    {
+      $push: {
+        requests: {
+          userId: user._id,
+          message,
+          fileUrl,
+          status: "Pending",
+          createdAt: new Date(),
+        }
+      }
+    },
+    { new: true }
+  ).populate<{ requests: { userId: typeof user._id; message: string; fileUrl: string; status: string; createdAt: Date }[] }>("requests.userId", "username email");
+
+  if (!updated) {
+    return NextResponse.json({ success: false, message: "Task not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ success: true, requests: updated.requests }, { status: 200 });
+}
+    
+    
+ 
     
 
 

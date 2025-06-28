@@ -1,3 +1,4 @@
+// src/utils/referral.ts
 import { v4 as uuidv4 } from 'uuid';
 
 export const generateReferralCode = (username: string, phoneNumber: string): string => {

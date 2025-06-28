@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { FaWallet, FaHandHoldingUsd, FaHistory, FaUser, FaCreditCard, FaCog, FaBell, FaStar, FaFileAlt, FaLink } from 'react-icons/fa';
 
 const Sidebar = () => {
@@ -16,42 +17,42 @@ const Sidebar = () => {
       {/* Menu Items */}
       <div className="flex-1 p-4">
         <ul className="space-y-4">
-          <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
+          <Link href={"/Wallet"} className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
             <FaWallet className="mr-3" />
             MY WALL
-          </li>
-          <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
+          </Link>
+          <Link href={"/referrals"} className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
             <FaLink className="mr-3" />
             MY REF LINK
-          </li>
-          <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
+          </Link>
+          {/* <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
             <FaStar className="mr-3" />
             PREMIUM ACCOUNT
-          </li>
-          <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
+          </li> */}
+          {/* <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
             <FaHistory className="mr-3" />
             OPERATIONS HISTORY
-          </li>
-          <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
+          </li> */}
+          {/* <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
             <FaUser className="mr-3" />
             ACCOUNT DATA
-          </li>
+          </li> */}
           <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
             <FaCreditCard className="mr-3" />
             PAYMENT DETAILS
           </li>
-          <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
+          {/* <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
             <FaFileAlt className="mr-3" />
             FORM
-          </li>
-          <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
+          </li> */}
+          {/* <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
             <FaCog className="mr-3" />
             SETTINGS
-          </li>
-          <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
+          </li> */}
+          {/* <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
             <FaBell className="mr-3" />
             NOTIFICATIONS
-          </li>
+          </li> */}
         </ul>
       </div>
     </div>

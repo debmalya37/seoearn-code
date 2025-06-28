@@ -1,163 +1,163 @@
-"use client";
+'use client';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useDebounceCallback } from "usehooks-ts";
-import { useToast } from "@src/components/ui/use-toast";
-import { useRouter } from "next/navigation";
-import { signUpSchema } from "@src/schemas/signUpSchema";
-import axios, { AxiosError } from "axios";
-import { ApiResponse } from "@src/types/ApiResponse";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useDebounceCallback } from 'usehooks-ts';
+import { useToast } from '@src/components/ui/use-toast';
+import { useRouter } from 'next/navigation';
+import { signUpSchema } from '@src/schemas/signUpSchema';
+import axios, { AxiosError } from 'axios';
+import { ApiResponse } from '@src/types/ApiResponse';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@src/components/ui/form";
-import { Input } from "@src/components/ui/input";
-import { Button } from "@src/components/ui/button";
-import { Loader2, Loader2Icon } from "lucide-react";
+  FormDescription,
+} from '@src/components/ui/form';
+import { Input } from '@src/components/ui/input';
+import { Button } from '@src/components/ui/button';
+import { Loader2, Loader2Icon } from 'lucide-react';
 import {
   getDeviceIdentifier,
   getStoredDeviceIdentifier,
-} from "@src/app/utils/deviceIndentifier";
-import { signIn, useSession } from "next-auth/react";
+} from '@src/app/utils/deviceIndentifier';
 
-function Page() {
-  const [username, setUsername] = useState("");
-  const [usernameMessage, setUsernameMessage] = useState("");
-  const [isCheckingUsername, setisCheckingUsername] = useState(false);
+function SignUpPage() {
+  const [username, setUsername] = useState('');
+  const [usernameMessage, setUsernameMessage] = useState('');
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [deviceIdentifier, setDeviceIdentifier] = useState("");
-  const [referralCode, setReferralCode] = useState("");
+  const [deviceIdentifier, setDeviceIdentifier] = useState('');
+  const [referralCode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('ref') || '';
+    }
+    return '';
+  });
 
   const debounced = useDebounceCallback(setUsername, 300);
   const { toast } = useToast();
   const router = useRouter();
 
+  // Initialize React Hook Form with Zod schema
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      username: "",
-      email: "",
-      password: "",
+      username: '',
+      email: '',
+      password: '',
       phoneNumber: 91,
-      gender: "",
+      gender: '',
       age: 0,
-      referredBy: "",
+      referralCode: '',
     },
   });
 
-  // Retrieve or create deviceIdentifier
+  // 1. Generate/Retrieve Device Identifier
   useEffect(() => {
     const fetchDeviceIdentifier = async () => {
-      const storedDeviceIdentifier = getStoredDeviceIdentifier();
-      if (storedDeviceIdentifier) {
-        setDeviceIdentifier(storedDeviceIdentifier);
+      const stored = getStoredDeviceIdentifier();
+      if (stored) {
+        setDeviceIdentifier(stored);
       } else {
-        const newDeviceIdentifier = await getDeviceIdentifier();
-        setDeviceIdentifier(newDeviceIdentifier);
+        const newId = await getDeviceIdentifier();
+        setDeviceIdentifier(newId);
       }
     };
     fetchDeviceIdentifier();
   }, []);
 
-  // Check for referral code in URL
+  // 2. If URL has ?ref=CODE, populate referredBy field
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const refCode = urlParams.get("ref");
-    if (refCode) {
-      setReferralCode(refCode);
-      form.setValue("referredBy", refCode);
+    if (referralCode) {
+      form.setValue('referralCode', referralCode);
     }
-  }, [form]);
+  }, [referralCode, form]);
 
-  // Check if username is unique whenever "username" changes
+  // 3. Debounced username → uniqueness check
   useEffect(() => {
-    const checkUsernameUnique = async () => {
-      if (username) {
-        setisCheckingUsername(true);
-        setUsernameMessage("");
-
-        try {
-          const response = await axios.get(
-            `/api/check-username-unique?username=${username}`
-          );
-          setUsernameMessage(response.data.message);
-        } catch (error) {
-          const axiosError = error as AxiosError<ApiResponse>;
-          setUsernameMessage("Error checking username or username already exists");
-        } finally {
-          setisCheckingUsername(false);
-        }
+    if (!username) {
+      setUsernameMessage('');
+      return;
+    }
+    const checkUsername = async () => {
+      setIsCheckingUsername(true);
+      try {
+        const { data } = await axios.get<ApiResponse>(
+          `/api/check-username-unique?username=${username}`
+        );
+        setUsernameMessage(data.message);
+      } catch {
+        setUsernameMessage('Error checking username or username already exists');
+      } finally {
+        setIsCheckingUsername(false);
       }
     };
-
-    checkUsernameUnique();
+    checkUsername();
   }, [username]);
 
-  // Form submission
+  // 4. Form submission: register, then redirect to Sign-In
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     setIsSubmitting(true);
-
     try {
-      const response = await axios.post<ApiResponse>("/api/sign-up", {
+      await axios.post<ApiResponse>('/api/sign-up', {
         ...data,
+        referralCode: data.referralCode, 
         deviceIdentifier,
       });
+
       toast({
-        title: "Success",
-        description: response.data.message,
+        title: 'Success',
+        description: 'Account created. Please sign in.',
       });
-      router.replace(`/verify/${data.username}`);
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiResponse>;
-      let errorMessage = axiosError.response?.data.message;
+      router.replace('/sign-in');
+    } catch (err) {
+      const axiosErr = err as AxiosError<ApiResponse>;
       toast({
-        title: "Signup failed",
-        description: errorMessage,
-        variant: "destructive",
+        title: 'Signup failed',
+        description: axiosErr.response?.data.message || 'An error occurred',
+        variant: 'destructive',
       });
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#114f1d] flex items-center justify-center p-4">
-      {/* Outer Card */}
-      <div className="w-full max-w-md bg-[#1f1f1f] text-white rounded-lg shadow-2xl p-6">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-lg bg-gray-800 text-white rounded-2xl shadow-2xl p-8">
         {/* Header */}
-        <div className="flex items-center mb-2">
-          <div className="w-3 h-3 bg-blue-500 rounded-full mr-2" />
-          <h1 className="text-2xl font-bold text-blue-400">Register</h1>
+        <div className="mb-6 text-center">
+          <h1 className="text-3xl font-extrabold text-indigo-300">Create Account</h1>
+          <p className="mt-1 text-gray-400">Join now and start enjoying our platform</p>
         </div>
-        <p className="text-gray-300 mb-6">Signup now and get full access to our app.</p>
 
         {/* Form */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Row 1: username & email */}
-            <div className="grid grid-cols-2 gap-3">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            {/* Username & Email */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 name="username"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel className="text-gray-300">Username</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Username"
-                        className="bg-#bcbbbb text-black border-none "
+                        className="bg-gray-700 text-white border-none"
                         {...field}
                         onChange={(e) => {
                           field.onChange(e);
                           debounced(e.target.value);
+                          setUsername(e.target.value);
                         }}
                       />
                     </FormControl>
@@ -168,17 +168,15 @@ function Page() {
                       {usernameMessage && (
                         <p
                           className={`text-xs ${
-                            usernameMessage.includes("exists")
-                              ? "text-red-500"
-                              : "text-green-500"
+                            usernameMessage.includes('exists') ? 'text-red-500' : 'text-green-500'
                           }`}
                         >
                           {usernameMessage}
                         </p>
                       )}
                     </div>
-                    <FormDescription>
-                      Public display name: <span className="font-bold">{username}</span>
+                    <FormDescription className="text-gray-400">
+                      Display name shown to others: <span className="font-semibold">{username}</span>
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -190,11 +188,11 @@ function Page() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="text-gray-300">Email Address</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Email"
-                        className="bg-#bcbbbb text-black border-none"
+                        className="bg-gray-700 text-white border-none"
                         {...field}
                       />
                     </FormControl>
@@ -204,19 +202,19 @@ function Page() {
               />
             </div>
 
-            {/* Row 2: phoneNumber & password */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Phone Number & Password */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 name="phoneNumber"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
+                    <FormLabel className="text-gray-300">Phone Number</FormLabel>
                     <FormControl>
                       <Input
-                        type="text"
+                        type="tel"
                         placeholder="Phone Number"
-                        className="bg-#bcbbbb text-black border-none "
+                        className="bg-gray-700 text-white border-none"
                         {...field}
                       />
                     </FormControl>
@@ -230,12 +228,12 @@ function Page() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="text-gray-300">Password</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
                         placeholder="Password"
-                        className="bg-#bcbbbb text-black border-none "
+                        className="bg-gray-700 text-white border-none"
                         {...field}
                       />
                     </FormControl>
@@ -245,18 +243,18 @@ function Page() {
               />
             </div>
 
-            {/* Row 3: gender & age */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Gender & Age */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 name="gender"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Gender</FormLabel>
+                    <FormLabel className="text-gray-300">Gender</FormLabel>
                     <FormControl>
                       <Input
-                        type="text"
-                        className="bg-#bcbbbb text-black border-none "
+                        placeholder="Gender"
+                        className="bg-gray-700 text-white border-none"
                         {...field}
                       />
                     </FormControl>
@@ -270,12 +268,12 @@ function Page() {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Age</FormLabel>
+                    <FormLabel className="text-gray-300">Age</FormLabel>
                     <FormControl>
                       <Input
-                        type="text"
+                        type="number"
                         placeholder="Age"
-                        className="bg-#bcbbbb text-black border-none "
+                        className="bg-gray-700 text-white border-none"
                         {...field}
                       />
                     </FormControl>
@@ -285,18 +283,18 @@ function Page() {
               />
             </div>
 
-            {/* Row 4: referredBy */}
+            {/* Referred By (read-only) */}
             <FormField
-              name="referredBy"
+              name="referralCode"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Referred By</FormLabel>
+                  <FormLabel className="text-gray-300">Referred By</FormLabel>
                   <FormControl>
                     <Input
                       readOnly
-                      placeholder="Referred By"
-                      className="bg-#bcbbbb text-black border-none "
+                      placeholder="Referral Code"
+                      className="bg-gray-700 text-gray-300 border-none"
                       {...field}
                     />
                   </FormControl>
@@ -309,24 +307,25 @@ function Page() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-blue-600 hover:bg-blue-500 hover:shadow-md hover:shadow-blue-600/50 transition-all"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl shadow-lg hover:shadow-indigo-500/50 transition-all flex items-center justify-center"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please Wait
+                  <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                  Creating Account…
                 </>
               ) : (
-                "Submit"
+                'Create Account'
               )}
             </Button>
           </form>
         </Form>
 
-        {/* Footer */}
-        <p className="mt-4 text-sm text-gray-400">
-          Already have an account?{" "}
-          <Link href="/sign-in" className="text-blue-500 hover:underline">
-            Signin
+        {/* Footer: Link to Sign In */}
+        <p className="mt-6 text-center text-gray-400">
+          Already have an account?{' '}
+          <Link href="/sign-in" className="text-indigo-400 hover:underline">
+            Sign In
           </Link>
         </p>
       </div>
@@ -334,4 +333,4 @@ function Page() {
   );
 }
 
-export default Page;
+export default SignUpPage;

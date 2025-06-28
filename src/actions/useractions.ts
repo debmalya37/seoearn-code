@@ -7,7 +7,7 @@ import { authOptions } from '@src/app/api/auth/[...nextauth]/options';
 export async function fetchUsers() {
   await dbConnect();
   try {
-    const users = await User.find({}, 'username name email age gender isVerified').exec();
+    const users = await User.find({}, 'username name email age gender isVerified isBlocked').exec();
     // Convert MongoDB ObjectIds to strings
     return users.map(user => ({
       _id: user._id.toString(),
@@ -16,7 +16,8 @@ export async function fetchUsers() {
       email: user.email,
       age: user.age,
       gender: user.gender,
-      isVerified: user.isVerified
+      isVerified: user.isVerified,
+      isBlocked: user.isBlocked || false,
     }));
   } catch (error) {
     console.error("Error fetching users:", error);

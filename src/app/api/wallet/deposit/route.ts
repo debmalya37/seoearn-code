@@ -1,62 +1,56 @@
 // src/app/api/wallet/deposit/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import dbConnect from '@src/lib/dbConnect';
-import UserModel from '@src/models/userModel';
-import { authOptions } from '@src/app/api/auth/[...nextauth]/options';
-
-const PAYEER_API_URL = 'https://payeer.com/api';
-const PAYEER_SHOP_ID = process.env.PAYEER_SHOP_ID;
-const PAYEER_SECRET_KEY = process.env.PAYEER_SECRET_KEY;
+import { NextRequest, NextResponse } from 'next/server'
+import dbConnect from '@src/lib/dbConnect'
+import UserModel from '@src/models/userModel'
+import Wallet from '@src/models/wallet'
+import { createDepositUrl } from '@src/lib/payeer'
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  const { userId, amount, currency } = await req.json()
+  if (!userId || typeof amount !== 'number' || amount <= 0 || !currency) {
+    return NextResponse.json(
+      { success: false, message: 'Invalid request payload' },
+      { status: 400 }
+    )
   }
 
-  await dbConnect();
-  const { amount } = await req.json();
-
-  if (amount < 20) {
-    return NextResponse.json({ message: 'Minimum deposit amount is $20' }, { status: 400 });
-  }
-
-  const user = await UserModel.findOne({ email: session.user.email });
+  await dbConnect()
+  const user = await UserModel.findById(userId)
   if (!user) {
-    return NextResponse.json({ message: 'User not found' }, { status: 404 });
+    return NextResponse.json(
+      { success: false, message: 'User not found' },
+      { status: 404 }
+    )
   }
 
-  // Create an invoice request
-  try {
-    const response = await fetch(`${PAYEER_API_URL}/invoice`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        account: process.env.PAYEER_ACCOUNT,
-        apiId: process.env.PAYEER_API_ID,
-        apiPass: process.env.PAYEER_API_SECRET,
-        shop_id: PAYEER_SHOP_ID,
-        amount: amount,
-        currency: 'USD',
-        description: 'Deposit to Wallet',
-        order_id: user._id.toString(), // Your internal user ID as the order ID
-        ip: req.headers.get('x-forwarded-for') || req.headers.get('host'), // User's IP address
-        success_url: `${process.env.NEXT_PUBLIC_API_URL}/wallet/success`,
-        fail_url: `${process.env.NEXT_PUBLIC_API_URL}/wallet/fail`,
-      }),
-    });
-
-    const data = await response.json();
-    if (!data.success) {
-      return NextResponse.json({ success: false, message: 'Failed to create deposit invoice' });
-    }
-
-    return NextResponse.json({ success: true, redirectURL: data.data.invoice_url });
-  } catch (error) {
-    console.error('Deposit error:', error);
-    return NextResponse.json({ success: false, message: 'Error creating deposit invoice' }, { status: 500 });
+  // 1. Record a pending deposit transaction in the user's history
+  const depositTxn = {
+    type: 'deposit' as const,
+    amount,
+    status: 'pending' as const,
+    date: new Date(),
+    providerTxId: null,
+    details: {},
   }
+  user.transactions.push(depositTxn)
+  await user.save()
+
+  // 2. Ensure the user has a wallet document
+  let wallet = await Wallet.findOne({ userId })
+  if (!wallet) {
+    wallet = new Wallet({ userId, balance: 0 })
+    await wallet.save()
+  }
+
+  // 3. Generate the Payeer payment URL
+  const orderId = user.transactions[user.transactions.length - 1]._id.toString()
+  const paymentUrl = createDepositUrl({
+    orderId,
+    amount,
+    currency,
+    description: `Deposit #${orderId} to wallet`,
+  })
+
+  // Return the URL so the client can redirect the user to Payeer
+  return NextResponse.json({ success: true, paymentUrl })
 }
