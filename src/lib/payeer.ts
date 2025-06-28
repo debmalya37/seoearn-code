@@ -7,9 +7,9 @@ const {
   PAYEER_MERCHANT_SECRET,
   PAYEER_API_USER,
   PAYEER_API_KEY,
-  PAYEER_SUCCESS_URL,
-  PAYEER_FAIL_URL,
-  PAYEER_STATUS_URL,
+  // PAYEER_SUCCESS_URL,
+  // PAYEER_FAIL_URL,
+  // PAYEER_STATUS_URL,
 } = process.env
 
 for (const v of [
@@ -17,9 +17,9 @@ for (const v of [
   'PAYEER_MERCHANT_SECRET',
   'PAYEER_API_USER',
   'PAYEER_API_KEY',
-  'PAYEER_SUCCESS_URL',
-  'PAYEER_FAIL_URL',
-  'PAYEER_STATUS_URL',
+  // 'PAYEER_SUCCESS_URL',
+  // 'PAYEER_FAIL_URL',
+  // 'PAYEER_STATUS_URL',
 ]) {
   if (!process.env[v as keyof typeof process.env]) {
     throw new Error(`[payeer] Missing env var ${v}`)
