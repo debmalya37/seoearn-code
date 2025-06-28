@@ -15,7 +15,7 @@ const NotificationSchema: Schema<INotification> = new mongoose.Schema({
   read: { type: Boolean, default: false },
 });
 
-interface IBankAccount {
+export interface IBankAccount {
   _id?: Types.ObjectId;
   bankName: string;
   accountHolderName: string;

@@ -4,7 +4,7 @@ import dbConnect from '@src/lib/dbConnect';
 import UserModel from '@src/models/userModel';
 import crypto from 'crypto';
 import { sendEmail } from '@src/lib/mailer';  // implement your mailer
-
+// or any other mailer library
 export async function POST(req: NextRequest) {
   const { userId, bankName, accountHolderName, accountNumber, ifsc, routingNumber } = await req.json();
   if (!userId || !bankName || !accountHolderName || !accountNumber) {

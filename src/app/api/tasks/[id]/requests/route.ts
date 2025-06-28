@@ -52,7 +52,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
   
     // Remap subdocs to use `id`
-    const requests = (updated.requests || []).map(r => ({
+    const requests = (updated.requests || []).map((r : any )=> ({
       id: r._id.toString(),
       userId: {
         username: (r.userId as any).username,
