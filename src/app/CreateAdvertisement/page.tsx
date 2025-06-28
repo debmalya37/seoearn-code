@@ -2,22 +2,33 @@
 
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import { getSession, useSession } from 'next-auth/react';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { useToast } from '@src/components/ui/use-toast';
-import { ITask } from '@src/models/taskModel';
 import Link from 'next/link';
 import AddTaskModal from '@src/components/AddTaskModal';
-import { ApiResponse } from '@src/types/ApiResponse';
-import { Button } from '@src/components/ui/button';
-import AdsSide from '@src/components/AdsSide';
 import RequestModal from '@src/components/RequestModal';
+import AdsSide from '@src/components/AdsSide';
+import { Button } from '@src/components/ui/button';
+import { ApiResponse } from '@src/types/ApiResponse';
+import { ITask } from '@src/models/taskModel';
+
+// Only the fields we render here
+interface SimpleTask extends ITask {
+  _id: string;
+  title: string;
+  category: string;
+  reward: number;
+  budget: number;
+  status: 'Completed' | 'In Progress' | string;
+  createdAt: Date;
+}
 
 type Tab = 'all' | 'inProgress';
 
 const CreateAdvertisement: FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [tasks, setTasks] = useState<ITask[]>([]);
-  const [inProgressTasks, setInProgressTasks] = useState<ITask[]>([]);
+  const [tasks, setTasks] = useState<SimpleTask[]>([]);
+  const [inProgressTasks, setInProgressTasks] = useState<SimpleTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('all');
@@ -31,9 +42,23 @@ const CreateAdvertisement: FC = () => {
       const { data } = await axios.get<ApiResponse>('/api/ownTask', {
         headers: { Authorization: `Bearer ${s?.accessToken}` },
       });
-      const fetched = data.tasks || [];
-      setTasks(fetched);
-      setInProgressTasks(fetched.filter((t) => t.status === 'In Progress'));
+      const raw: ITask[] = data.tasks || [];
+      // Map your ITask[] → SimpleTask[]
+      const mapped: SimpleTask[] = raw.map(t => ({
+        _id: t._id!.toString(),
+        title: t.title,
+        category: t.category,
+        reward: t.reward,
+        budget: t.budget,
+        status: t.status,
+        createdAt: t.createdAt || new Date(),
+        maxUsersCanDo: t.maxUsersCanDo || 0,
+        description: t.description || '',
+        rating: t.rating || 0,
+        duration: t.duration || 0,
+      })) as SimpleTask[];
+      setTasks(mapped);
+      setInProgressTasks(mapped.filter(t => t.status === 'In Progress'));
 
       if (showToast) {
         toast({ title: 'Tasks refreshed', description: 'Showing latest ads' });
@@ -89,7 +114,7 @@ const CreateAdvertisement: FC = () => {
           <div className="bg-white p-4 rounded shadow">
             <h4 className="text-sm text-gray-500 uppercase">Completed</h4>
             <p className="text-2xl font-semibold">
-              {tasks.filter((t) => t.status === 'Completed').length}
+              {tasks.filter(t => t.status === 'Completed').length}
             </p>
           </div>
         </section>
@@ -97,7 +122,7 @@ const CreateAdvertisement: FC = () => {
         {/* Tabs */}
         <section className="mb-4">
           <nav className="flex space-x-4 border-b">
-            {(['all', 'inProgress'] as Tab[]).map((tab) => (
+            {(['all', 'inProgress'] as Tab[]).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -118,7 +143,7 @@ const CreateAdvertisement: FC = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                {['Title', 'Category', 'Reward', 'Budget', 'Status','Submissions', 'Created'].map((h) => (
+                {['Title','Category','Reward','Budget','Status','Submissions','Created'].map(h => (
                   <th
                     key={h}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
@@ -130,8 +155,8 @@ const CreateAdvertisement: FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {(activeTab === 'all' ? tasks : inProgressTasks).map((t) => (
-                <tr key={t._id.toString()}>
+              {(activeTab === 'all' ? tasks : inProgressTasks).map(t => (
+                <tr key={t._id}>
                   <td className="px-6 py-4">
                     <Link href={`/Ads/${t._id}`} className="text-blue-600 hover:underline">
                       {t.title}
@@ -154,28 +179,16 @@ const CreateAdvertisement: FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                  <Button size="sm" onClick={() => setSelectedTaskId(t._id.toString())}>
-                    View Subs
-                  </Button>
-
+                    <Button size="sm" onClick={() => setSelectedTaskId(t._id)}>
+                      View Subs
+                    </Button>
                   </td>
                   <td className="px-6 py-4">
                     {new Date(t.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 text-right space-x-2">
-                    <Button
-                      size="sm"
-                      onClick={() => updateStatus(t._id.toString(), 'Completed')}
-                    >
-                      ✔
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => updateStatus(t._id.toString(), 'Rejected')}
-                    >
-                      ✕
-                    </Button>
+                    <Button size="sm" onClick={() => updateStatus(t._id,'Completed')}>✔</Button>
+                    <Button size="sm" variant="destructive" onClick={() => updateStatus(t._id,'Rejected')}>✕</Button>
                   </td>
                 </tr>
               ))}
@@ -189,19 +202,20 @@ const CreateAdvertisement: FC = () => {
             </tbody>
           </table>
         </section>
+
         <RequestModal
           open={!!selectedTaskId}
           taskId={selectedTaskId!}
           onClose={() => setSelectedTaskId(null)}
         />
 
-
         <AddTaskModal
           isOpen={isAddModalOpen}
           onClose={() => setIsAddModalOpen(false)}
-          onSubmit={async (data) => {
+          onSubmit={async data => {
+            const s = await getSession();
             await axios.post('/api/tasks', data, {
-              headers: { Authorization: `Bearer ${(await getSession())?.accessToken}` },
+              headers: { Authorization: `Bearer ${s?.accessToken}` },
             });
             setIsAddModalOpen(false);
             await fetchTasks(true);

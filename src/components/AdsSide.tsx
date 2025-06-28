@@ -1,12 +1,23 @@
+// src/components/AdsSide.tsx
+'use client';
+
 import React from 'react';
-import { FaPlus, FaChartLine, FaUsers, FaEye } from 'react-icons/fa';
+import { FaPlus, FaChartLine, FaEye, FaUsers } from 'react-icons/fa';
 import { Button } from '@src/components/ui/button';
 
-interface AdsSideProps {
+export interface AdsSideProps {
   onOpenNewTask: () => void;
+  onShowPerformance: () => void;
+  onShowViews: () => void;
+  onShowInteractions: () => void;
 }
 
-const AdsSide: React.FC<AdsSideProps> = ({ onOpenNewTask }) => (
+const AdsSide: React.FC<AdsSideProps> = ({
+  onOpenNewTask,
+  onShowPerformance,
+  onShowViews,
+  onShowInteractions,
+}) => (
   <aside className="w-64 bg-white border-r hidden lg:flex flex-col">
     {/* Logo / Brand */}
     <div className="p-6 text-center border-b">
@@ -35,26 +46,36 @@ const AdsSide: React.FC<AdsSideProps> = ({ onOpenNewTask }) => (
         onClick={onOpenNewTask}
         className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white"
       >
-        <FaPlus /> <span>New Ad</span>
+        <FaPlus />
+        <span>New Ad</span>
       </Button>
     </div>
 
     {/* Navigation */}
     <nav className="mt-4 flex-1 px-4 space-y-2 text-gray-700">
-      {[
-        { icon: <FaChartLine />, label: 'Performance' },
-        { icon: <FaEye />, label: 'Analytics' },
-        { icon: <FaUsers />, label: 'Audience' },
-      ].map((item) => (
-        <a
-          key={item.label}
-          href="#"
-          className="flex items-center px-3 py-2 rounded hover:bg-gray-200"
-        >
-          {item.icon}
-          <span className="ml-2">{item.label}</span>
-        </a>
-      ))}
+      <button
+        onClick={onShowPerformance}
+        className="w-full flex items-center px-3 py-2 rounded hover:bg-gray-200"
+      >
+        <FaChartLine className="text-lg" />
+        <span className="ml-2">Performance</span>
+      </button>
+
+      <button
+        onClick={onShowViews}
+        className="w-full flex items-center px-3 py-2 rounded hover:bg-gray-200"
+      >
+        <FaEye className="text-lg" />
+        <span className="ml-2">Top Views</span>
+      </button>
+
+      <button
+        onClick={onShowInteractions}
+        className="w-full flex items-center px-3 py-2 rounded hover:bg-gray-200"
+      >
+        <FaUsers className="text-lg" />
+        <span className="ml-2">Interactions</span>
+      </button>
     </nav>
 
     {/* Optional Footer */}
