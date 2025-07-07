@@ -33,6 +33,11 @@ export default function Profile() {
   const [referralCode, setReferralCode] = useState<string|null>(null);
   const fileInputRef = useRef<HTMLInputElement|null>(null);
   const { toast } = useToast();
+  
+const [kycLoading, setKycLoading] = useState(false);
+const [idFront, setIdFront] = useState<File | null>(null);
+const [idBack,  setIdBack ] = useState<File | null>(null);
+const [selfie,  setSelfie ] = useState<File | null>(null);
 
   const genderOptions = [
     { value: "male", label: "Male" },
@@ -52,6 +57,40 @@ export default function Profile() {
     const diff = Date.now() - d.getTime();
     return Math.abs(new Date(diff).getUTCFullYear() - 1970);
   };
+
+
+ 
+
+  async function handleKycSubmit(e: React.FormEvent) {
+    e.preventDefault();
+  
+    if (!idFront || !selfie) {
+      toast({ title: 'ID front and selfie are required', variant: 'destructive' });
+      return;
+    }
+  
+    setKycLoading(true);
+    try {
+      const form = new FormData();
+      form.append('idFront', idFront);
+      if (idBack) form.append('idBack', idBack);
+      form.append('selfie', selfie);
+  
+      const { data } = await axios.post('/api/profile/kyc', form, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+  
+      if (data.success) {
+        toast({ title: 'KYC submitted, awaiting review', variant: 'default' });
+      } else {
+        throw new Error(data.message || 'Submission failed');
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setKycLoading(false);
+    }
+  }
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -92,7 +131,7 @@ export default function Profile() {
       data.paymentPreference = paymentPreference;
       data.referralCode = referralCode;
       await axios.post("/api/profile", data);
-      toast({ title: "Profile updated", variant: "success" });
+      toast({ title: "Profile updated", variant: "default" });
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
@@ -210,11 +249,12 @@ export default function Profile() {
                     <span className="font-medium flex items-center">
                       <FiMapPin className="mr-2"/> Country
                     </span>
-                    <CountrySelect
-                      value={country||""}
-                      onChange={c=>setCountry(c||null)}
-                      className="mt-1"
-                    />
+                    <div className="mt-1">
+                      <CountrySelect
+                        value={country||""}
+                        onChange={c=>setCountry(c||null)}
+                      />
+                    </div>
                   </label>
                 </div>
 
@@ -299,29 +339,51 @@ export default function Profile() {
   <h2 className="text-2xl font-semibold mb-4 flex items-center">
     <FiShield className="mr-2"/> Identity Verification
   </h2>
-  <ol className="list-decimal list-inside space-y-4">
-    <li>
-      <p className="font-medium">Upload front of your government ID</p>
-      <input type="file" accept="image/*" />
-    </li>
-    <li>
-      <p className="font-medium">Upload back of your government ID</p>
-      <input type="file" accept="image/*" />
-    </li>
-    <li>
-      <p className="font-medium">Take a selfie holding your ID</p>
-      <input type="file" accept="image/*" />
-    </li>
-  </ol>
-  <p className="text-sm text-gray-500 mt-2">
-    All documents must be clear and unedited. Once submitted, we’ll review within 24–48 hours.
-  </p>
-  <button
-    type="submit"
-    className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-  >
-    Submit for Review
-  </button>
+  <form onSubmit={handleKycSubmit} className="space-y-4">
+    <label className="flex flex-col">
+      <span className="font-medium flex items-center">
+        Front of Government ID <span className="text-red-500 ml-1">*</span>
+      </span>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={e => setIdFront(e.target.files?.[0] || null)}
+        className="mt-1"
+      />
+    </label>
+    <label className="flex flex-col">
+      <span className="font-medium flex items-center">
+        Back of Government ID (optional)
+      </span>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={e => setIdBack(e.target.files?.[0] || null)}
+        className="mt-1"
+      />
+    </label>
+    <label className="flex flex-col">
+      <span className="font-medium flex items-center">
+        Selfie Holding Your ID <span className="text-red-500 ml-1">*</span>
+      </span>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={e => setSelfie(e.target.files?.[0] || null)}
+        className="mt-1"
+      />
+    </label>
+    <p className="text-sm text-gray-500">
+      All documents must be clear and unedited. We’ll review them within 24–48 hours.
+    </p>
+    <button
+      type="submit"
+      disabled={kycLoading}
+      className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+    >
+      {kycLoading ? 'Submitting…' : 'Submit for Review'}
+    </button>
+  </form>
 </section>
 
       </main>

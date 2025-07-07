@@ -6,27 +6,22 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@src/app/api/auth/[...nextauth]/options'
 import formidable from 'formidable'
 import { uploadToCloudinary } from '@src/lib/cloudinary'
+import fs from 'fs'
 
-export const config = {
-  api: { bodyParser: false }
-}
+
 
 export async function POST(req: NextRequest) {
-  // Next.js 14: use getServerSession
   const session = await getServerSession(authOptions)
   if (!session?.user?.email) {
     return NextResponse.json({ success: false }, { status: 401 })
   }
 
-  // parse multipart/form-data
-  const form = new formidable.IncomingForm()
-  const { files } = await new Promise<any>((resolve, reject) => {
-    form.parse(req as any, (err: any, fields: any, files: any) =>
-      err ? reject(err) : resolve({ fields, files })
-    )
-  })
+  // parse via Web API
+  const data = await req.formData()
+  const idFront = data.get('idFront') as File | null
+  const idBack  = data.get('idBack')  as File | null
+  const selfie  = data.get('selfie')  as File | null
 
-  const { idFront, idBack, selfie } = files as any
   if (!idFront || !selfie) {
     return NextResponse.json(
       { success: false, message: 'ID front and selfie are required' },
@@ -34,21 +29,38 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  // convert each File into a Buffer or stream for Cloudinary
+  const readBuffer = (f: File) =>
+    f.stream().getReader().read().then(({ value }) => Buffer.from(value ?? new Uint8Array()))
+
+  const [frontBuf, backBuf, selfieBuf] = await Promise.all([
+    readBuffer(idFront),
+    idBack  ? readBuffer(idBack)   : Promise.resolve(undefined),
+    readBuffer(selfie),
+  ])
+
   await dbConnect()
   const user = await UserModel.findOne({ email: session.user.email })
-  if (!user) {
-    return NextResponse.json({ success: false }, { status: 404 })
+  if (!user) return NextResponse.json({ success: false }, { status: 404 })
+
+  // Cloudinary helper should accept a Buffer or base64
+  const baseFolder = `kyc/${user._id}`
+  const writeTempFile = async (buffer: Buffer, fileName: string): Promise<string> => {
+    const tempPath = `/tmp/${fileName}`
+    await fs.promises.writeFile(tempPath, new Uint8Array(buffer))
+    return tempPath
   }
 
-  // Upload to Cloudinary
-  const baseFolder = `kyc/${user._id}`
-  const idFrontUrl = await uploadToCloudinary(idFront.filepath, `${baseFolder}/front`)
-  const idBackUrl  = idBack
-    ? await uploadToCloudinary(idBack.filepath, `${baseFolder}/back`)
-    : undefined
-  const selfieUrl  = await uploadToCloudinary(selfie.filepath, `${baseFolder}/selfie`)
+  const idFrontPath = await writeTempFile(frontBuf, 'idFront.jpg')
+  const idFrontUrl = await uploadToCloudinary(idFrontPath, `${baseFolder}/front`)
 
-  // Update user record
+  const idBackUrl = backBuf
+    ? await uploadToCloudinary(await writeTempFile(backBuf, 'idBack.jpg'), `${baseFolder}/back`)
+    : undefined
+
+  const selfiePath = await writeTempFile(selfieBuf, 'selfie.jpg')
+  const selfieUrl = await uploadToCloudinary(selfiePath, `${baseFolder}/selfie`)
+
   user.kycDocuments = { idFrontUrl, idBackUrl, selfieUrl }
   user.kycStatus    = 'pending'
   user.kycSubmittedAt = new Date()
@@ -56,3 +68,4 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: true })
 }
+
