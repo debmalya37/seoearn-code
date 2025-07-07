@@ -3,11 +3,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@src/lib/dbConnect'
 import UserModel from '@src/models/userModel'
 import Wallet from '@src/models/wallet'
-import { createDepositUrl } from '@src/lib/payeer'
+import { buildPayeerForm } from '@src/lib/payeer‑merchant'
 
 export async function POST(req: NextRequest) {
   const { userId, amount, currency } = await req.json()
-  if (!userId || typeof amount !== 'number' || amount <= 0 || !currency) {
+
+  if (
+    !userId ||
+    typeof amount !== 'number' ||
+    amount <= 0 ||
+    typeof currency !== 'string' ||
+    !currency
+  ) {
     return NextResponse.json(
       { success: false, message: 'Invalid request payload' },
       { status: 400 }
@@ -23,7 +30,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // 1. Record a pending deposit transaction in the user's history
+  // 1. Record a pending deposit transaction
   const depositTxn = {
     type: 'deposit' as const,
     amount,
@@ -35,22 +42,26 @@ export async function POST(req: NextRequest) {
   user.transactions.push(depositTxn)
   await user.save()
 
-  // 2. Ensure the user has a wallet document
+  // 2. Ensure the wallet exists
   let wallet = await Wallet.findOne({ userId })
   if (!wallet) {
     wallet = new Wallet({ userId, balance: 0 })
     await wallet.save()
   }
 
-  // 3. Generate the Payeer payment URL
+  // 3. Build the Payeer form parameters
   const orderId = user.transactions[user.transactions.length - 1]._id.toString()
-  const paymentUrl = createDepositUrl({
+  const { url, fields } = buildPayeerForm(
     orderId,
     amount,
     currency,
-    description: `Deposit #${orderId} to wallet`,
-  })
+    `Deposit #${orderId} to wallet`
+  )
 
-  // Return the URL so the client can redirect the user to Payeer
-  return NextResponse.json({ success: true, paymentUrl })
+  // 4. Return them to the client
+  return NextResponse.json({
+    success: true,
+    url,
+    fields,
+  })
 }

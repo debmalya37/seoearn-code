@@ -28,10 +28,11 @@ export default function WalletActionButton({
   const [curOut, setCurOut] = useState(currency);
   const { toast } = useToast();
 
-  // Sync free-form input when preset changes
+  // Keep inputs in sync with presets / currency select
   useEffect(() => {
     setAmount(presetAmount);
-  }, [presetAmount]);
+    setCurOut(currency);
+  }, [presetAmount, currency]);
 
   const handleClick = async () => {
     if (amount <= 0) {
@@ -42,6 +43,7 @@ export default function WalletActionButton({
 
     try {
       if (action === 'deposit') {
+        // 1) Create deposit, get form data for Payeer
         const resp = await fetch('/api/wallet/deposit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -49,17 +51,45 @@ export default function WalletActionButton({
         });
         const data = await resp.json();
         if (!data.success) throw new Error(data.message || 'Deposit failed');
-        window.location.href = data.paymentUrl;
+
+        // 2) Build & submit a hidden form to Payeer
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = data.url;
+        form.style.display = 'none';
+        Object.entries(data.fields).forEach(([name, value]) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = name;
+          input.value = String(value);
+          form.appendChild(input);
+        });
+        document.body.appendChild(form);
+        form.submit();
       } else {
+        // Withdrawal request: record in our system
         const resp = await fetch('/api/wallet/withdraw', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId, amount, currency: curOut, cntId, account }),
+          body: JSON.stringify({
+            userId,
+            amount,
+            curIn: currency,   // matches your API’s destructuring
+            curOut,
+            cntId,
+            account
+          }
+          )
+          
+          
         });
         const data = await resp.json();
         if (!data.success) throw new Error(data.message || 'Withdraw failed');
-        toast({ title: 'Withdrawal initiated', description: 'Please check your email for details.' });
-        const balRes = await fetch(`/api/wallet/balance?userId=${userId}`);
+
+        toast({ title: 'Withdrawal requested', description: 'Admin will process shortly.' });
+
+        // Refresh the user’s balance
+        const balRes  = await fetch(`/api/wallet/balance?userId=${userId}`);
         const balJson = await balRes.json();
         if (balJson.success) onSuccess(balJson.balance);
       }
@@ -72,6 +102,7 @@ export default function WalletActionButton({
 
   return (
     <div className={className}>
+      {/* Amount Input */}
       <div className="mb-2">
         <label className="block text-sm font-medium">
           {action === 'deposit' ? 'Amount to deposit' : 'Amount to withdraw'} ({action === 'deposit' ? currency : curOut})
@@ -86,6 +117,7 @@ export default function WalletActionButton({
         />
       </div>
 
+      {/* Withdraw‑only fields */}
       {action === 'withdraw' && (
         <>
           <div className="mb-2">
@@ -121,18 +153,17 @@ export default function WalletActionButton({
         </>
       )}
 
+      {/* Submit Button */}
       <button
         onClick={handleClick}
         disabled={loading}
-        className={`w-full py-2 rounded ${
-          loading ? 'bg-gray-400' : 'bg-yellow-500 hover:bg-yellow-600'
-        } text-black transition`}
+        className={`w-full py-2 rounded ${loading ? 'bg-gray-400' : 'bg-yellow-500 hover:bg-yellow-600'} text-black transition`}
       >
         {loading
           ? 'Processing…'
           : action === 'deposit'
-          ? 'Proceed to Payeer'
-          : 'Request Withdrawal'}
+            ? 'Proceed to Payeer'
+            : 'Request Withdrawal'}
       </button>
     </div>
   );

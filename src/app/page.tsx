@@ -135,6 +135,82 @@ export default function App() {
   </div>
 </section>
 
+{/* What We Offer */}
+<section className="py-16 px-6 md:px-24 bg-white">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          What We Offer
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {[
+            {
+              icon: "fa6-solid:tasks",
+              title: "Micro‑Tasks",
+              description: "Quick surveys, data entry, app tests—earn on your schedule."
+            },
+            {
+              icon: "fa6-solid:gift",
+              title: "Digital Goods",
+              description: "Redeem instant gift cards & vouchers from top brands."
+            },
+            {
+              icon: "fa6-solid:money-bill-wave",
+              title: "Cash Payments",
+              description: "Payout via Payeer, PayPal, bank transfer—fast & secure."
+            }
+          ].map((card, i) => (
+            <Card key={i} className="p-6 hover:shadow-xl transition-shadow">
+              <div className="text-4xl text-green-600 mb-4">
+                <Icon icon={card.icon} />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">{card.title}</h3>
+              <p className="text-gray-700">{card.description}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-16 px-6 md:px-24 bg-gray-50">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          How It Works
+        </h2>
+        <div className="max-w-4xl mx-auto space-y-8">
+          {[
+            {
+              step: 1,
+              title: "Sign Up & Connect",
+              detail: "Create your account, connect your Payeer or PayPal for payouts."
+            },
+            {
+              step: 2,
+              title: "Choose Tasks or Goods",
+              detail: "Browse micro‑tasks or digital goods. All paid services are clearly priced."
+            },
+            {
+              step: 3,
+              title: "Complete & Earn",
+              detail: "Submit your work or redeem goods instantly. View your earnings dashboard in real‑time."
+            }
+          ].map((item) => (
+            <div key={item.step} className="flex items-start space-x-4">
+              <div className="w-10 h-10 flex items-center justify-center bg-green-600 text-white rounded-full text-lg font-bold">
+                {item.step}
+              </div>
+              <div>
+                <h4 className="text-xl font-semibold">{item.title}</h4>
+                <p className="text-gray-600">{item.detail}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="max-w-md mx-auto p-8 bg-white rounded shadow">
+      <h1 className="text-2xl font-bold mb-4">Payeer Demo Credentials</h1>
+      <span><strong>URL(ctrl/cmd + click):</strong> <code> <Link href="https://seoearningspace.com/sign-in">https://seoearningspace.com/sign-in</Link></code></span><br />
+      <span><strong>Email:</strong> <code>test@gmail.com</code></span><br />
+      <span><strong>Password:</strong> <code>test@123</code></span>
+    </div>
+      </section>
 
       {/* Stats Row */}
       <section className="bg-white py-8 md:py-12 px-4 md:px-16">
@@ -357,40 +433,86 @@ export default function App() {
         </Card>
       </section>
 
-      {/* Total Earned Card */}
-      {/* <section className="bg-white py-12 px-4 md:px-16">
-        <div className="max-w-6xl mx-auto flex justify-center">
-          <Card className="w-72 h-72 rounded-full bg-green-100 flex flex-col items-center justify-center shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300">
-            <h2 className="text-lg font-semibold text-green-800 mb-2">Total Earned</h2>
-            <span className="text-4xl font-bold text-green-700">$10,053,575</span>
-          </Card>
+      {/* <section className="bg-gradient-to-br from-[#f6fef9] to-white flex flex-col-reverse md:flex-row items-center justify-between px-6 py-12 md:px-24 md:py-20 gap-12 relative overflow-hidden">
+        
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#e9f7f1] rounded-full opacity-50 blur-3xl -translate-x-1/2 translate-y-1/2"></div>
+        <div className="absolute top-0 right-0 w-52 h-52 bg-[#e9f7f1] rounded-full opacity-50 blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+
+        <div className="max-w-lg z-10">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4 leading-tight">
+            The Easiest Way to Earn Real Money  
+            <br className="hidden md:block" />
+            from Micro‑Tasks & Digital Goods
+          </h1>
+          <p className="text-gray-600 text-lg md:text-xl mb-6">
+            Post your micro‑task ads or browse paid surveys, app tests, and digital downloads—all in one place.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <Link href="/sign-in">
+              <Button className="bg-green-600 hover:bg-green-500 text-white px-8 py-3" size="lg">
+                Get Started
+              </Button>
+            </Link>
+            <Link href="/task-feed">
+              <Button
+                variant="bordered"
+                className="border-green-600 text-green-700 px-8 py-3 hover:bg-green-50"
+                size="lg"
+              >
+                View Demo
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="relative z-10 w-full max-w-md">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-80 h-80 rounded-full bg-[#e9f7f1]"></div>
+          </div>
+          <img
+            src="https://picsum.photos/600/600"
+            alt="Working on laptop"
+            className="relative rounded-full w-80 h-80 object-cover shadow-lg"
+          />
         </div>
       </section> */}
 
+      
+
       {/* Footer */}
-      <footer className="bg-white py-8 px-4 md:px-16 border-t border-gray-200">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
-          {/* Social Media Icons */}
-          <div className="flex space-x-4 mb-4 md:mb-0 text-gray-600">
-            <Link href="https://facebook.com" className="hover:text-green-700">
-              <Icon icon="fa6-brands:facebook-f" width={24} height={24} />
-            </Link>
-            <Link href="https://twitter.com" className="hover:text-green-700">
-              <Icon icon="fa6-brands:twitter" width={24} height={24} />
-            </Link>
-            <Link href="https://instagram.com" className="hover:text-green-700">
-              <Icon icon="fa6-brands:instagram" width={24} height={24} />
-            </Link>
-            <Link href="https://linkedin.com" className="hover:text-green-700">
-              <Icon icon="fa6-brands:linkedin-in" width={24} height={24} />
-            </Link>
-          </div>
-          <div className="text-center md:text-right">
-            <p className="text-gray-500">
-              Proudly powered by <strong>Kyrptaroid</strong>
+      {/* Footer & Moderation / Rules */}
+      <footer className="bg-white border-t border-gray-200 py-12 px-6 md:px-24">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h5 className="font-semibold mb-2">About SEO Earning Space</h5>
+            <p className="text-gray-600">
+              The fully‑ready micro‑task and digital goods marketplace. Use your skills to earn real money.
             </p>
-            <p className="text-gray-500">&copy; SEO Earning Space, 2024. All rights reserved.</p>
           </div>
+          <div>
+            <h5 className="font-semibold mb-2">Rules & Moderation</h5>
+            <ul className="space-y-1 text-gray-600">
+              <li><Link href="/rules" className="hover:underline">Community Guidelines</Link></li>
+              <li><Link href="/terms-and-conditions" className="hover:underline">Terms of Service</Link></li>
+              <li><Link href="/privacy-policy" className="hover:underline">Privacy Policy</Link></li>
+              <li><Link href="/contact" className="hover:underline">Contact & Support</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="font-semibold mb-2">Paid Services & Goods</h5>
+            <p className="text-gray-600 mb-2">
+              • Micro‑task posting from ₹10/task <br/>
+              • Bulk digital vouchers & gift cards (Amazon, Google Play) <br/>
+              • Custom survey creation & analytics reports
+            </p>
+            <Link href="/services" className="text-green-600 hover:underline">
+              Learn more about our paid plans →
+            </Link>
+          </div>
+        </div>
+        <div className="mt-8 text-center text-gray-500 text-sm">
+          SEO Earning Space &copy; 2025. All rights reserved.  
+          Built on a second‑level domain with professional design, ready for moderation.
         </div>
       </footer>
     </div>

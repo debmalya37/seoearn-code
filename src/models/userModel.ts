@@ -98,8 +98,21 @@ export interface IUser extends Document {
   referralCount?: number;
   country?: string;
   transactions?: ITransaction[]; 
+
   isBlocked?: boolean;
   bankAccounts: IBankAccount[];
+
+  // kyc related fields
+  kycStatus?: 'unsubmitted' | 'pending' | 'verified' | 'rejected'
+kycDocuments?: {
+  idFrontUrl: string
+  idBackUrl?: string
+  selfieUrl: string
+}
+kycSubmittedAt?: Date
+kycReviewedAt?: Date
+kycReviewNotes?: string
+
 }
 
 const UserSchema = new Schema<IUser>({
@@ -135,6 +148,19 @@ const UserSchema = new Schema<IUser>({
   transactions: [TransactionSchema],
   isBlocked: { type: Boolean, default: false },
   bankAccounts: [BankAccountSchema],
+  kycStatus: {
+    type: String,
+    enum: ['unsubmitted', 'pending', 'verified', 'rejected'],
+    default: 'unsubmitted'
+  },
+  kycDocuments: {
+    idFrontUrl:  { type: String },
+    idBackUrl:   { type: String },
+    selfieUrl:   { type: String },
+  },
+  kycSubmittedAt: { type: Date },
+  kycReviewedAt:  { type: Date },
+  kycReviewNotes: { type: String },
 });
 
 const UserModel = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

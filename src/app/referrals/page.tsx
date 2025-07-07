@@ -1,8 +1,9 @@
-// src/app/Referral/page.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { CheckCircle, Users, LinkIcon, DollarSign } from 'lucide-react';
+import { Tooltip } from '@src/components/ui/tooltip';
 
 interface ReferralData {
   referralCode: string;
@@ -19,17 +20,13 @@ interface ReferralData {
 
 export default function ReferralsPage() {
   const { data: session, status } = useSession();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ReferralData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch referral dashboard on mount
   useEffect(() => {
-    if (status === 'authenticated') {
-      fetchReferralData();
-    } else if (status === 'unauthenticated') {
-      setLoading(false);
-    }
+    if (status === 'authenticated') fetchReferralData();
+    else if (status === 'unauthenticated') setLoading(false);
   }, [status]);
 
   const fetchReferralData = async () => {
@@ -37,13 +34,9 @@ export default function ReferralsPage() {
     try {
       const res = await fetch('/api/referrals');
       const json = await res.json();
-      if (res.ok && json.success) {
-        setData(json.data);
-      } else {
-        setError(json.message || 'Failed to load referral data.');
-      }
-    } catch (err) {
-      console.error(err);
+      if (json.success) setData(json.data);
+      else setError(json.message || 'Failed to load referral data.');
+    } catch {
       setError('Server error while fetching referrals.');
     } finally {
       setLoading(false);
@@ -51,149 +44,142 @@ export default function ReferralsPage() {
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Copied to clipboard!');
-    });
+    navigator.clipboard.writeText(text).then(() =>
+      alert('Copied to clipboard!')
+    );
   };
 
   if (status === 'loading' || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-        <p className="text-gray-700 dark:text-gray-300">Loading your referrals…</p>
+        <p className="text-gray-600 dark:text-gray-300">Loading referral dashboard...</p>
       </div>
     );
   }
 
   if (status === 'unauthenticated') {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-        <p className="text-gray-700 dark:text-gray-300">
-          You must log in to view your referrals.
-        </p>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800">
+        <p className="text-gray-600 dark:text-gray-300">Please login to access your referrals.</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-        <p className="text-red-600">{error}</p>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800">
+        <p className="text-red-500 font-medium">{error}</p>
       </div>
     );
   }
 
-  if (!data) {
-    return null;
-  }
+  if (!data) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors py-10 px-4">
-      <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#f5f9ff] to-white dark:from-gray-900 dark:to-gray-800 px-4 py-10">
+      <div className="max-w-5xl mx-auto space-y-10">
         {/* Title */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100">
-            Your Referral Dashboard
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
+            Referral Dashboard
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">
-            Earn 10% from direct referrals, 5% from indirect referrals.
+          <p className="text-gray-500 dark:text-gray-300 mt-2">
+            Earn commissions by inviting your friends and colleagues.
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-          <div className="bg-indigo-100 dark:bg-indigo-900 rounded-xl p-6 shadow-lg flex flex-col items-center">
-            <h3 className="text-xl font-semibold text-indigo-800 dark:text-indigo-100">
-              Direct Referrals
-            </h3>
-            <p className="mt-2 text-3xl font-bold text-indigo-600 dark:text-indigo-200">
-              {data.firstLevelCount}
-            </p>
-          </div>
-          <div className="bg-green-100 dark:bg-green-900 rounded-xl p-6 shadow-lg flex flex-col items-center">
-            <h3 className="text-xl font-semibold text-green-800 dark:text-green-100">
-              Indirect Referrals
-            </h3>
-            <p className="mt-2 text-3xl font-bold text-green-600 dark:text-green-200">
-              {data.secondLevelCount}
-            </p>
-          </div>
-          <div className="bg-yellow-100 dark:bg-yellow-900 rounded-xl p-6 shadow-lg flex flex-col items-center">
-            <h3 className="text-xl font-semibold text-yellow-800 dark:text-yellow-100">
-              Total Earnings
-            </h3>
-            <p className="mt-2 text-3xl font-bold text-yellow-700 dark:text-yellow-200">
-              ${data.totalReferralEarnings.toFixed(2)}
-            </p>
-          </div>
-          <div className="bg-indigo-50 dark:bg-indigo-800 rounded-xl p-6 shadow-lg flex flex-col items-center">
-            <h3 className="text-xl font-semibold text-indigo-700 dark:text-indigo-100">
-              Your Code & Link
-            </h3>
-            <div className="mt-3 flex flex-col sm:flex-row gap-2">
-              <span className="px-4 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-mono rounded-l-md">
-                {data.referralCode}
-              </span>
-              <button
-                onClick={() => copyToClipboard(data.referralCode)}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-r-md transition-colors"
-              >
-                Copy Code
-              </button>
-            </div>
-            <div className="mt-3 flex flex-col sm:flex-row gap-2">
-              <input
-                type="text"
-                readOnly
-                value={data.referralLink}
-                className="w-full px-4 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-l-md"
-              />
-              <button
-                onClick={() => copyToClipboard(data.referralLink)}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-r-md transition-colors"
-              >
-                Copy Link
-              </button>
-            </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatsCard icon={<Users />} label="Direct Referrals" value={data.firstLevelCount} color="indigo" />
+          <StatsCard icon={<Users />} label="Indirect Referrals" value={data.secondLevelCount} color="emerald" />
+          <StatsCard icon={<DollarSign />} label="Total Earnings" value={`$${data.totalReferralEarnings.toFixed(2)}`} color="yellow" />
+          <StatsCard icon={<CheckCircle />} label="Your Code" value={data.referralCode} color="blue" copy={() => copyToClipboard(data.referralCode)} />
+        </div>
+
+        {/* Referral Link */}
+        <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-md">
+          <h2 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-200 flex items-center gap-2">
+            <LinkIcon className="w-5 h-5" />
+            Your Referral Link
+          </h2>
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <input
+              readOnly
+              value={data.referralLink}
+              className="w-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-md font-mono"
+            />
+            <button
+              onClick={() => copyToClipboard(data.referralLink)}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
+            >
+              Copy
+            </button>
           </div>
         </div>
 
-        {/* List of Direct Referrals */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            People You Referred
-          </h2>
+        {/* Direct Referrals List */}
+        <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-md">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Your Direct Referrals</h2>
           {data.firstLevelReferrals.length > 0 ? (
-            <ul className="space-y-4">
-              {data.firstLevelReferrals.map((user, idx) => (
-                <li
-                  key={idx}
-                  className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 flex justify-between items-center hover:shadow-md transition-shadow"
-                >
+            <ul className="divide-y divide-gray-200 dark:divide-gray-600">
+              {data.firstLevelReferrals.map((ref, idx) => (
+                <li key={idx} className="py-4 flex justify-between items-center">
                   <div>
                     <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
-                      {user.username}
+                      {ref.username}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {user.email}
+                      {ref.email}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Their Direct Count:
-                    </p>
-                    <p className="text-xl font-semibold text-indigo-600 dark:text-indigo-300">
-                      {user.referralCount}
-                    </p>
-                  </div>
+                  <p className="text-sm text-indigo-600 dark:text-indigo-300">
+                    Referral Count: <strong>{ref.referralCount}</strong>
+                  </p>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-600 dark:text-gray-400">
-              You haven’t referred anyone yet.
-            </p>
+            <p className="text-gray-600 dark:text-gray-400">You haven’t referred anyone yet.</p>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function StatsCard({
+  icon,
+  label,
+  value,
+  color,
+  copy,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  color: 'indigo' | 'emerald' | 'yellow' | 'blue';
+  copy?: () => void;
+}) {
+  return (
+    <div
+      className={`rounded-xl bg-${color}-100 dark:bg-${color}-900 p-5 shadow hover:shadow-lg transition cursor-default flex flex-col justify-between`}
+    >
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`p-2 rounded-full bg-${color}-200 dark:bg-${color}-800 text-${color}-800 dark:text-${color}-100`}>
+          {icon}
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{label}</h3>
+      </div>
+      <div className="flex items-center justify-between">
+        <p className={`text-3xl font-bold text-${color}-700 dark:text-${color}-200`}>{value}</p>
+        {copy && (
+          <button
+            onClick={copy}
+            className="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+          >
+            Copy
+          </button>
+        )}
       </div>
     </div>
   );

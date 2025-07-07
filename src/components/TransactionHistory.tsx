@@ -13,7 +13,7 @@ interface Props {
 
 export default function TransactionHistory({ transactions }: Props) {
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+    <div className="bg-gray-200 p-6 rounded-lg shadow-lg">
       <h2 className="text-xl font-semibold mb-4">Transaction History</h2>
       {transactions.length === 0 ? (
         <p className="text-gray-400">No transactions yet.</p>
