@@ -1,12 +1,11 @@
-// src/lib/payeer‑merchant.ts
 import crypto from 'crypto';
 
 const {
+  PAYEER_API_USER,
+  PAYEER_API_KEY,
   PAYEER_MERCHANT_ID,
   PAYEER_MERCHANT_SECRET,
   PAYEER_SUCCESS_URL,
-  PAYEER_API_USER,
-  PAYEER_API_KEY,
   PAYEER_FAIL_URL,
   PAYEER_STATUS_URL,
 } = process.env;
@@ -17,12 +16,15 @@ for (const v of [
   'PAYEER_SUCCESS_URL',
   'PAYEER_FAIL_URL',
   'PAYEER_STATUS_URL',
-]) {
-  if (!process.env[v as keyof typeof process.env]) {
+] as const) {
+  if (!process.env[v]) {
     throw new Error(`[payeer-merchant] Missing env var ${v}`);
   }
 }
 
+/**
+ * Build a Payeer “manual store” form.
+ */
 export function buildPayeerForm(
   orderId: string,
   amount: number,
@@ -38,8 +40,8 @@ export function buildPayeerForm(
   const m_curr    = currency;
   const m_desc    = Buffer.from(description || `Deposit #${orderId}`).toString('base64');
 
-  // signature: sha256 of these + secret
-  const sign = crypto
+  // signature = SHA256( shop:order:amount:curr:desc:secret )
+  const m_sign = crypto
     .createHash('sha256')
     .update([m_shop, m_orderid, m_amount, m_curr, m_desc, PAYEER_MERCHANT_SECRET].join(':'))
     .digest('hex')
@@ -51,12 +53,11 @@ export function buildPayeerForm(
     m_amount,
     m_curr,
     m_desc,
-    m_sign: sign,
-    // optionally you can add:
-    // m_params, m_cipher_method, success_url, fail_url, status_url
-    success_url: PAYEER_SUCCESS_URL!,
-    fail_url:    PAYEER_FAIL_URL!,
-    status_url:  PAYEER_STATUS_URL!,
+    m_sign,
+    // optional callbacks:
+    m_success_url: PAYEER_SUCCESS_URL!,
+    m_fail_url:    PAYEER_FAIL_URL!,
+    m_status_url:  PAYEER_STATUS_URL!,
   };
 
   return {

@@ -3,7 +3,7 @@ import { FaWallet, FaHandHoldingUsd, FaHistory, FaUser, FaCreditCard, FaCog, FaB
 
 const Sidebar = () => {
   return (
-    <div className="h-screen w-64 bg-gray-200 shadow-md flex flex-col">
+    <div className="h-100vh w-64 bg-gray-200 shadow-md flex flex-col">
       {/* Balance Section */}
       <div className="bg-blue-500 text-white p-4 text-center">
         <h3 className="text-lg font-bold">$ 0,0030</h3>

@@ -3,8 +3,8 @@ import fetch from 'node-fetch';
 
 const {
   PAYEER_ACCOUNT,    // e.g. "P1000000"
-  PAYEER_API_ID,     // numeric ID
-  PAYEER_API_PASS,   // secret key
+  PAYEER_API_ID_MASS,     // numeric ID
+  PAYEER_API_PASS_MASS,   // secret key
 } = process.env;
 
 for (const v of ['PAYEER_ACCOUNT','PAYEER_API_ID','PAYEER_API_PASS'] as const) {
@@ -24,8 +24,8 @@ export async function massPayout(items: PayoutItem[]) {
   // build params
   const params = new URLSearchParams({
     account:  PAYEER_ACCOUNT!,
-    apiId:    PAYEER_API_ID!,
-    apiPass:  PAYEER_API_PASS!,
+    apiId:    PAYEER_API_ID_MASS!,
+    apiPass:  PAYEER_API_PASS_MASS!,
     action:   'massPayout',
     json:     '1',             // ask JSON back
   });

@@ -6,6 +6,7 @@ import { useToast } from '@src/components/ui/use-toast';
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+
 import {
   FiUser, FiMail, FiPhone, FiCalendar,
   FiMapPin, FiUserPlus, FiCreditCard, FiShield
@@ -48,9 +49,9 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
     { value: "1", label: "+1" }, { value: "91", label: "+91" }, { value: "44", label: "+44" }
   ];
   const paymentPreferenceOptions = [
-    { value: "paypal", label: "PayPal" },
-    { value: "credit_card", label: "Credit Card" },
-    { value: "bank_transfer", label: "Bank Transfer" }
+    { value: "payeer", label: "Payeer" },
+    // { value: "credit_card", label: "Credit Card" },
+    // { value: "bank_transfer", label: "Bank Transfer" }
   ];
 
   const calculateAge = (d: Date) => {
@@ -58,7 +59,77 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
     return Math.abs(new Date(diff).getUTCFullYear() - 1970);
   };
 
+  function renderKycForm() {
+    return (
+      <form onSubmit={handleKycSubmit} className="space-y-4">
+    <label className="flex flex-col">
+      <span className="font-medium flex items-center">
+        Front of Government ID <span className="text-red-500 ml-1">*</span>
+      </span>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={e => setIdFront(e.target.files?.[0] || null)}
+        className="mt-1"
+      />
+    </label>
+    <label className="flex flex-col">
+      <span className="font-medium flex items-center">
+        Back of Government ID (optional)
+      </span>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={e => setIdBack(e.target.files?.[0] || null)}
+        className="mt-1"
+      />
+    </label>
+    <label className="flex flex-col">
+      <span className="font-medium flex items-center">
+        Selfie Holding Your ID <span className="text-red-500 ml-1">*</span>
+      </span>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={e => setSelfie(e.target.files?.[0] || null)}
+        className="mt-1"
+      />
+    </label>
+    <p className="text-sm text-gray-500">
+      All documents must be clear and unedited. We’ll review them within 24–48 hours.
+    </p>
+    <button
+      type="submit"
+      disabled={kycLoading}
+      className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+    >
+      {kycLoading ? 'Submitting…' : 'Submit for Review'}
+    </button>
+  </form>
+    );
+  }
+  
 
+  const [kycInfo, setKycInfo] = useState<{
+       kycStatus: string;
+       notes: string;
+     }>({ kycStatus: "not_submitted", notes: "" });
+     const [loadingKycInfo, setLoadingKycInfo] = useState(true);
+    
+      useEffect(() => {
+        if (status !== "authenticated") return;
+        fetch("/api/profile/kyc-status")
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.success) {
+              setKycInfo({
+                kycStatus: data.kycStatus,
+                notes: data.notes,
+              });
+            }
+          })
+          .finally(() => setLoadingKycInfo(false));
+      }, [status]);
  
 
   async function handleKycSubmit(e: React.FormEvent) {
@@ -124,6 +195,7 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
     try {
       data.phoneNumber = `${countryCode}${phoneNumber}`;
       data.dob = dob;
+      data.name = name;
       data.age = age;
       data.gender = gender;
       data.country = country;
@@ -192,7 +264,6 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
                     </span>
                     <input
                       {...register("name")}
-                      disabled
                       className="mt-1 p-2 border rounded focus:ring"
                     />
                   </label>
@@ -335,56 +406,39 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
         </section>
 
         {/* KYC Verification Card */}
-        <section className="bg-white rounded-xl shadow p-6">
+        {/* KYC Verification Card */}
+<section className="bg-white rounded-xl shadow p-6">
   <h2 className="text-2xl font-semibold mb-4 flex items-center">
     <FiShield className="mr-2"/> Identity Verification
   </h2>
-  <form onSubmit={handleKycSubmit} className="space-y-4">
-    <label className="flex flex-col">
-      <span className="font-medium flex items-center">
-        Front of Government ID <span className="text-red-500 ml-1">*</span>
-      </span>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={e => setIdFront(e.target.files?.[0] || null)}
-        className="mt-1"
-      />
-    </label>
-    <label className="flex flex-col">
-      <span className="font-medium flex items-center">
-        Back of Government ID (optional)
-      </span>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={e => setIdBack(e.target.files?.[0] || null)}
-        className="mt-1"
-      />
-    </label>
-    <label className="flex flex-col">
-      <span className="font-medium flex items-center">
-        Selfie Holding Your ID <span className="text-red-500 ml-1">*</span>
-      </span>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={e => setSelfie(e.target.files?.[0] || null)}
-        className="mt-1"
-      />
-    </label>
-    <p className="text-sm text-gray-500">
-      All documents must be clear and unedited. We’ll review them within 24–48 hours.
-    </p>
-    <button
-      type="submit"
-      disabled={kycLoading}
-      className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-    >
-      {kycLoading ? 'Submitting…' : 'Submit for Review'}
-    </button>
-  </form>
+
+  {loadingKycInfo ? (
+    <p>Loading KYC status…</p>
+  ) : kycInfo.kycStatus === "verified" ? (
+    <div className="p-4 bg-green-50 border border-green-200 rounded">
+      🎉 Your identity is <strong>verified</strong>.
+    </div>
+  ) : kycInfo.kycStatus === "pending" ? (
+    <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+      ⏳ Your documents are under review.
+    </div>
+  ) : kycInfo.kycStatus === "rejected" ? (
+    <div className="space-y-2">
+      <div className="p-4 bg-red-50 border border-red-200 rounded">
+        ❌ Your submission was rejected:
+        <blockquote className="italic text-sm text-red-700 mt-2">
+          {kycInfo.notes}
+        </blockquote>
+      </div>
+      {/* Allow re‑submission */}
+      {renderKycForm()}
+    </div>
+  ) : (
+    // not_submitted
+    renderKycForm()
+  )}
 </section>
+
 
       </main>
     </div>
