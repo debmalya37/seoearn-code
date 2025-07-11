@@ -38,7 +38,7 @@ export default function RequestModal({ open, taskId, onClose }: Props) {
       .then(r => setRequests(r.data.requests))
   }, [open, taskId])
 
-  const handleAction = async (requestId: string, action: 'Approved' | 'Rejected') => {
+  const handleAction = async (requestId: string, action: 'Completed' | 'Rejected') => {
     try {
       const res = await axios.patch<{ success: boolean; requests: IRequest[] }>(
         `/api/tasks/${taskId}/requests/${requestId}`,
@@ -75,7 +75,7 @@ export default function RequestModal({ open, taskId, onClose }: Props) {
               <p className="text-xs text-gray-500">Submitted: {new Date(req.createdAt).toLocaleString()}</p>
 
               <div className="flex space-x-2">
-              <Button size="sm" onClick={() => handleAction(req.id, 'Approved')}>Approve</Button>
+              <Button size="sm" onClick={() => handleAction(req.id, 'Completed')}>Approve</Button>
               <Button size="sm" variant="destructive" onClick={() => handleAction(req.id, 'Rejected')}>Reject</Button>
                   
               </div>

@@ -6,6 +6,14 @@ import bcrypt from 'bcryptjs';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
 
+
+// Helper to count second-level referrals for a given user
+async function countSecondLevel(referrerId: string) {
+  const firstLevelUsers = await UserModel.find({ referredBy: referrerId }).select('_id').lean();
+  if (!firstLevelUsers.length) return 0;
+  const firstLevelIds = firstLevelUsers.map(u => u._id);
+  return UserModel.countDocuments({ referredBy: { $in: firstLevelIds } });
+}
 interface SignUpPayload {
   email: string;
   name: string;
@@ -15,17 +23,17 @@ interface SignUpPayload {
   ref?: string;
 }
 
-// Helper to count second-level referrals for a given user
-async function countSecondLevel(referrerId: string) {
-  // 1. Find all first-level referrals of referrerId
-  const firstLevelUsers = await UserModel.find({ referredBy: referrerId }).select('_id').exec();
-  if (firstLevelUsers.length === 0) return 0;
+// // Helper to count second-level referrals for a given user
+// async function countSecondLevel(referrerId: string) {
+//   // 1. Find all first-level referrals of referrerId
+//   const firstLevelUsers = await UserModel.find({ referredBy: referrerId }).select('_id').exec();
+//   if (firstLevelUsers.length === 0) return 0;
 
-  // 2. For each of those, count how many users they referred
-  const firstLevelIds = firstLevelUsers.map((u) => u._id);
-  const secondLevelCount = await UserModel.countDocuments({ referredBy: { $in: firstLevelIds } }).exec();
-  return secondLevelCount;
-}
+//   // 2. For each of those, count how many users they referred
+//   const firstLevelIds = firstLevelUsers.map((u) => u._id);
+//   const secondLevelCount = await UserModel.countDocuments({ referredBy: { $in: firstLevelIds } }).exec();
+//   return secondLevelCount;
+// }
 
 export async function POST(req: NextRequest) {
   /**
@@ -115,63 +123,67 @@ export async function POST(req: NextRequest) {
   }
 }
 
+
+
 export async function GET(req: NextRequest) {
-  /**
-   * 1. Connect to DB
-   * 2. Get current authenticated user via next-auth
-   * 3. Fetch that user’s document (populate direct `referrals` array)
-   * 4. Count second-level referrals
-   * 5. Build a payload: { referralCode, referralLink, firstLevelCount, secondLevelCount, totalReferralEarnings, firstLevelReferrals: [ { username, email, referralCount } ] }
-   */
   try {
     await dbConnect();
-    // 2. Authentication check
+
+    // 1. Authenticate
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ success: false, message: 'Not authenticated.' }, { status: 401 });
     }
 
-    // 3. Fetch current user by email
-    const foundUser = await UserModel.findOne({ email: session.user.email })
-      .populate({
-        path: 'referrals',
-        select: 'username email referralCount',
-      })
-      .exec();
-
-    if (!foundUser) {
+    // 2. Load user
+    const user = await UserModel.findOne({ email: session.user.email })
+      .populate({ path: 'referrals', select: 'username email referralCount' })
+      .lean() as { _id: string; referralCount?: number; referrals?: any[]; referralCode?: string; referralEarnings?: number; transactions?: any[] };
+    if (!user) {
       return NextResponse.json({ success: false, message: 'User not found.' }, { status: 404 });
     }
 
-    // 4. Count second-level referrals
-    const secondLevelCount = await countSecondLevel(foundUser._id.toString());
+    // 3. Compute counts
+    const firstLevelCount = user?.referralCount || 0;
+    const secondLevelCount = await countSecondLevel(user._id.toString());
 
-    // 5. Build response payload
+    // 4. Build referral link
     const origin = req.nextUrl.origin;
-    const referralLink = `${origin}/sign-up?ref=${foundUser.referralCode}`;
+    const referralLink = `${origin}/sign-up?ref=${user.referralCode}`;
 
-    const firstLevelReferrals = (foundUser.referrals || []).map((r: any) => ({
+    // 5. Pull referral transactions history
+    //    filter user.transactions for those with details.source === 'referral'
+    const history = (user.transactions || [])
+      .filter(tx => tx.details?.source === 'referral')
+      .map(tx => ({
+        amount: tx.amount,
+        date: tx.date,
+        description: tx.details?.description || 'Referral bonus'
+      }))
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
+
+    // 6. Package first-level referral summaries
+    const firstLevelReferrals = (user.referrals || []).map((r: any) => ({
       username: r.username,
-      email: r.email,
-      referralCount: r.referralCount || 0,
+      email:    r.email,
+      referralCount: r.referralCount || 0
     }));
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          referralCode: foundUser.referralCode,
-          referralLink,
-          firstLevelCount: foundUser.referralCount || 0,
-          secondLevelCount,
-          totalReferralEarnings: foundUser.referralEarnings || 0,
-          firstLevelReferrals,
-        },
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error('Error in referral GET:', error);
+    // 7. Return all
+    return NextResponse.json({
+      success: true,
+      data: {
+        referralCode: user.referralCode,
+        referralLink,
+        firstLevelCount,
+        secondLevelCount,
+        totalReferralEarnings: user.referralEarnings || 0,
+        firstLevelReferrals,
+        history
+      }
+    });
+  } catch (err: any) {
+    console.error('Error in GET /api/referral:', err);
     return NextResponse.json({ success: false, message: 'Server error.' }, { status: 500 });
   }
 }

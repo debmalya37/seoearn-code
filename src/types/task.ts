@@ -8,7 +8,7 @@ export interface TaskData {
     fileUrl?: string;
     rating: number;
     category: string;
-    duration: string;
+    duration: number;
     createdBy: string;
     createdAt?: string;
     reward: number;

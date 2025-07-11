@@ -16,6 +16,11 @@ interface ReferralData {
     email: string;
     referralCount: number;
   }>;
+  history: Array<{
+    date: string;
+    amount: number;
+    description: string;
+  }>;
 }
 
 export default function ReferralsPage() {
@@ -142,6 +147,43 @@ export default function ReferralsPage() {
             <p className="text-gray-600 dark:text-gray-400">You haven’t referred anyone yet.</p>
           )}
         </div>
+
+<section className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-md mt-10">
+  <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+    Referral Earnings History
+  </h2>
+  {data.history.length > 0 ? (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+        <thead className="bg-gray-50 dark:bg-gray-800">
+          <tr>
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Date</th>
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Amount</th>
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Description</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white dark:bg-gray-700 divide-y divide-gray-200 dark:divide-gray-600">
+          {data.history.map((h, i) => (
+            <tr key={i}>
+              <td className="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">
+                {new Date(h.date).toLocaleString()}
+              </td>
+              <td className="px-4 py-2 text-sm font-medium text-green-600">
+                +${h.amount.toFixed(2)}
+              </td>
+              <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
+                {h.description}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <p className="text-gray-600 dark:text-gray-400">No referral earnings yet.</p>
+  )}
+</section>
+
       </div>
     </div>
   );

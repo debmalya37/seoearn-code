@@ -14,6 +14,17 @@ const Sidebar = () => {
                 <Link href="/Admin/Users" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
                     Users
                 </Link>
+                <Link href="/Admin/revenue" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                    Revenue
+                </Link>
+                <Link href="/Admin/withdraw" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                    Withdrawl Requests
+                </Link>
+                <Link href="/Admin/Dashboard" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                    Dashboard
+                </Link>
+
+
                 {/* <Link href="/Admin/Settings" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
                     Settings
                 </Link> */}
