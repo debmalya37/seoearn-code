@@ -53,7 +53,7 @@ export interface TaskData {
   description: string;
   rating: number;
   category: string;
-  duration: string;
+  duration: number; // Changed to number for consistency
   createdBy: string;
   reward: number;
   status?: string;
