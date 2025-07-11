@@ -3,6 +3,7 @@ import dbConnect from '@src/lib/dbConnect';
 import UserModel from '@src/models/userModel';
 import bcrypt from 'bcryptjs';
 import { generateReferralCode } from '@src/app/utils/referral';
+import { Types } from 'mongoose';
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
       age,
       paymentPreference,
       paymentGateway,
-      referralCode,       // this is the referral code string from ?ref=
+      referralCode,       // optional ?ref=
       deviceIdentifier,
     } = await request.json();
 
@@ -32,9 +33,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Ensure one account per device
-    const existingUserByDevice = await UserModel.findOne({ deviceIdentifier });
-    if (existingUserByDevice) {
+    // 2. One account per device
+    const existingByDevice = await UserModel.findOne({ deviceIdentifier });
+    if (existingByDevice) {
       return new Response(
         JSON.stringify({
           success: false,
@@ -45,25 +46,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Check email/phone/username uniqueness
-    const existingByEmail = await UserModel.findOne({ email });
-    if (existingByEmail) {
+    // 3. Uniqueness checks
+    if (await UserModel.exists({ email })) {
       return new Response(
         JSON.stringify({ success: false, message: 'Email already in use' }),
         { status: 400 }
       );
     }
-
-    const existingByPhone = await UserModel.findOne({ phoneNumber });
-    if (existingByPhone) {
+    if (await UserModel.exists({ phoneNumber })) {
       return new Response(
         JSON.stringify({ success: false, message: 'Phone number already in use' }),
         { status: 400 }
       );
     }
-
-    const existingByUsername = await UserModel.findOne({ username, isVerified: true });
-    if (existingByUsername) {
+    if (await UserModel.exists({ username, isVerified: true })) {
       return new Response(
         JSON.stringify({ success: false, message: 'Username is already taken' }),
         { status: 400 }
@@ -73,7 +69,7 @@ export async function POST(request: Request) {
     // 4. Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 5. Create new user document (with referredBy initialized to null)
+    // 5. Build new user (referredBy will remain null unless we find a referrer)
     const newUser = new UserModel({
       email,
       username,
@@ -85,8 +81,7 @@ export async function POST(request: Request) {
       age,
       paymentPreference,
       paymentGateway,
-      /* Instead of an ObjectId, we'll store the referrer’s email as a string */
-      referredBy: null,
+      referredBy: null,      // <-- default
       messages: [],
       tasks: [],
       deviceIdentifier,
@@ -98,22 +93,20 @@ export async function POST(request: Request) {
       notifications: [],
     });
 
-    // 6. Generate and assign a unique referral code for this new user
+    // 6. Generate a referral code
     newUser.referralCode = generateReferralCode(username, newUser._id.toString());
 
-    // 7. If an incoming referralCode exists, find the referring user by that code
+    // 7. If someone passed in a `referralCode`, look up that user:
     if (referralCode) {
       const referringUser = await UserModel.findOne({ referralCode });
       if (referringUser) {
-        // Instead of ObjectId, set referredBy = referringUser.email:
-        newUser.referredBy = referringUser.email;
+        // **Store the referrer’s _id**, not their email**
+        newUser.referredBy = referringUser._id;
 
-        // Append this new user's ID to the referrer's "referrals" array
+        // update referrer’s referrals list + count + notification
         referringUser.referrals = referringUser.referrals || [];
         referringUser.referrals.push(newUser._id);
         referringUser.referralCount = (referringUser.referralCount || 0) + 1;
-
-        // Create a notification for the referrer
         referringUser.notifications = referringUser.notifications || [];
         referringUser.notifications.push({
           message: `${newUser.username} used your referral code!`,
@@ -121,12 +114,11 @@ export async function POST(request: Request) {
           date: new Date(),
           read: false,
         });
-
         await referringUser.save();
       }
     }
 
-    // 8. Save the new user
+    // 8. Finally save the new user
     await newUser.save();
 
     return new Response(

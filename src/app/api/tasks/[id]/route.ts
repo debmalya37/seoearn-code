@@ -41,82 +41,83 @@ export async function GET(
 }
 
 // Update task (PUT) – adds the current user to the taskDoneBy array
+
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const taskId = params.id;
   if (!Types.ObjectId.isValid(taskId)) {
-    return NextResponse.json({ success: false, message: 'Invalid task ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: "Invalid task ID" }, { status: 400 });
   }
 
-  // 1) auth check (admin only)
+  // 1) Admin auth
   const session = await getServerSession(authOptions);
   if (!session?.user) {
-    return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json({ success: false, message: "Not authenticated" }, { status: 401 });
   }
+  // TODO: check session.user.role === 'admin'
 
-  // 2) parse
-  const {
-    status,           // 'approved' | 'rejected'
-    submissionId,     // the _id of the request/submission subdoc
-    submitterEmail,   // ✅ this is the email of the user who submitted
-    notes,
-    rating,
-    description,
-  } = await req.json() as {
-    status: string;
-    submissionId?: string;
-    submitterEmail?: string;
-    notes?: string;
-    rating?: number;
-    description?: string;
-  };
+  // 2) Parse body
+  const { status, submissionId, notes, rating, description } =
+    await req.json() as {
+      status: "approved" | "rejected";
+      submissionId: string;
+      notes?: string;
+      rating?: number;
+      description?: string;
+    };
 
-  if (!['approved', 'rejected'].includes(status)) {
-    return NextResponse.json({ success: false, message: 'Invalid status' }, { status: 400 });
+  if (!["approved", "rejected"].includes(status)) {
+    return NextResponse.json({ success: false, message: "Invalid status" }, { status: 400 });
   }
 
   await dbConnect();
 
-  // 3) load task
+  // 3) Load the task
   const task = await Task.findById(taskId);
   if (!task) {
-    return NextResponse.json({ success: false, message: 'Task not found' }, { status: 404 });
+    return NextResponse.json({ success: false, message: "Task not found" }, { status: 404 });
   }
 
-  // 4) locate the specific submission/request
-  const reqEntry = task.requests.find((request) => request._id.toString() === submissionId);
-  if (!reqEntry) {
-    return NextResponse.json({ success: false, message: 'Submission not found' }, { status: 404 });
+  // 4) Find the matching submission entry
+  const entry = task.requests.find((request) => request._id.toString() === submissionId);
+  if (!entry) {
+    return NextResponse.json({ success: false, message: "Submission not found" }, { status: 404 });
   }
 
-  // 5) update the subdoc's status & notes
-  reqEntry.status = status === 'approved' ? 'Approved' : 'Rejected';
-  if (notes)       reqEntry.message = notes;
-  if (description) reqEntry.fileUrl = description;
+  // 5) Update its status and optional fields
+  entry.status = status === "approved" ? "Approved" : "Rejected";
+  if (notes)       entry.message = notes;
+  if (description) entry.fileUrl = description;
+
   await task.save();
 
-  // 6) If approved, credit submitter + referral chain
-  if (status === 'approved' && submitterEmail) {
-    const submitter = await UserModel.findOne({ email: submitterEmail });
-    if (!submitter) {
-      return NextResponse.json({ success: false, message: 'Submitter not found' }, { status: 404 });
-    }
+  // 6) If approved, credit the submitter + referral chain
+  if (status === "approved") {
+    const submitterId = entry.userId.toString();
+    const rewardAmt   = task.reward;
 
-    const rewardAmt = task.reward;
-    const submitterId = submitter._id.toString();
+    // credit task reward
+    await addToWallet(
+      submitterId,
+      rewardAmt,
+      "earning",
+      `Task ${taskId} approved`
+    );
 
-    await addToWallet(submitterId, rewardAmt, 'earning', `Task ${taskId} approved`);
+    // pay out up to 3 levels of referrers (10%, 5%, 2%)
     await rewardReferralLevels(submitterId, rewardAmt);
   }
 
   return NextResponse.json({
     success: true,
-    message: `Submission ${status}`,
+    message: `Submission marked ${status}`,
     task,
   });
 }
+
 
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
