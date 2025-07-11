@@ -8,6 +8,6 @@ export const generateReferralCode = (username: string, phoneNumber: string): str
 };
 
 export const generateReferralLink = (referralCode: string): string => {
-  const domain = process.env.DOMAIN || 'http://localhost:3000';
+  const domain = process.env.DOMAIN || 'https://seoearningspace.com';
   return `${domain}/sign-up?ref=${referralCode}`;
 };

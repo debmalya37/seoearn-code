@@ -21,7 +21,7 @@ interface Totals {
 }
 
 async function fetchRevenue() {
-  const res = await fetch('http://localhost:3000/api/admin/revenue', { cache: 'no-store' });
+  const res = await fetch('https://seoearningspace.com/api/admin/revenue', { cache: 'no-store' });
   const { totals, list } = await res.json() as {
     totals: Totals;
     list: Array<{

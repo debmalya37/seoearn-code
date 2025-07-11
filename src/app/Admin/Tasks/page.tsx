@@ -15,7 +15,7 @@ interface Task {
 }
 
 async function fetchTasks(page: number, limit: number) {
-  const res = await fetch(`http://localhost:3000/api/tasks?page=${page}&limit=${limit}`, { cache: 'no-store' });
+  const res = await fetch(`https://seoearningspace.com/api/tasks?page=${page}&limit=${limit}`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch tasks');
   const data = await res.json();
   return { tasks: data.tasks as Task[], totalTasks: data.totalTasks as number };
