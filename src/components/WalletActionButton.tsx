@@ -68,23 +68,20 @@ export default function WalletActionButton({
         form.submit();
       } else {
         // Withdrawal request: record in our system
-        const resp = await fetch('/api/wallet/withdraw', {
+        // Withdrawal request
+        // Withdrawal request: record in our system
+        const res = await fetch('/api/wallet/withdraw', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId,
             amount,
-            curIn: currency,   // matches your API’s destructuring
-            curOut,
-            cntId,
-            account
-          }
-          )
-          
-          
+            account,
+            currency,   // we'll treat this as both curIn & curOut
+          }),
         });
-        const data = await resp.json();
-        if (!data.success) throw new Error(data.message || 'Withdraw failed');
+        const json = await res.json();
+        if (!json.success) throw new Error(json.message || `Withdraw failed ${json.errorCode || json.error || json}`);
 
         toast({ title: 'Withdrawal requested', description: 'Admin will process shortly.' });
 
@@ -119,39 +116,19 @@ export default function WalletActionButton({
 
       {/* Withdraw‑only fields */}
       {action === 'withdraw' && (
-        <>
-          <div className="mb-2">
-            <label className="block text-sm font-medium">Payout Currency</label>
-            <input
-              type="text"
-              className="w-full mt-1 p-2 rounded bg-gray-100 text-black"
-              value={curOut}
-              onChange={(e) => setCurOut(e.target.value.toUpperCase())}
-              disabled={loading}
-            />
-          </div>
-          <div className="mb-2">
-            <label className="block text-sm font-medium">Counterparty ID (cnt_id)</label>
-            <input
-              type="text"
-              className="w-full mt-1 p-2 rounded bg-gray-100 text-black"
-              value={cntId}
-              onChange={(e) => setCntId(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-          <div className="mb-2">
-            <label className="block text-sm font-medium">Account</label>
-            <input
-              type="text"
-              className="w-full mt-1 p-2 rounded bg-gray-100 text-black"
-              value={account}
-              onChange={(e) => setAccount(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-        </>
+        <div className="mb-4">
+          <label className="block text-sm font-medium">Payeer Account</label>
+          <input
+            type="text"
+            className="w-full mt-1 p-2 rounded bg-gray-100"
+            placeholder="P1234567"
+            value={account}
+            onChange={e => setAccount(e.target.value.trim())}
+            disabled={loading}
+          />
+        </div>
       )}
+
 
       {/* Submit Button */}
       <button

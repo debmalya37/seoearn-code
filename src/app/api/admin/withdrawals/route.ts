@@ -1,4 +1,7 @@
 // src/app/api/admin/withdrawals/route.ts
+
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@src/lib/dbConnect';
 import UserModel from '@src/models/userModel';

@@ -70,7 +70,7 @@ const Nav = () => {
           <ul className="space-y-4 w-full px-4">
             <li>
               <Link
-                href="/Wallet"
+                href="/wallet"
                 className="flex items-center text-white hover:bg-green-700 px-4 py-2 rounded transition-colors duration-200"
               >
                 <FaDollarSign className="mr-3" />

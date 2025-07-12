@@ -1,24 +1,39 @@
+// src/lib/payeer-mass.ts
 import fetch from 'node-fetch';
-// Removed import of URLSearchParams from 'url' as it conflicts with the global URLSearchParams
 
 const {
-  PAYEER_ACCOUNT,    // e.g. "P1000000"
-  PAYEER_API_ID_MASS,     // numeric ID
-  PAYEER_API_PASS_MASS,   // secret key
+  PAYEER_ACCOUNT,
+  PAYEER_API_ID_MASS,
+  PAYEER_API_PASS_MASS,
+  PAYEER_PS_ID,
 } = process.env;
 
-for (const v of ['PAYEER_ACCOUNT','PAYEER_API_ID','PAYEER_API_PASS'] as const) {
-  if (!process.env[v]) throw new Error(`Missing env var ${v}`);
+for (const v of [
+  'PAYEER_ACCOUNT',
+  'PAYEER_API_ID_MASS',
+  'PAYEER_API_PASS_MASS',
+  'PAYEER_PS_ID',
+] as const) {
+  if (!process.env[v]) {
+    throw new Error(`Missing Payeer env var ${v}`);
+  }
 }
 
-type PayoutItem = {
-  to: string;       // e.g. "P1001234"
-  sumIn: string;    // amount as "12.34"
-  curIn: string;    // "USD", "EUR", etc
-  curOut: string;   // usually same as curIn
-  comment?: string; // your internal txn ID etc
+export type PayoutItem = {
+  to: string;
+  sumIn: string;
+  curIn: string;
+  curOut: string;
+  comment?: string;
   referenceId?: string;
 };
+
+interface PayeerMassResponse {
+  auth_error: string;
+  errors?: string[];
+  success?: boolean;
+  historyList?: Array<{ referenceId: string; historyId: string }>;
+}
 
 export async function massPayout(items: PayoutItem[]) {
   // build params
@@ -27,32 +42,45 @@ export async function massPayout(items: PayoutItem[]) {
     apiId:    PAYEER_API_ID_MASS!,
     apiPass:  PAYEER_API_PASS_MASS!,
     action:   'massPayout',
-    json:     '1',             // ask JSON back
+    json:     '1',
   });
 
-  // each item must be JSON‑encoded
-  params.append('payoutList', JSON.stringify(items));
+  const enriched = items.map(i => ({
+    ps:                   PAYEER_PS_ID!,
+    sumIn:                i.sumIn,
+    curIn:                i.curIn,
+    sumOut:               i.sumIn,
+    curOut:               i.curOut,
+    param_ACCOUNT_NUMBER: i.to,
+    comment:              i.comment,
+    referenceId:          i.referenceId,
+  }));
+  params.append('payoutList', JSON.stringify(enriched));
 
   const res = await fetch('https://payeer.com/ajax/api/api.php', {
-    method: 'POST',
+    method:  'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString() // Convert URLSearchParams to string for compatibility
+    body:    params.toString(),
   });
 
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json() as {
-    auth_error: string;
-    errors: any[];
-    success?: boolean;
-    historyList?: Array<{ referenceId: string; historyId: string }>;
-  };
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status} from Payeer`);
+  }
 
+  // 1) Tell TS to treat this as PayeerMassResponse
+  const json = (await res.json()) as PayeerMassResponse;
+  console.debug('Payeer massPayout response:', json);
+
+  // 2) Check auth
   if (json.auth_error !== '0') {
-    throw new Error('Payeer authorization failed: ' + (json.errors || []).join('; '));
-  }
-  if (!json.success) {
-    throw new Error('Mass payout failed: ' + (json.errors || []).join('; '));
+    throw new Error('Payeer auth failed: ' + JSON.stringify(json.errors || json));
   }
 
-  return json.historyList!;
+  // 3) If we got historyList, return it
+  if (Array.isArray(json.historyList) && json.historyList.length > 0) {
+    return json.historyList;
+  }
+
+  // 4) Otherwise propagate whatever errors we got
+  throw new Error('Mass payout failed: ' + JSON.stringify(json.errors ?? json));
 }

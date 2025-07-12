@@ -24,7 +24,7 @@ export default function AdminWithdrawPage() {
   const fetchWithdrawals = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/withdrawals');
+      const res = await fetch('/api/admin/withdrawals', { cache: 'no-store' });
       const json = await res.json();
       if (json.success) {
         setWithdrawals(json.withdrawals);
