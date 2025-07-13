@@ -86,12 +86,8 @@ const CreateAdvertisement: FC = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <AdsSide
-        onOpenNewTask={() => setIsAddModalOpen(true)}
-        onShowPerformance={() => toast({ title: 'Show Performance (TODO)' })}
-        onShowViews={() => toast({ title: 'Show Top Views (TODO)' })}
-        onShowInteractions={() => toast({ title: 'Show Interactions (TODO)' })}
-      />
+      <AdsSide onOpenNewAd={() => setIsAddModalOpen(true)} />
+      
 
       <main className="flex-1 overflow-auto p-6">
         <header className="flex items-center justify-between mb-6">

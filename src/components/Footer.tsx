@@ -5,7 +5,7 @@ import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from 'react-icons/f
 function Footer() {
   return (
     <div>
-      <footer className="bg-white py-8 px-4 md:px-16 border-t border-gray-200">
+      <footer className="bg-white py-8 px-4 md:px-16 border-t border-gray-200 border-t-popover border-x-white">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
           {/* Social Media Icons */}
           <div className="flex space-x-4 mb-4 md:mb-0 text-gray-600 text-2xl">

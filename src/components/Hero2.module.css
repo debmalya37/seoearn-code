@@ -1,0 +1,129 @@
+/* src/components/AgencyHero.module.css */
+
+.hero {
+    position: relative;
+    min-height: 80vh;
+    background: #000318;
+    color: white;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 4rem;
+    z-index: 10;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  
+  .links a {
+    color: #ccc;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color .2s;
+  }
+  
+  .links a:hover {
+    color: white;
+  }
+  
+  .cta {
+    background: #03a953;
+    padding: .75rem 1.5rem;
+    border-radius: 999px;
+    color: white;
+    font-weight: 600;
+  }
+  
+  .content {
+    position: relative;
+    z-index: 5;
+    text-align: center;
+    margin: auto;
+    max-width: 700px;
+    padding: 0 2rem;
+  }
+  
+  .socialProof {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    margin-bottom: 1rem;
+    opacity: .8;
+  }
+  
+  .socialProof img {
+    height: 2rem;
+    filter: grayscale(1) brightness(1.2);
+  }
+  
+  .title {
+    font-size: 3rem;
+    line-height: 1.2;
+    font-weight: 800;
+    margin-bottom: 1rem;
+  }
+  
+  .title em {
+    color: #03a953;
+    font-style: normal;
+  }
+  
+  .subtitle {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    color: #bbb;
+  }
+  
+  .buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 4rem;
+  }
+  
+  .primaryBtn {
+    background: #03a953;
+    padding: .75rem 2rem;
+    border-radius: 50px;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(15, 48, 156, 0.4);
+  }
+  
+  .secondaryBtn {
+    background: transparent;
+    border: 2px solid #1746d3;
+    padding: .75rem 2rem;
+    border-radius: 50px;
+    color: #d7dceb;
+    font-weight: 600;
+  }
+  
+  .glow {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: 300px;
+    background: radial-gradient(circle, #3d81f8, transparent 70%);
+    filter: blur(100px);
+    opacity: .6;
+    z-index: 1;
+  }
+  

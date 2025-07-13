@@ -1,0 +1,67 @@
+/* src/styles/Theme.module.css */
+.sectionDark {
+    /* teal accent for form controls */
+    accent-color: #2dd4bf;
+  
+    /* dark charcoal background */
+    background-color: #201f1f;
+  
+    /* generous padding */
+    padding: 4rem 1rem;
+  
+    /* light gray text */
+    color: #e6e6e6;
+  }
+  
+  .glassCard {
+    /* semi‑transparent white */
+    background-color: rgba(231, 227, 227, 0.5);
+  
+    /* glass blur effect */
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  
+    /* subtle gray border */
+    border: 1px solid rgba(128, 128, 128, 0.3);
+  
+    /* rounded corners */
+    border-radius: 0.5rem;
+  
+    /* inner padding */
+    padding: 2rem;
+  
+    /* drop shadow */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  
+  .buttonPrimary {
+    /* teal background */
+    background-color: #2dd4bf;
+  
+    /* white text */
+    color: #ffffff;
+  
+    /* padding & rounding */
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+  
+    /* bold text */
+    font-weight: 600;
+  }
+  
+  .buttonSecondary {
+    /* transparent background, teal border */
+    background: none;
+    border: 2px solid #2dd4bf;
+  
+    /* teal text */
+    color: #2dd4bf;
+  
+    /* padding & rounding */
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+  
+    /* bold text */
+    font-weight: 600;
+  }
+  

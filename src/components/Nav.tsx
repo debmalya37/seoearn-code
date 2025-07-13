@@ -1,146 +1,146 @@
-"use client";
-import React, { useState } from "react";
-import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
-import { User } from "next-auth";
-import Image from "next/image";
-import LanguageToggle from "./LanguageToggle";
-import { BsMegaphoneFill } from "react-icons/bs";
+'use client';
+import React, { Fragment } from 'react';
+import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
+import Image from 'next/image';
 import {
-  FaDollarSign,
-  FaBullhorn,
-  FaCoffee,
-  FaEnvelope,
-  FaUsers,
-  FaUserCog,
-  FaLandmark,
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+  Transition,
+} from '@headlessui/react';
+import {
   FaChevronLeft,
   FaChevronRight,
-} from "react-icons/fa";
-import pic from "../../asset/1.png";
-import NotificationBell from "./NotificationBell";
+  FaCoffee,
+  FaUsers,
+  FaUserCog,
+  FaDollarSign,
+  FaTasks,
+} from 'react-icons/fa';
+import { BsMegaphoneFill } from 'react-icons/bs';
+import NotificationBell from './NotificationBell';
+import LanguageToggle from './LanguageToggle';
+import avatar from '../../asset/1.png';
 
-const Nav = () => {
+const menuItems = [
+  { href: '/wallet', icon: FaDollarSign, label: 'Income' },
+  { href: '/TaskFeed', icon: FaTasks,      label: 'Feed' },
+  { href: '/referrals', icon: FaUsers,      label: 'Referrals' },
+  { href: '/Profile',   icon: FaUserCog,    label: 'My Profile' },
+  { href: '/CreateAdvertisement',       icon: BsMegaphoneFill, label: 'Ads Management' },
+];
+
+export default function Nav() {
   const { data: session } = useSession();
-  const user: User = session?.user as User;
-  const username = user?.email?.split("@")[0];
-  const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="relative">
-      
-      
-      {/* Toggle Button (always visible in the top-left corner) */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="absolute top-2 left-2 z-50 p-2 bg-green-700 rounded-md flex items-center justify-center transition-transform duration-300"
-      >
-        {isOpen ? (
-          <FaChevronLeft className="text-white w-5 h-5" />
-        ) : (
-          <FaChevronRight className="text-white w-5 h-5" />
-        )}
-      </button>
+    <div className="relative flex h-screen">
+      {/* dark backdrop under only the sidebar */}
+      <div className="absolute inset-y-0 left-0 w-64 bg-gray-900" />
 
-      {isOpen && (
-        <>
-
-              
-
-
-        <div className="h-screen w-64 bg-green-900 text-white flex flex-col items-center py-6">
-
-        <div className="flex absolute items-right justify-right ml-40 mt-4">
-                      <NotificationBell />
-              </div>
-          {/* Profile Picture */}
-          <div className="mb-6">
-            <Image
-              src={pic}
-              alt="User Profile"
-              width={70}
-              height={70}
-              className="rounded-full border-2 border-white"
-            />
-
-          </div>
-        <LanguageToggle />
-        
-          {/* Menu Items */}
-          <ul className="space-y-4 w-full px-4">
-            <li>
-              <Link
-                href="/wallet"
-                className="flex items-center text-white hover:bg-green-700 px-4 py-2 rounded transition-colors duration-200"
-              >
-                <FaDollarSign className="mr-3" />
-                Income
-              </Link>
-            </li>
-            <li>
-              
-            </li>
-            <li>
-              <Link
-                href="/TaskFeed"
-                className="flex items-center text-white hover:bg-green-700 px-4 py-2 rounded transition-colors duration-200"
-              >
-                <FaCoffee className="mr-3" />
-                Feed
-              </Link>
-            </li>
-            <li>
-              {/* <Link
-                href="/Messages"
-                className="flex items-center text-white hover:bg-green-700 px-4 py-2 rounded transition-colors duration-200"
-              >
-                <FaEnvelope className="mr-3" />
-                Messages
-              </Link> */}
-            </li>
-            <li>
-              <Link
-                href="/referrals"
-                className="flex items-center text-white hover:bg-green-700 px-4 py-2 rounded transition-colors duration-200"
-              >
-                <FaUsers className="mr-3" />
-                Referrals
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/Profile"
-                className="flex items-center text-white hover:bg-green-700 px-4 py-2 rounded transition-colors duration-200"
-              >
-                <FaUserCog className="mr-3" />
-                My Profile
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/CreateAdvertisement"
-                className="flex items-center text-white hover:bg-green-700 px-4 py-2 rounded transition-colors duration-200"
-              >
-                <BsMegaphoneFill  className="mr-3" />
-                Ads Management
-              </Link>
-            </li>
-          </ul>
-
-          {/* Sign Out Button */}
-          {session && (
-            <button
-              onClick={() => signOut()}
-              className="mt-auto mb-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors duration-200"
+      <Disclosure as="nav" defaultOpen>
+        {({ open }) => (
+          <>
+            {/* Toggle Button */}
+            <DisclosureButton
+              className={`
+                absolute top-4 left-4 z-50 p-2 rounded-full
+                bg-gradient-to-tr from-green-300 to-cyan-400
+                text-white shadow-lg hover:shadow-2xl
+                transform transition-transform duration-300
+                ${open ? 'rotate-180' : ''}
+              `}
             >
-              Sign Out
-            </button>
-          )}
-        </div>
-        </>
-      )}
+              {open ? <FaChevronLeft size={20} /> : <FaChevronRight size={20} />}
+            </DisclosureButton>
+
+            <Transition
+              as={Fragment}
+              show={open}
+              enter="transition-all duration-500"
+              leave="transition-all duration-300"
+              enterFrom="-translate-x-64 opacity-0"
+              enterTo="translate-x-0 opacity-100"
+              leaveFrom="translate-x-0 opacity-100"
+              leaveTo="-translate-x-64 opacity-0"
+            >
+              <DisclosurePanel
+                static
+                className={`
+                  relative z-10 w-64 flex flex-col items-center py-8 space-y-6
+                  bg-white/20 backdrop-blur-xl border border-white/30
+                  before:absolute before:inset-0
+                  before:rounded-tr-3xl before:rounded-br-3xl
+                  before:bg-gradient-to-br before:from-white/10 before:to-transparent
+                  before:blur-xl before:z-[-1]
+                  shadow-2xl rounded-tr-3xl rounded-br-3xl h-[100vh]
+                `}
+              >
+                {/* Notifications & Language */}
+                <div className="w-full px-4 flex justify-end">
+                  <NotificationBell />
+                </div>
+                <LanguageToggle />
+
+                {/* Avatar */}
+                <div className="relative w-20 h-20 rounded-full overflow-hidden ring-2 ring-white/40">
+                <Link href={'/'}>
+                  <Image src={avatar} alt="User" fill className="object-cover" /></Link>
+                </div>
+
+                {/* Username */}
+                {session?.user?.name && (
+                  <div className="text-white font-medium text-lg">
+                    {session.user.name}
+                  </div>
+                )}
+
+                {/* Menu Links */}
+                <ul className="flex-1 w-full px-4 space-y-3">
+                  {menuItems.map(({ href, icon: Icon, label }) => (
+                    <li key={label}>
+                      <Link href={href}>
+                        <span
+                          className={`
+                            flex items-center gap-3 px-4 py-2
+                            bg-white/10 backdrop-blur-md
+                            ring-1 ring-white/40
+                            rounded-full
+                            text-white
+                            hover:bg-white/25 hover:ring-2 hover:ring-white/50
+                            transition-all
+                          `}
+                        >
+                          <Icon className="w-5 h-5" />
+                          <span className="text-base">{label}</span>
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Sign Out */}
+                {session && (
+                  <button
+                    onClick={() => signOut()}
+                    className={`
+                      w-full mx-4 py-2
+                      bg-red-500/80 backdrop-blur-sm
+                      text-white font-semibold
+                      rounded-full
+                      hover:bg-red-600/90
+                      transition-colors
+                    `}
+                  >
+                    Sign Out
+                  </button>
+                )}
+              </DisclosurePanel>
+            </Transition>
+          </>
+        )}
+      </Disclosure>
     </div>
   );
-};
-
-export default Nav;
+}

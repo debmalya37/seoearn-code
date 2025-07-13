@@ -1,520 +1,368 @@
-import React from "react";
-import { Button, Card, Image, Link, Divider } from "@heroui/react";
-import { Icon } from "@iconify/react";
-import NotificationBell from "@src/components/NotificationBell";
+// app/page.tsx
+'use client';
+import Link from 'next/link';
+import { Button, Card } from '@heroui/react';
+import { Icon } from '@iconify/react';
+import InteractiveHero from '@src/components/InteractiveHero';
+import Hero2 from '@src/components/Hero2';
+import { motion } from 'framer-motion'
+import CountUp from 'react-countup'
 
-export default function App() {
+
+export default function Home() {
+
+  const steps = [
+    {
+      icon: 'fa6-solid:tasks',
+      title: 'Post a Task',
+      desc: 'Advertisers spin up tasks in seconds, set your budget, and watch the work roll in. Get the results you need fast.'
+    },
+    {
+      icon: 'fa6-solid:user-check',
+      title: 'Complete & Earn',
+      desc: 'Freelancers choose tasks, submit proof, and get paid instantly upon approval.'
+    },
+    {
+      icon: 'fa6-solid:sitemap',
+      title: 'Referral Bonuses',
+      desc: 'Automatically earn 10% on direct referrals and 5% on second‑level signups.'
+    }
+  ]
   return (
-    <div className="min-h-screen bg-white">
-        {/* <NotificationBell /> */}
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[#f6fef9] to-white min-h-[90vh] flex flex-col-reverse md:flex-row items-center justify-between px-4 py-8 md:px-16 gap-8 relative overflow-hidden">
-        {/* Background Shapes */}
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#e9f7f1] rounded-full opacity-50 blur-3xl -translate-x-1/2 translate-y-1/2"></div>
-        <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-[#e9f7f1] rounded-full opacity-50 blur-3xl translate-x-1/2 -translate-y-1/2"></div>
-        {/* Left Text */}
-        <div className="max-w-xl mt-8 md:mt-0 z-10">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight mb-4">
-            YOUR BEST PLACE TO GET EASY MICRO TASKS <br className="hidden md:block" />
-            AND EARN REAL MONEY FROM IT
+    <div className="flex flex-col min-h-screen font-sans text-gray-800 bg-black">
+      <Hero2 />
+      {/* Hero */}
+      {/* <section className="relative overflow-hidden bg-gradient-to-br from-green-600 to-teal-500 text-white flex flex-col-reverse lg:flex-row items-center px-6 lg:px-24 py-24">
+        {/* Decorative floating icons
+        <div className="pointer-events-none absolute top-10 left-1/4 animate-float-slow">
+          <Icon icon="fa6-solid:check-circle" className="text-white/30 w-12 h-12" />
+        </div>
+        <div className="pointer-events-none absolute bottom-16 right-1/3 animate-float">
+          <Icon icon="fa6-solid:tasks" className="text-white/20 w-14 h-14" />
+        </div>
+
+        <div className="lg:w-1/2 space-y-6 z-10">
+          <h1 className="text-5xl lg:text-6xl font-extrabold leading-snug tracking-tight drop-shadow-lg">
+            Earn from Micro‑Tasks<br className="hidden md:inline" />
+            or Post Your Own
           </h1>
-          <p className="text-gray-600 text-lg md:text-xl mb-6 leading-relaxed">
-            POST YOUR MICRO TASK ADVERTISEMENTS AND GET IT DONE BY MANY FREELANCERS
+          <p className="text-lg lg:text-xl opacity-90 max-w‑2xl">
+            Connect advertisers and freelancers on one platform—get tasks done or earn real cash, plus multi‑level referral bonuses.
           </p>
-          <div className="flex space-x-4">
-            <Link href="/sign-in">
-            <Button 
-              className="bg-green-600 hover:bg-green-500 text-white px-6 py-3 transition-all duration-300"
-              size="lg"
-            >
-              Get Started
-            </Button>
-            </Link>
-            <Link
-            href="/TaskFeed"
-            >
-            <Button
-              variant="bordered"
-              className="border-green-600 text-green-700 px-6 py-3 transition-all duration-300 hover:bg-green-50"
-              size="lg"
-              
-            >
-              View Demo
-            </Button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Right Image/Chart */}
-        <div className="flex justify-center md:w-1/2 z-10">
-          <div className="relative">
-            {/* Circle background */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] rounded-full bg-[#e9f7f1]"></div>
-            
-            {/* Person image */}
-            <img
-              src="https://picsum.photos/600/600"
-              alt="Person working on laptop"
-              className="relative z-10 rounded-full w-[400px] h-[400px] object-cover"
-              // removeWrapper
-            />
-          </div>
-        </div>
-      </section>
-{/* "Save Money. Make Money" Section */}
-<section className="relative bg-gradient-to-br from-blue-900 to-blue-700 text-white py-16 px-4 md:px-16 overflow-hidden">
-  {/* Background swirl or shape (optional) */}
-  <div className="absolute inset-0 bg-[url('https://picsum.photos/1600/900?blur=3')] bg-cover bg-center opacity-30" />
-
-  {/* Overlay to darken background if needed */}
-  <div className="absolute inset-0 bg-black opacity-20" />
-
-  <div className="relative max-w-5xl mx-auto flex flex-col items-center text-center z-10">
-    <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
-      Save Money. Make Money.
-    </h1>
-    <p className="text-lg md:text-xl mb-8">
-      Members like you have already cashed out:
-    </p>
-
-    {/* Large currency figure */}
-    <div className="text-5xl md:text-6xl font-bold text-yellow-400 mb-4">
-      ₹ 634,206,386
-    </div>
-
-    <p className="text-sm md:text-base text-gray-100">
-      in cash back from using OurPlatform
-    </p>
-  </div>
-</section>
-
-{/* Payment Stats Section */}
-<section className="relative bg-gradient-to-r from-teal-700 to-cyan-600 py-12 px-4 md:px-16 text-white">
-  <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-    {/* Card 1 */}
-    <div className="flex flex-col p-6 bg-white/10 rounded shadow">
-      {/* Image at the top */}
-      <div className="w-full h-48 mb-4 overflow-hidden rounded">
-        <img
-          src="https://picsum.photos/400/300?random=10" // or any image URL
-          alt="Paid to members"
-          className="w-full h-full object-cover"
-        />
-      </div>
-      <h3 className="text-3xl font-bold">$634,206,386</h3>
-      <p className="text-white/90 mt-2">paid to members around the globe</p>
-    </div>
-
-    {/* Card 2 */}
-    <div className="flex flex-col p-6 bg-white/10 rounded shadow">
-      <div className="w-full h-48 mb-4 overflow-hidden rounded">
-        <img
-          src="https://picsum.photos/400/300?random=23" // or any image URL
-          alt="Gift cards"
-          className="w-full h-full object-cover"
-        />
-      </div>
-      <h3 className="text-3xl font-bold">7,000+</h3>
-      <p className="text-white/90 mt-2">
-        gift cards redeemed daily from popular merchants and restaurants
-      </p>
-    </div>
-
-    {/* Card 3 */}
-    <div className="flex flex-col p-6 bg-white/10 rounded shadow">
-      <div className="w-full h-48 mb-4 overflow-hidden rounded">
-        <img
-          src="https://picsum.photos/400/300?random=35" // or any image URL
-          alt="Retailers"
-          className="w-full h-full object-cover"
-        />
-      </div>
-      <h3 className="text-3xl font-bold">1,500+</h3>
-      <p className="text-white/90 mt-2">of retailers to earn cash‑back from</p>
-    </div>
-  </div>
-</section>
-
-{/* What We Offer */}
-<section className="py-16 px-6 md:px-24 bg-white">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          What We Offer
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {[
-            {
-              icon: "fa6-solid:tasks",
-              title: "Micro‑Tasks",
-              description: "Quick surveys, data entry, app tests—earn on your schedule."
-            },
-            {
-              icon: "fa6-solid:gift",
-              title: "Digital Goods",
-              description: "Redeem instant gift cards & vouchers from top brands."
-            },
-            {
-              icon: "fa6-solid:money-bill-wave",
-              title: "Cash Payments",
-              description: "Payout via Payeer, PayPal, bank transfer—fast & secure."
-            }
-          ].map((card, i) => (
-            <Card key={i} className="p-6 hover:shadow-xl transition-shadow">
-              <div className="text-4xl text-green-600 mb-4">
-                <Icon icon={card.icon} />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">{card.title}</h3>
-              <p className="text-gray-700">{card.description}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-16 px-6 md:px-24 bg-gray-50">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          How It Works
-        </h2>
-        <div className="max-w-4xl mx-auto space-y-8">
-          {[
-            {
-              step: 1,
-              title: "Sign Up & Connect",
-              detail: "Create your account, connect your Payeer or PayPal for payouts."
-            },
-            {
-              step: 2,
-              title: "Choose Tasks or Goods",
-              detail: "Browse micro‑tasks or digital goods. All paid services are clearly priced."
-            },
-            {
-              step: 3,
-              title: "Complete & Earn",
-              detail: "Submit your work or redeem goods instantly. View your earnings dashboard in real‑time."
-            }
-          ].map((item) => (
-            <div key={item.step} className="flex items-start space-x-4">
-              <div className="w-10 h-10 flex items-center justify-center bg-green-600 text-white rounded-full text-lg font-bold">
-                {item.step}
-              </div>
-              <div>
-                <h4 className="text-xl font-semibold">{item.title}</h4>
-                <p className="text-gray-600">{item.detail}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="max-w-md mx-auto p-8 bg-white rounded shadow">
-      <h1 className="text-2xl font-bold mb-4">Payeer Demo Credentials</h1>
-      <span><strong>URL(ctrl/cmd + click):</strong> <code> <Link href="https://seoearningspace.com/sign-in">https://seoearningspace.com/sign-in</Link></code></span><br />
-      <span><strong>Email:</strong> <code>test@gmail.com</code></span><br />
-      <span><strong>Password:</strong> <code>test@123</code></span>
-    </div>
-      </section>
-
-      {/* Stats Row */}
-      <section className="bg-white py-8 md:py-12 px-4 md:px-16">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-center items-center gap-8">
-          {/* Stat 1 */}
-          <div className="text-center">
-            <h3 className="text-4xl font-bold text-green-700">31,991</h3>
-            <p className="text-gray-600">Total participants</p>
-          </div>
-          {/* Stat 2 */}
-          <div className="text-center">
-            <h3 className="text-4xl font-bold text-green-700">482</h3>
-            <p className="text-gray-600">Now Online</p>
-          </div>
-          {/* Stat 3 */}
-          <div className="text-center">
-            <h3 className="text-4xl font-bold text-green-700">10,053,575</h3>
-            <p className="text-gray-600">Total Earned</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Three Feature Cards */}
-      <section className="bg-[#f6fef9] py-12 px-4 md:px-16">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Card 1: As well as */}
-          <Card className="p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105">
-            <div className="w-full mb-4 overflow-hidden rounded">
-              <img
-                src="https://picsum.photos/400/300?random=1"
-                alt="Feature image"
-                className="object-contain w-full h-auto"
-              />
-            </div>
-            <h3 className="text-xl font-semibold mb-3">As well as:</h3>
-            <ul className="list-disc list-inside text-gray-700 space-y-2">
-              <li>
-                A typical you can influence to help users decide whether they should
-                visit your site through those search results.
-              </li>
-              <li>A typical you can influence to help users decide.</li>
-              <li>
-                A typical you can influence to help users decide whether they
-                should visit.
-              </li>
-              <li>
-                A typical you can influence to help users decide whether they
-                should visit your site through.
-              </li>
-            </ul>
-          </Card>
-
-          {/* Card 2: Your Benefits */}
-          <Card className="p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105">
-            <div className="w-full mb-4 overflow-hidden rounded">
-              <img
-                src="https://picsum.photos/400/300?random=2"
-                alt="Feature image"
-                className="object-contain w-full h-auto"
-              />
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Your Benefits:</h3>
-            <ul className="list-disc list-inside text-gray-700 space-y-2">
-              <li>
-                A typical you can influence to help users decide whether they should
-                visit your site through those search results.
-              </li>
-              <li>A typical you can influence to help users decide.</li>
-              <li>
-                A typical you can influence to help users decide whether they
-                should visit.
-              </li>
-              <li>
-                A typical you can influence to help users decide whether they
-                should visit your site through.
-              </li>
-            </ul>
-          </Card>
-
-          {/* Card 3: Especially for you */}
-          <Card className="p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105">
-            <div className="w-full mb-4 overflow-hidden rounded">
-              <img
-                src="https://picsum.photos/400/300?random=3"
-                alt="Feature image"
-                className="object-contain w-full h-auto"
-              />
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Especially for you:</h3>
-            <ul className="list-disc list-inside text-gray-700 space-y-2">
-              <li>
-                A typical you can influence to help users decide whether they should
-                visit your site through those search results.
-              </li>
-              <li>A typical you can influence to help users decide.</li>
-              <li>
-                A typical you can influence to help users decide whether they
-                should visit.
-              </li>
-              <li>
-                A typical you can influence to help users decide whether they
-                should visit your site through.
-              </li>
-            </ul>
-          </Card>
-        </div>
-      </section>
-
-{/* Testimonials Section */}
-<section className="bg-white py-12 px-4 md:px-16">
-  <h2 className="text-3xl font-bold text-center mb-8">Testimonials</h2>
-  
-  {/* Horizontal scroll container for the testimonial cards */}
-  <div className="max-w-6xl mx-auto flex gap-6 overflow-x-auto pb-4">
-    {/* Each testimonial card */}
-    <div className="min-w-[280px] w-[280px] bg-white border border-gray-200 rounded shadow-sm p-4 flex flex-col">
-      {/* Star Ratings & Verified Badge */}
-      <div className="flex items-center mb-2">
-        {/* Example star icons (using Iconify or any icon library) */}
-        {[...Array(5)].map((_, i) => (
-          <Icon key={i} icon="fa6-solid:star" className="text-green-600 w-4 h-4 mr-1" />
-        ))}
-        <span className="ml-auto text-xs bg-green-100 text-green-800 px-2 py-[2px] rounded-full">Verified</span>
-      </div>
-      {/* Short Review Text */}
-      <p className="text-sm text-gray-700 mb-4">
-        “Gostei muito. A great platform to earn from micro tasks. Highly recommended!”
-      </p>
-      {/* Reviewer Name */}
-      <div className="mt-auto text-xs text-gray-500">
-        Carlos Henrique <br />
-        <span className="text-gray-400">User from Brazil</span>
-      </div>
-    </div>
-
-    {/* Repeat for other testimonial cards */}
-    <div className="min-w-[280px] w-[280px] bg-white border border-gray-200 rounded shadow-sm p-4 flex flex-col">
-      <div className="flex items-center mb-2">
-        {[...Array(5)].map((_, i) => (
-          <Icon key={i} icon="fa6-solid:star" className="text-green-600 w-4 h-4 mr-1" />
-        ))}
-        <span className="ml-auto text-xs bg-green-100 text-green-800 px-2 py-[2px] rounded-full">Verified</span>
-      </div>
-      <p className="text-sm text-gray-700 mb-4">
-        “Super experiência – super user-friendly. Earned money quickly. Awesome!”
-      </p>
-      <div className="mt-auto text-xs text-gray-500">
-        Joanne, <br />
-        <span className="text-gray-400">User from France</span>
-      </div>
-    </div>
-
-    <div className="min-w-[280px] w-[280px] bg-white border border-gray-200 rounded shadow-sm p-4 flex flex-col">
-      <div className="flex items-center mb-2">
-        {[...Array(5)].map((_, i) => (
-          <Icon key={i} icon="fa6-solid:star" className="text-green-600 w-4 h-4 mr-1" />
-        ))}
-        <span className="ml-auto text-xs bg-green-100 text-green-800 px-2 py-[2px] rounded-full">Verified</span>
-      </div>
-      <p className="text-sm text-gray-700 mb-4">
-        “Muy Buenas encuestas. I love how simple the tasks are. Payout is fast.”
-      </p>
-      <div className="mt-auto text-xs text-gray-500">
-        José, <br />
-        <span className="text-gray-400">User from Mexico</span>
-      </div>
-    </div>
-
-    <div className="min-w-[280px] w-[280px] bg-white border border-gray-200 rounded shadow-sm p-4 flex flex-col">
-      <div className="flex items-center mb-2">
-        {[...Array(5)].map((_, i) => (
-          <Icon key={i} icon="fa6-solid:star" className="text-green-600 w-4 h-4 mr-1" />
-        ))}
-        <span className="ml-auto text-xs bg-green-100 text-green-800 px-2 py-[2px] rounded-full">Verified</span>
-      </div>
-      <p className="text-sm text-gray-700 mb-4">
-        “Super et fiable ! The micro tasks are straightforward. Great support too.”
-      </p>
-      <div className="mt-auto text-xs text-gray-500">
-        Angélique, <br />
-        <span className="text-gray-400">User from Belgium</span>
-      </div>
-    </div>
-
-    <div className="min-w-[280px] w-[280px] bg-white border border-gray-200 rounded shadow-sm p-4 flex flex-col">
-      <div className="flex items-center mb-2">
-        {[...Array(5)].map((_, i) => (
-          <Icon key={i} icon="fa6-solid:star" className="text-green-600 w-4 h-4 mr-1" />
-        ))}
-        <span className="ml-auto text-xs bg-green-100 text-green-800 px-2 py-[2px] rounded-full">Verified</span>
-      </div>
-      <p className="text-sm text-gray-700 mb-4">
-        “Excelente plataforma de micro tareas. Very easy to use. Love it!”
-      </p>
-      <div className="mt-auto text-xs text-gray-500">
-        Jorge, <br />
-        <span className="text-gray-400">User from Spain</span>
-      </div>
-    </div>
-  </div>
-
-  {/* Trustpilot-like note and Sign Up button */}
-  <div className="text-center mt-8">
-    <p className="text-sm text-gray-500 mb-4">
-      Rated 4.0 / 5 based on 39,244 reviews. Showing our 5 star reviews.
-    </p>
-    <Link href="/sign-up">
-    <Button className="bg-green-600 hover:bg-green-500 text-white px-6 py-3 transition-all duration-300">
-      Sign Up Now
-    </Button>
-    </Link>
-  </div>
-</section>
-
-      {/* Additional Single Stat */}
-      <section className="bg-white py-12 px-4 md:px-16">
-        <Card className="max-w-md mx-auto bg-green-50 p-6 text-center">
-          <h3 className="text-4xl font-bold text-green-700">54,641</h3>
-          <p className="text-gray-600">Advertisers</p>
-        </Card>
-      </section>
-
-      {/* <section className="bg-gradient-to-br from-[#f6fef9] to-white flex flex-col-reverse md:flex-row items-center justify-between px-6 py-12 md:px-24 md:py-20 gap-12 relative overflow-hidden">
-        
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#e9f7f1] rounded-full opacity-50 blur-3xl -translate-x-1/2 translate-y-1/2"></div>
-        <div className="absolute top-0 right-0 w-52 h-52 bg-[#e9f7f1] rounded-full opacity-50 blur-3xl translate-x-1/2 -translate-y-1/2"></div>
-
-        <div className="max-w-lg z-10">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4 leading-tight">
-            The Easiest Way to Earn Real Money  
-            <br className="hidden md:block" />
-            from Micro‑Tasks & Digital Goods
-          </h1>
-          <p className="text-gray-600 text-lg md:text-xl mb-6">
-            Post your micro‑task ads or browse paid surveys, app tests, and digital downloads—all in one place.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Link href="/sign-in">
-              <Button className="bg-green-600 hover:bg-green-500 text-white px-8 py-3" size="lg">
+          <div className="flex gap-4">
+            <Link href="/sign-in" className="relative">
+              <Button className="bg-white/90 text-green-600 font-semibold px-6 py-3 backdrop-blur-sm hover:bg-white">
                 Get Started
               </Button>
+              <span className="absolute inset-0 rounded border-2 border-white opacity-0 hover:opacity-40 transition" />
             </Link>
             <Link href="/task-feed">
-              <Button
-                variant="bordered"
-                className="border-green-600 text-green-700 px-8 py-3 hover:bg-green-50"
-                size="lg"
-              >
-                View Demo
+              <Button variant="bordered" className="border-white text-white px-6 py-3 hover:bg-white hover:bg-opacity-20">
+                Browse Tasks
               </Button>
             </Link>
           </div>
         </div>
 
-        <div className="relative z-10 w-full max-w-md">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-80 h-80 rounded-full bg-[#e9f7f1]"></div>
-          </div>
+        <div className="lg:w-1/2 mb-12 lg:mb-0 flex justify-center relative z-10">
           <img
-            src="https://picsum.photos/600/600"
-            alt="Working on laptop"
-            className="relative rounded-full w-80 h-80 object-cover shadow-lg"
+            src="/assets/hero-illustration.svg"
+            alt="Micro‑tasks dashboard"
+            className="w-full max-w-lg drop-shadow-2xl"
           />
+        </div>
+
+        {/* SVG wave separator 
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none rotate-180">
+          <svg viewBox="0 0 1440 120" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#ffffff" d="M0,0 C360,120 1080,0 1440,120 L1440,0 L0,0 Z" />
+          </svg>
         </div>
       </section> */}
 
-      
+      {/* Demo Credentials (Glassmorphic card) */}
+      {/* Demo Credentials — Dark Glass Hero */}
+<section className="relative py-20 px-6 lg:px-24 bg-gray-900 text-gray-200">
+  {/* Accent Top Bar */}
+  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-teal-400 rounded-b-lg" />
 
-      {/* Footer */}
-      {/* Footer & Moderation / Rules */}
-      <footer className="bg-white border-t border-gray-200 py-12 px-6 md:px-24">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <h5 className="font-semibold mb-2">About SEO Earning Space</h5>
-            <p className="text-gray-600">
-              The fully‑ready micro‑task and digital goods marketplace. Use your skills to earn real money.
-            </p>
-          </div>
-          <div>
-            <h5 className="font-semibold mb-2">Rules & Moderation</h5>
-            <ul className="space-y-1 text-gray-600">
-              <li><Link href="/rules" className="hover:underline">Community Guidelines</Link></li>
-              <li><Link href="/terms-and-conditions" className="hover:underline">Terms of Service</Link></li>
-              <li><Link href="/privacy-policy" className="hover:underline">Privacy Policy</Link></li>
-              <li><Link href="/contact" className="hover:underline">Contact & Support</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-semibold mb-2">Paid Services & Goods</h5>
-            <p className="text-gray-600 mb-2">
-              • Micro‑task posting from ₹10/task <br/>
-              • Bulk digital vouchers & gift cards (Amazon, Google Play) <br/>
-              • Custom survey creation & analytics reports
-            </p>
-            <Link href="/services" className="text-green-600 hover:underline">
-              Learn more about our paid plans →
-            </Link>
+  <h2 className="relative text-3xl lg:text-4xl font-extrabold text-center mb-12">
+    Demo Login Credentials
+  </h2>
+
+  <div className="max-w-md mx-auto">
+    <div className="relative p-10 bg-gray-800 bg-opacity-40 backdrop-blur-md border border-gray-700 rounded-2xl shadow-2xl">
+      {/* Faux Terminal Buttons */}
+      <div className="absolute top-4 left-4 flex space-x-2">
+        <span className="block w-3 h-3 bg-red-500 rounded-full"></span>
+        <span className="block w-3 h-3 bg-yellow-500 rounded-full"></span>
+        <span className="block w-3 h-3 bg-green-500 rounded-full"></span>
+      </div>
+
+      {[
+        { label: 'URL', value: 'https://seoearningspace.com/sign-in' },
+        { label: 'Email', value: 'test@gmail.com' },
+        { label: 'Password', value: 'test@123' },
+      ].map((item) => (
+        <div key={item.label} className="flex justify-between items-center mb-6">
+          <span className="font-semibold text-teal-300">{item.label}:</span>
+          <div className="flex items-center space-x-2">
+            <code className="bg-gray-700 bg-opacity-60 px-3 py-1 rounded text-sm">
+              {item.value}
+            </code>
+            <button
+              onClick={() => navigator.clipboard.writeText(item.value)}
+              className="p-1 hover:bg-gray-700 rounded transition"
+              title="Copy to clipboard"
+            >
+              <Icon icon="mdi:content-copy" className="w-5 h-5 text-teal-300" />
+            </button>
           </div>
         </div>
-        <div className="mt-8 text-center text-gray-500 text-sm">
-          SEO Earning Space &copy; 2025. All rights reserved.  
-          Built on a second‑level domain with professional design, ready for moderation.
+      ))}
+
+      {/* Action Button */}
+      <div className="mt-8 text-center">
+        <Link href="/sign-in">
+          <span className="inline-block px-8 py-3 bg-teal-400 hover:bg-teal-500 text-gray-900 font-semibold rounded-lg shadow-lg transition">
+            Try Demo Now
+          </span>
+        </Link>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+     {/* How It Works */}
+     <section className="relative overflow-hidden bg-[#000318] text-gray-200 py-24 px-6 lg:px-32">
+      {/* Floating gradient blobs */}
+      <motion.div
+        className="absolute top-10 left-1/3 w-64 h-64 bg-green-600/20 rounded-full filter blur-3xl"
+        animate={{ scale: [1, 1.1, 1] }}
+        transition={{ repeat: Infinity, duration: 12, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute bottom-16 right-1/4 w-80 h-80 bg-teal-600/20 rounded-full filter blur-2xl"
+        animate={{ y: [0, -20, 0] }}
+        transition={{ repeat: Infinity, duration: 10, ease: 'easeInOut' }}
+      />
+
+      {/* Section Title */}
+      <div className="relative z-10 mb-16 text-center">
+        <h2 className="text-5xl font-extrabold">How It Works</h2>
+        <p className="mt-2 text-lg opacity-80">
+          Three simple steps to get started and start earning today.
+        </p>
+      </div>
+
+      {/* Steps Grid */}
+      <motion.div
+        className="relative z-10 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={{
+          visible: { transition: { staggerChildren: 0.2 } }
+        }}
+      >
+        {steps.map((s, i) => (
+          <motion.div
+            key={i}
+            variants={{
+              hidden: { opacity: 0, y: 30 },
+              visible: { opacity: 1, y: 0 }
+            }}
+          >
+            <Card className="p-8 bg-[#11142f]/50 backdrop-blur-md border border-[#1f203f] rounded-xl hover:scale-105 transition-transform duration-300 shadow-lg">
+              <div className="flex items-center justify-center mb-6">
+                <div className="bg-green-500/30 p-4 rounded-full transition-all group-hover:bg-green-500">
+                  <Icon icon={s.icon} className="w-6 h-6 text-green-400" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-semibold mb-3 text-blue-100">{s.title}</h3>
+              <p className="text-gray-300">{s.desc}</p>
+            </Card>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* Bottom wave */}
+      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none rotate-180">
+        <svg
+          className="block w-full h-8"
+          preserveAspectRatio="none"
+          viewBox="0 0 1200 120"
+        >
+          <path
+            d="M1200 0L0 120 1200 120V0Z"
+            fill="#000318"
+          />
+        </svg>
+      </div>
+    </section>
+
+{/* Stats */}
+<section className="relative py-20 px-6 lg:px-24 bg-gray-900 text-white overflow-hidden">
+  {/* Subtle animated gradient blobs */}
+  <motion.div
+    className="absolute top-0 left-1/4 w-72 h-72 bg-green-700/20 rounded-full filter blur-3xl"
+    animate={{ scale: [1, 1.1, 1] }}
+    transition={{ repeat: Infinity, duration: 15, ease: 'easeInOut' }}
+  />
+  <motion.div
+    className="absolute bottom-0 right-1/3 w-96 h-96 bg-green-800/20 rounded-full filter blur-2xl"
+    animate={{ y: [0, -30, 0] }}
+    transition={{ repeat: Infinity, duration: 12, ease: 'easeInOut' }}
+  />
+
+  <h2 className="relative text-4xl lg:text-5xl font-extrabold text-center mb-12 z-10">
+    Platform Statistics
+  </h2>
+
+  <div className="relative max-w-6xl mx-auto grid gap-8 md:grid-cols-3 z-10">
+    {[
+      { icon: 'mdi:wallet', label: 'Paid Out', end: 634000000 },
+      { icon: 'mdi:calendar-check', label: 'Daily Tasks', end: 1500 },
+      { icon: 'mdi:briefcase', label: 'Advertisers', end: 54000 },
+    ].map((s, idx) => (
+      <motion.div
+        key={s.label}
+        className="p-8 bg-gray-800/40 backdrop-blur-md border border-gray-700 rounded-2xl shadow-lg text-center group hover:scale-105 transition-transform"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: idx * 0.2 }}
+      >
+        <div className="flex items-center justify-center mb-4">
+          <div className="bg-green-600/30 p-3 rounded-full group-hover:bg-green-600 transition-colors">
+            <Icon icon={s.icon} className="w-6 h-6 text-green-400" />
+          </div>
         </div>
-      </footer>
+        <div className="text-5xl font-extrabold mb-2">
+          <CountUp end={s.end} duration={2.5} separator="," />
+        </div>
+        <p className="uppercase tracking-wider opacity-80">{s.label}</p>
+      </motion.div>
+    ))}
+  </div>
+</section>
+
+{/* Testimonials (Dark Glass Cards) */}
+<section className="relative py-20 px-6 lg:px-24 bg-gray-900 text-gray-200">
+  {/* Top accent bar */}
+  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-teal-400 rounded-b-lg" />
+
+  <h2 className="relative text-4xl font-extrabold text-center mb-12">
+    What Our Users Say
+  </h2>
+
+  <div className="max-w-5xl mx-auto grid gap-8 md:grid-cols-3">
+    {[
+      {
+        quote: "“Tasks are clear, payouts are instant—love it!”",
+        name: "Carlos H.",
+        flag: "🇧🇷"
+      },
+      {
+        quote: "“Super user‑friendly interface and reliable payments.”",
+        name: "Joanne",
+        flag: "🇫🇷"
+      },
+      {
+        quote: "“Referral bonuses really stack up. Highly recommend!”",
+        name: "José",
+        flag: "🇲🇽"
+      }
+    ].map((t, i) => (
+      <div
+        key={i}
+        className="relative p-8 bg-gray-800 bg-opacity-50 backdrop-blur-sm border border-gray-700 rounded-xl shadow-xl transition transform hover:-translate-y-1 hover:shadow-2xl"
+      >
+        {/* Faux terminal window buttons */}
+        <div className="absolute top-4 left-4 flex space-x-2">
+          <span className="w-3 h-3 bg-red-500 rounded-full" />
+          <span className="w-3 h-3 bg-yellow-500 rounded-full" />
+          <span className="w-3 h-3 bg-green-500 rounded-full" />
+        </div>
+
+        {/* Quote */}
+        <p className="text-lg italic mb-6 leading-relaxed">
+          {t.quote}
+        </p>
+
+        {/* Divider */}
+        <div className="h-px bg-gray-700 my-4" />
+
+        {/* Author */}
+        <div className="flex items-center space-x-3">
+          {/* Flag */}
+          <span className="text-2xl">{t.flag}</span>
+          {/* Name */}
+          <span className="font-semibold text-teal-300">{t.name}</span>
+          {/* Stars */}
+          <div className="flex space-x-1">
+            {[...Array(5)].map((_, star) => (
+              <Icon
+                key={star}
+                icon="fa6-solid:star"
+                className="text-yellow-400 w-4 h-4"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+
+{/* Footer */}
+     
+<footer className="bg-gray-900 text-gray-400 py-16 px-6 lg:px-24 border-[#000318] border-t-[5px] border-x-0">
+  <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+    <div>
+      <h5 className="text-white font-semibold mb-4">About</h5>
+      <p>Micro‑tasks & digital goods marketplace. Earn, refer, and grow with us.</p>
+    </div>
+    <div>
+      <h5 className="text-white font-semibold mb-4">Quick Links</h5>
+      <ul className="space-y-2">
+        <li>
+          <Link href="/terms-and-conditions" className="hover:text-white">
+            Terms
+          </Link>
+        </li>
+        <li>
+          <Link href="/privacy-policy" className="hover:text-white">
+            Privacy
+          </Link>
+        </li>
+        <li>
+          <Link href="/contact" className="hover:text-white">
+            Support
+          </Link>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h5 className="text-white font-semibold mb-4">Follow Us</h5>
+      <div className="flex space-x-4 text-xl">
+        <Link href="#" className="hover:text-white">
+          <Icon icon="mdi:facebook" />
+        </Link>
+        <Link href="#" className="hover:text-white">
+          <Icon icon="mdi:twitter" />
+        </Link>
+        <Link href="#" className="hover:text-white">
+          <Icon icon="mdi:instagram" />
+        </Link>
+      </div>
+    </div>
+  </div>
+  <p className="text-center text-sm mt-12">&copy; {new Date().getFullYear()} SEO Earning Space. All rights reserved.</p>
+</footer>
+
     </div>
   );
 }
