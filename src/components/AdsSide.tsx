@@ -128,9 +128,9 @@ export default function AdsSide({ onOpenNewAd }: AdsSideProps) {
         )}
       </div>
       {/* Footer */}
-      <div className="p-4 text-xs text-gray-300 border-t border-white/20">
+      {/* <div className="p-4 text-xs text-gray-300 border-t border-white/20">
         © 2025 AdMaster Inc.
-      </div>
+      </div> */}
     </aside>
   );
 }

@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   });
 
   await transporter.sendMail({
-    from: `"Career Shiksha" <${process.env.SMTP_EMAIL}>`,
+    from: `"Seo Earning Space" <${process.env.SMTP_EMAIL}>`,
     to: session.user.email,
     subject: "Email Verification OTP",
     html: `<p>Your OTP is <strong>${otp}</strong>. It is valid for 10 minutes.</p>`,

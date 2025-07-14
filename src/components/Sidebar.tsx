@@ -46,16 +46,16 @@ const Sidebar = () => {
         <ul className="space-y-4">
           <Link href="/Wallet" className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
             <FaWallet className="mr-3" />
-            MY WALL
+            MY WALLET
           </Link>
           <Link href="/referrals" className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
             <FaLink className="mr-3" />
             MY REF LINK
           </Link>
-          <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
+          {/* <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
             <FaCreditCard className="mr-3" />
             PAYMENT DETAILS
-          </li>
+          </li> */}
         </ul>
       </div>
     </div>

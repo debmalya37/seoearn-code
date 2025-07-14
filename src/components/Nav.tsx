@@ -37,7 +37,6 @@ export default function Nav() {
   return (
     <div className="relative flex h-screen">
       {/* dark backdrop under only the sidebar */}
-      <div className="absolute inset-y-0 left-0 w-64 bg-gray-900" />
 
       <Disclosure as="nav" defaultOpen>
         {({ open }) => (
@@ -50,7 +49,7 @@ export default function Nav() {
                 text-white shadow-lg hover:shadow-2xl
                 transform transition-transform duration-300
                 ${open ? 'rotate-180' : ''}
-              `}
+                `}
             >
               {open ? <FaChevronLeft size={20} /> : <FaChevronRight size={20} />}
             </DisclosureButton>
@@ -69,14 +68,15 @@ export default function Nav() {
                 static
                 className={`
                   relative z-10 w-64 flex flex-col items-center py-8 space-y-6
-                  bg-white/20 backdrop-blur-xl border border-white/30
+                  bg-white/20 backdrop-blur-xl border-r-2 border-white/30
                   before:absolute before:inset-0
                   before:rounded-tr-3xl before:rounded-br-3xl
                   before:bg-gradient-to-br before:from-white/10 before:to-transparent
                   before:blur-xl before:z-[-1]
-                  shadow-2xl rounded-tr-3xl rounded-br-3xl h-[100vh]
-                `}
+                  shadow-2xl rounded-tr-3xl rounded-br-3xl h-[94vh]
+                  `}
               >
+                  <div className="absolute inset-y-0 left-0 w-64 bg-gray-700 rounded-md top-0" />
                 {/* Notifications & Language */}
                 <div className="w-full px-4 flex justify-end">
                   <NotificationBell />
@@ -90,9 +90,9 @@ export default function Nav() {
                 </div>
 
                 {/* Username */}
-                {session?.user?.name && (
+                {session?.user?.username && (
                   <div className="text-white font-medium text-lg">
-                    {session.user.name}
+                    {session.user.username}
                   </div>
                 )}
 

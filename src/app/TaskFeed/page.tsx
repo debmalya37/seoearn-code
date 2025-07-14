@@ -369,9 +369,9 @@ const TaskFeedPage: FC = () => {
                     </p>
 
                     <div className="mt-4 flex items-center justify-between">
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      {/* <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                         Rating: {task.rating}/5
-                      </span>
+                      </span> */}
                       <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-300">
                         ${task.reward.toFixed(2)}
                       </span>

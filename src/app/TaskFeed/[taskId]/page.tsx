@@ -157,7 +157,7 @@ const TaskDetailsPage: FC = () => {
               </div>
             </div>
             <div className="space-y-4">
-              <div>
+              {/* <div>
                 <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300">Status</h2>
                 <span
                   className={`inline-block mt-1 px-3 py-1 text-xs font-medium rounded-full ${
@@ -174,7 +174,7 @@ const TaskDetailsPage: FC = () => {
                 >
                   {task.status || 'Pending'}
                 </span>
-              </div>
+              </div> */}
               <div>
                 <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300">Reward</h2>
                 <p className="mt-1 text-gray-800 dark:text-gray-200">${task.reward.toFixed(2)}</p>
@@ -199,7 +199,7 @@ const TaskDetailsPage: FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Status Dropdown */}
-              <div>
+              {/* <div>
                 <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
                 <Select onValueChange={(val) => setFormState((prev) => ({ ...prev, status: val }))}>
                   <SelectTrigger id="status" className="mt-1 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg py-2 px-3">
@@ -213,7 +213,7 @@ const TaskDetailsPage: FC = () => {
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
 
               {/* File URL Input */}
               <div>
@@ -261,7 +261,7 @@ const TaskDetailsPage: FC = () => {
       {submissions.map((s) => (
         <li key={s._id} className="border p-4 rounded">
           <p>
-            {/* <strong>Status:</strong> {s.status} &nbsp; */}
+            <strong>Status:</strong> {s.status} &nbsp;
             <span className="text-xs text-gray-400">
               ({new Date(s.createdAt).toLocaleString()})
             </span>
