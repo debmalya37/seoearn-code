@@ -1,23 +1,30 @@
-// src/pages/api/admin/ban-user.ts
+import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@src/lib/dbConnect';
 import UserModel from '@src/models/userModel';
-import { NextApiRequest, NextApiResponse } from 'next';
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(req: NextRequest) {
   await dbConnect();
-  const { userId } = req.body;
-  if (!userId) return res.status(400).json({ success: false, message: 'Missing userId' });
 
   try {
+    const body = await req.json();
+    const { userId } = body;
+
+    if (!userId) {
+      return NextResponse.json({ success: false, message: 'Missing userId' }, { status: 400 });
+    }
+
     const user = await UserModel.findByIdAndUpdate(
       userId,
       { isBlocked: true },
       { new: true }
     ).select('email isBlocked');
 
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    return res.json({ success: true, user });
+    if (!user) {
+      return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, user });
   } catch (err: any) {
-    return res.status(500).json({ success: false, message: err.message });
+    return NextResponse.json({ success: false, message: err.message }, { status: 500 });
   }
 }
