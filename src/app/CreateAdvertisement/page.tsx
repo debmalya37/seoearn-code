@@ -12,6 +12,7 @@ import { Button } from '@src/components/ui/button';
 import { ApiResponse } from '@src/types/ApiResponse';
 import { ITask } from '@src/models/taskModel';
 import { Dialog } from '@headlessui/react';
+import { useRouter } from 'next/navigation';
 
 interface SimpleTask {
   _id: string;
@@ -46,6 +47,10 @@ export default function CreateAdvertisement() {
   const [inProgressTasks, setInProgressTasks] = useState<SimpleTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('all');
+  const router = useRouter();
+
+  const user = session?.user || null;
+  const [isBlocked, setIsBlocked] = useState<boolean>(false);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
@@ -56,6 +61,32 @@ export default function CreateAdvertisement() {
     // inside CreateAdvertisement()
 const [starRating, setStarRating] = useState<Record<string,number>>({});
 
+
+
+useEffect(() => {
+  async function checkBlock() {
+    if (!session?.user?.email) return;
+
+    try {
+      const userRes =  await axios.get(`/api/users/${user?._id}`);
+      if (userRes.data.success) {
+        // alert('User data fetched successfully' + JSON.stringify(userRes.data.user.isBlocked));
+        setIsBlocked(!!userRes.data.user.isBlocked);
+      }
+
+      if(userRes.data.user.isBlocked) {
+        router.push('/contact');
+      }
+      if(userRes.data.user.isHidden) {
+        router.push('/Profile');
+      }
+    } catch (err) {
+      console.error('Error fetching wallet balance:', err);
+    }
+  }
+
+  checkBlock();
+}, [session]);
 
   // Fetch ads
   const fetchTasks = useCallback(async (notify = false) => {

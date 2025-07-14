@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   const userEmail = session.user.email;
   const userName = session.user.name || 'User'; // Fallback to 'User' if name is not set
   try {
-    const { age, name, dob, gender, country, phoneNumber, profilePicture, paymentPreference, paymentId, referralCode } = await req.json();
+    const { age, name, dob, gender, country, phoneNumber, profilePicture, paymentPreference, paymentId, referralCode, isHidden } = await req.json();
 
     if (!phoneNumber) {
       return NextResponse.json({ 
@@ -83,7 +83,8 @@ export async function POST(req: NextRequest) {
         profilePicture: profilePicture,
         paymentPreference: paymentPreference,
         paymentId: paymentId,
-        referralCode: referralCode
+        referralCode: referralCode,
+        isHidden: !!isHidden
       },
       { new: true }
     );

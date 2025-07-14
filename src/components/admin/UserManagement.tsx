@@ -183,13 +183,13 @@ export default function UserManagement({ initialUsers }: Props) {
               </button>
 
               {/* Pay */}
-              <button
+              {/* <button
                 onClick={() => handlePay(u._id)}
                 disabled={!!loadingMap[u._id]}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 text-xs rounded-md"
               >
                 Pay
-              </button>
+              </button> */}
 
               {/* Delete */}
               <button

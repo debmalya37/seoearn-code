@@ -44,6 +44,8 @@ const [kycLoading, setKycLoading] = useState(false);
 const [idFront, setIdFront] = useState<File | null>(null);
 const [idBack,  setIdBack ] = useState<File | null>(null);
 const [selfie,  setSelfie ] = useState<File | null>(null);
+const [isHidden, setIsHidden] = useState<boolean>(false);
+
 
   const genderOptions = [
     { value: "male", label: "Male" },
@@ -182,6 +184,8 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
         setPhoneNumber(u.phoneNumber || "");
         setCountryCode(u.countryCode || "");
         setGender(u.gender || "");
+        setIsHidden(u.isHidden || false);
+
         setIsEmailVerified(u.isEmailVerified || false);
         setCountry(u.country || "");
         if (u.dob) {
@@ -348,6 +352,17 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
                       />
                     </div>
                   </label>
+                  <label className="flex items-center mt-4">
+  <input
+    type="checkbox"
+    checked={isHidden}
+    onChange={(e) => setIsHidden(e.target.checked)}
+    className="mr-2"
+    disabled={!isEmailVerified}
+  />
+  <span className="text-sm">Hide my profile from public</span>
+</label>
+
                   <label className="flex flex-col">
                     <span className="font-medium flex items-center">
                       <FiCalendar className="mr-2"/> DOB

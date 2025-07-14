@@ -5,6 +5,7 @@ import React, { FC, useCallback, useEffect, useState } from 'react';
 import AddTaskModal from '@src/components/AddTaskModal';
 import { ITask } from '@src/models/taskModel';
 import { useToast } from '@src/components/ui/use-toast';
+import { useRouter } from 'next/navigation';
 import { useSession, getSession } from 'next-auth/react';
 import axios, { AxiosError } from 'axios';
 import Link from 'next/link';
@@ -69,6 +70,7 @@ const TaskFeedPage: FC = () => {
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchInput, setSearchInput] = useState('');
+  const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const [filters, setFilters] = useState({
     status: 'all',
     category: 'all',
@@ -80,6 +82,9 @@ const TaskFeedPage: FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const { toast } = useToast();
   const { data: session } = useSession();
+  const router = useRouter();
+
+  const user = session?.user || null;
 
   // Build query string, omitting `status` or `category` if they're "all"
   const buildQueryString = () => {
@@ -90,6 +95,41 @@ const TaskFeedPage: FC = () => {
     if (filters.reward) q.reward = filters.reward;
     return new URLSearchParams(q).toString();
   };
+
+  // const ProfileUser = axios.get()
+
+
+  useEffect(() => {
+    async function checkBlock() {
+      if (!session?.user?.email) return;
+
+      try {
+        const userRes =  await axios.get(`/api/users/${user?._id}`);
+        if (userRes.data.success) {
+          // alert('User data fetched successfully' + JSON.stringify(userRes.data.user.isBlocked));
+          setIsBlocked(!!userRes.data.user.isBlocked);
+        }
+
+        if(userRes.data.user.isBlocked) {
+          router.push('/contact');
+        }
+        if(userRes.data.user.isHidden) {
+          router.push('/Profile');
+        }
+      } catch (err) {
+        console.error('Error fetching wallet balance:', err);
+      }
+    }
+
+    checkBlock();
+  }, [session]);
+
+  // useEffect(() => {
+  //   if (user?.isBlocked) {
+  //     router.push('/contact');
+  //   }
+  // }, [user]);
+  
 
   // Fetch tasks from server
   const fetchTasks = useCallback(async () => {
@@ -146,6 +186,13 @@ const TaskFeedPage: FC = () => {
     if (!session || !session.user) return;
     fetchTasks();
   }, [session, fetchTasks]);
+
+  // useEffect(() => {
+  //   if (session.user._id?.isBlocked) {
+  //     router.push('/contact');
+  //   }
+  // }, [user]);
+  
 
   // Handlers for search & filters
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -105,6 +105,7 @@ emailVerificationOTP: string | null;
   transactions?: ITransaction[]; 
   ratings?: number[];
   isBlocked?: boolean;
+  isHidden?: boolean; // for admin use, to hide user from public listings
   bankAccounts: IBankAccount[];
   resetOTP: string | null;
 resetOTPExpires: Date | null;
@@ -132,6 +133,7 @@ const UserSchema = new Schema<IUser>({
   gender: { type: String, enum: ['male', 'female', 'other'] },
   age: { type: Number, min: 0 },
   dob: { type: Date },
+  isHidden: { type: Boolean, default: false }, // for admin use, to hide user from public listings
   profilePicture: { type: String },
   paymentPreference: { type: String },
   paymentGateway: { type: String },
