@@ -3,7 +3,7 @@ import dbConnect from '@src/lib/dbConnect';
 import UserModel from '@src/models/userModel';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function POST(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(req: NextApiRequest, res: NextApiResponse) {
   await dbConnect();
   const { userId } = req.body;
   if (!userId) return res.status(400).json({ success: false, message: 'Missing userId' });
