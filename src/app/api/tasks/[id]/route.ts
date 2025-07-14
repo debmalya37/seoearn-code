@@ -52,22 +52,27 @@ export async function PUT(
     return NextResponse.json({ success: false, message: "Invalid task ID" }, { status: 400 });
   }
 
-  // 1) Admin auth
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ success: false, message: "Not authenticated" }, { status: 401 });
   }
-  // TODO: check session.user.role === 'admin'
 
-  // 2) Parse body
-  const { status, submissionId, notes, rating, description } =
-    await req.json() as {
-      status: "approved" | "rejected";
-      submissionId: string;
-      notes?: string;
-      rating?: number;
-      description?: string;
-    };
+  // 2) Parse body (now includes optional rejectionReason)
+  const {
+    status,
+    submissionId,
+    notes,
+    rating,
+    description,
+    rejectionReason    // ← new
+  } = await req.json() as {
+    status: "approved" | "rejected";
+    submissionId: string;
+    notes?: string;
+    rating?: number;
+    description?: string;
+    rejectionReason?: string;    // ← new
+  };
 
   if (!["approved", "rejected"].includes(status)) {
     return NextResponse.json({ success: false, message: "Invalid status" }, { status: 400 });
@@ -82,15 +87,18 @@ export async function PUT(
   }
 
   // 4) Find the matching submission entry
-  const entry = task.requests.find((request) => request._id.toString() === submissionId);
+  const entry = task.requests.find(r => r._id.toString() === submissionId);
   if (!entry) {
     return NextResponse.json({ success: false, message: "Submission not found" }, { status: 404 });
   }
 
   // 5) Update its status and optional fields
   entry.status = status === "approved" ? "Approved" : "Rejected";
-  if (notes)       entry.message = notes;
-  if (description) entry.fileUrl = description;
+  if (notes)        entry.message         = notes;
+  if (description)  entry.fileUrl        = description;
+  if (status === "rejected" && rejectionReason) {
+    entry.rejectionReason = rejectionReason;   // ← store the reason
+  }
 
   await task.save();
 
@@ -98,16 +106,7 @@ export async function PUT(
   if (status === "approved") {
     const submitterId = entry.userId.toString();
     const rewardAmt   = task.reward;
-
-    // credit task reward
-    await addToWallet(
-      submitterId,
-      rewardAmt,
-      "earning",
-      `Task ${taskId} approved`
-    );
-
-    // pay out up to 3 levels of referrers (10%, 5%, 2%)
+    await addToWallet(submitterId, rewardAmt, "earning", `Task ${taskId} approved`);
     await rewardReferralLevels(submitterId, rewardAmt);
   }
 

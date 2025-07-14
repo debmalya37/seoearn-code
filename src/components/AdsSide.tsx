@@ -18,6 +18,7 @@ export default function AdsSide({ onOpenNewAd }: AdsSideProps) {
   const [totalBudget, setTotalBudget] = useState<number | null>(null);
   const [activeAds, setActiveAds] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isBlocked, setIsBlocked] = useState<boolean>(false);
   // const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const {data: session} = useSession();
 
@@ -27,7 +28,15 @@ export default function AdsSide({ onOpenNewAd }: AdsSideProps) {
   useEffect(() => {
     async function load() {
       setLoading(true);
+
       try {
+
+        const userRes =  await axios.get(`/api/users/${user?._id}`);
+        if (userRes.data.success) {
+          // alert('User data fetched successfully' + JSON.stringify(userRes.data.user.isBlocked));
+          setIsBlocked(!!userRes.data.user.isBlocked);
+        }
+
         // 1) Get wallet balance
         const balRes = await axios.get(`/api/wallet/balance?userId=${user?._id}`);
         if (balRes.data.success) {
@@ -95,15 +104,29 @@ export default function AdsSide({ onOpenNewAd }: AdsSideProps) {
 
       {/* New Ad Button */}
       <div className="p-4 border-t border-white/20">
-        <Button
-          onClick={onOpenNewAd}
-          className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white hover:bg-blue-700"
-        >
-          <FaPlus />
-          <span>New Ad</span>
-        </Button>
+        {isBlocked ? (
+          <span
+            title="Your account is blocked. You cannot create new ads."
+            className="block"
+          >
+            <Button
+              disabled
+              className="w-full flex items-center justify-center space-x-2 bg-gray-500 cursor-not-allowed"
+            >
+              <FaPlus />
+              <span>New Ad</span>
+            </Button>
+          </span>
+        ) : (
+          <Button
+            onClick={onOpenNewAd}
+            className="w-full flex items-center justify-center space-x-2 bg-green-500 text-white hover:bg-green-600"
+          >
+            <FaPlus />
+            <span>New Ad</span>
+          </Button>
+        )}
       </div>
-
       {/* Footer */}
       <div className="p-4 text-xs text-gray-300 border-t border-white/20">
         © 2025 AdMaster Inc.

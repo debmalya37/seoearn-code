@@ -12,8 +12,15 @@ interface Task {
   reward: number;
   budget: number;
   maxUsersCanDo: number;
+  requests?: Request[];
+  createdBy: string; // new field
 }
 
+interface Request {
+  _id: string;
+  userId: string;
+  status: string;
+}
 async function fetchTasks(page: number, limit: number) {
   const res = await fetch(`https://seoearningspace.com/api/tasks?page=${page}&limit=${limit}`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch tasks');

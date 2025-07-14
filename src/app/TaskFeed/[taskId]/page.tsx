@@ -261,7 +261,7 @@ const TaskDetailsPage: FC = () => {
       {submissions.map((s) => (
         <li key={s._id} className="border p-4 rounded">
           <p>
-            <strong>Status:</strong> {s.status} &nbsp;
+            {/* <strong>Status:</strong> {s.status} &nbsp; */}
             <span className="text-xs text-gray-400">
               ({new Date(s.createdAt).toLocaleString()})
             </span>

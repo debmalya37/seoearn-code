@@ -49,6 +49,7 @@ const MessageSchema: Schema<IMessage> = new mongoose.Schema({
 });
 
 export interface ITransaction extends Document {
+  orderId?: string; 
   type: 'deposit' | 'withdrawal';
   amount: number;
   date: Date;
@@ -58,6 +59,7 @@ export interface ITransaction extends Document {
 }
 
 const TransactionSchema: Schema<ITransaction> = new mongoose.Schema({
+  orderId:     { type: String, unique: true },
   type: { type: String, enum: ['deposit', 'withdrawal'], required: true },
   amount: { type: Number, required: true },
   date: { type: Date, default: Date.now },
@@ -74,6 +76,9 @@ export interface IUser extends Document {
   phoneNumber?: number;
   password?: string;
   isVerified: boolean;
+  isEmailVerified: boolean;
+emailVerificationOTP: string | null;
+
   isAcceptingMessages?: boolean;
   verifyCode?: string;
   verifyCodeExpiry?: Date;
@@ -98,9 +103,13 @@ export interface IUser extends Document {
   referralCount?: number;
   country?: string;
   transactions?: ITransaction[]; 
-
+  ratings?: number[];
   isBlocked?: boolean;
   bankAccounts: IBankAccount[];
+  resetOTP: string | null;
+resetOTPExpires: Date | null;
+  resetPasswordToken?: string
+resetPasswordExpires?: Date
 
   // kyc related fields
   kycStatus?: 'unsubmitted' | 'pending' | 'verified' | 'rejected'
@@ -112,7 +121,6 @@ kycDocuments?: {
 kycSubmittedAt?: Date
 kycReviewedAt?: Date
 kycReviewNotes?: string
-
 }
 
 const UserSchema = new Schema<IUser>({
@@ -130,6 +138,14 @@ const UserSchema = new Schema<IUser>({
   paymentId: { type: String, default: '123456' },
   payerAccount: { type: String },
   totalAmount: { type: Number, default: 0 },
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  emailVerificationOTP: {
+    type: String,
+    default: null,
+  },  
   verifyCode: { type: String },
   verifyCodeExpiry: { type: Date },
   isVerified: { type: Boolean, default: false },
@@ -146,8 +162,13 @@ const UserSchema = new Schema<IUser>({
   referralCount: { type: Number, default: 0 },
   country: { type: String },
   transactions: [TransactionSchema],
+  ratings:      { type: [Number], default: [0] }, 
   isBlocked: { type: Boolean, default: false },
   bankAccounts: [BankAccountSchema],
+  resetOTP:         { type: String, default: null },
+  resetOTPExpires:  { type: Date,   default: null },
+  resetPasswordToken: { type: String },
+resetPasswordExpires: { type: Date },
   kycStatus: {
     type: String,
     enum: ['unsubmitted', 'pending', 'verified', 'rejected'],

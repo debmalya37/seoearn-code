@@ -39,6 +39,7 @@ export interface IRequest {
   fileUrl?: string;
   status: 'Pending' | 'Approved' | 'Rejected' | 'Completed' | 'In Progress';
   createdAt: Date;
+  rejectionReason?: string;
 }
 
 const RequestSubSchema = new Schema<IRequest>(
@@ -51,6 +52,7 @@ const RequestSubSchema = new Schema<IRequest>(
       enum: ['Pending','Approved','Rejected','Completed','In Progress'],
       default: 'Pending',
     },
+    rejectionReason: { type: String },
     createdAt: { type: Date, default: Date.now },
   },
   { _id: true }  // <<< Let Mongoose auto‑generate this subdoc `_id`

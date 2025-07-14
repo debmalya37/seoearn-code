@@ -31,9 +31,12 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "User data fetched successfully",
-      user: foundUser
-    }, { status: 200 });
+      user: {
+        ...foundUser.toObject(),
+        isEmailVerified: foundUser.isEmailVerified || false
+      }
+    });
+    
 
   } catch (error) {
     console.error("Error finding user data:", error);

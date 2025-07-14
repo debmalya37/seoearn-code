@@ -29,6 +29,11 @@ export default function Profile() {
   const [country, setCountry] = useState<string|null>(null);
   const [countryCode, setCountryCode] = useState<string|null>(null);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [isEmailVerified, setIsEmailVerified] = useState<boolean>(true);
+const [showOTPInput, setShowOTPInput] = useState(false);
+const [otpInput, setOtpInput] = useState("");
+const [verifyingOTP, setVerifyingOTP] = useState(false);
+
   const [paymentId, setPaymentId] = useState<string>("");
   const [paymentPreference, setPaymentPreference] = useState<string>("");
   const [referralCode, setReferralCode] = useState<string|null>(null);
@@ -169,7 +174,7 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
     axios.get("/api/profile")
       .then(res => {
         const u = res.data.user;
-        setValue("name", u.name);
+        setValue("name", u.username);
         setValue("email", u.email);
         setValue("username", u.username);
         setValue("referralCode", u.referralCode);
@@ -177,6 +182,7 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
         setPhoneNumber(u.phoneNumber || "");
         setCountryCode(u.countryCode || "");
         setGender(u.gender || "");
+        setIsEmailVerified(u.isEmailVerified || false);
         setCountry(u.country || "");
         if (u.dob) {
           const d = new Date(u.dob);
@@ -247,13 +253,13 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
               >
                 ✎
               </button>
-              <input
+              {/* <input
                 type="file"
                 accept="image/*"
                 ref={fileInputRef}
                 onChange={handlePictureChange}
                 className="hidden"
-              />
+              /> */}
             </div>
             <div className="flex-1">
               <form onSubmit={handleSubmit(onProfileSubmit)} className="space-y-4">
@@ -263,7 +269,8 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
                       <FiUser className="mr-2"/> Name
                     </span>
                     <input
-                      {...register("name")}
+                      {...register("username")}
+                      disabled={!isEmailVerified}
                       className="mt-1 p-2 border rounded focus:ring"
                     />
                   </label>
@@ -277,6 +284,52 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
                       className="mt-1 p-2 border rounded focus:ring"
                     />
                   </label>
+                  {!isEmailVerified && (
+  <div className="mt-2">
+    <button
+      onClick={async () => {
+        await axios.post("/api/email/send-otp");
+        toast({ title: "OTP sent to your email" });
+        setShowOTPInput(true);
+      }}
+      className="text-sm text-blue-100 hover:underline"
+    >
+      Verify Email to Enable Form
+    </button>
+    {showOTPInput && (
+      <div className="mt-2 flex items-center space-x-2">
+        <input
+          type="text"
+          value={otpInput}
+          onChange={(e) => setOtpInput(e.target.value)}
+          placeholder="Enter OTP"
+          className="p-2 border rounded"
+        />
+        <button
+          onClick={async () => {
+            setVerifyingOTP(true);
+            try {
+              const res = await axios.post("/api/email/verify-otp", { otp: otpInput });
+              if (res.data.success) {
+                toast({ title: "Email verified" });
+                setIsEmailVerified(true);
+                setShowOTPInput(false);
+              }
+            } catch (e: any) {
+              toast({ title: "Invalid OTP", description: e.message, variant: "destructive" });
+            } finally {
+              setVerifyingOTP(false);
+            }
+          }}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+        >
+          {verifyingOTP ? "Verifying…" : "Verify"}
+        </button>
+      </div>
+    )}
+  </div>
+)}
+
                   <label className="flex flex-col">
                     <span className="font-medium flex items-center">
                       <FiPhone className="mr-2"/> Phone
@@ -354,6 +407,7 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
               </span>
               <input
     value={paymentId}
+    disabled={!isEmailVerified}
     onChange={e => setPaymentId(e.target.value)}
     className="mt-1 w-full p-2 border rounded focus:ring focus:border-indigo-500"
     placeholder="e.g. P1234567 or paypal@example.com"
@@ -370,6 +424,7 @@ const [selfie,  setSelfie ] = useState<File | null>(null);
               </span>
               <Select
                 options={paymentPreferenceOptions}
+                
                 value={paymentPreferenceOptions.find(o=>o.value===paymentPreference)}
                 onChange={o=>setPaymentPreference(o?.value||"")}
                 className="mt-1"

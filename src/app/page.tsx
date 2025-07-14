@@ -82,8 +82,8 @@ export default function Home() {
 
       {/* Demo Credentials (Glassmorphic card) */}
       {/* Demo Credentials — Dark Glass Hero */}
-<section className="relative py-20 px-6 lg:px-24 bg-gray-900 text-gray-200">
-  {/* Accent Top Bar */}
+ {/* <section className="relative py-20 px-6 lg:px-24 bg-gray-900 text-gray-200">
+   Accent Top Bar 
   <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-teal-400 rounded-b-lg" />
 
   <h2 className="relative text-3xl lg:text-4xl font-extrabold text-center mb-12">
@@ -92,7 +92,7 @@ export default function Home() {
 
   <div className="max-w-md mx-auto">
     <div className="relative p-10 bg-gray-800 bg-opacity-40 backdrop-blur-md border border-gray-700 rounded-2xl shadow-2xl">
-      {/* Faux Terminal Buttons */}
+      {/* Faux Terminal Buttons 
       <div className="absolute top-4 left-4 flex space-x-2">
         <span className="block w-3 h-3 bg-red-500 rounded-full"></span>
         <span className="block w-3 h-3 bg-yellow-500 rounded-full"></span>
@@ -121,7 +121,7 @@ export default function Home() {
         </div>
       ))}
 
-      {/* Action Button */}
+      {/* Action Button 
       <div className="mt-8 text-center">
         <Link href="/sign-in">
           <span className="inline-block px-8 py-3 bg-teal-400 hover:bg-teal-500 text-gray-900 font-semibold rounded-lg shadow-lg transition">
@@ -132,7 +132,7 @@ export default function Home() {
     </div>
   </div>
 </section>
-
+ */}
 
      {/* How It Works */}
      <section className="relative overflow-hidden bg-[#000318] text-gray-200 py-24 px-6 lg:px-32">
