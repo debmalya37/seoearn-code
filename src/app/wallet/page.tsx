@@ -7,7 +7,7 @@ import TransactionHistory from '@src/components/TransactionHistory';
 import { useSession } from 'next-auth/react';
 import { WalletIcon, ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 
-const CURRENCIES = ['USD', 'EUR', 'RUB', 'INR'];
+const CURRENCIES = ['USD'];
 const PRESET_AMOUNTS = [10, 20, 50, 100];
 
 export default function WalletPage() {

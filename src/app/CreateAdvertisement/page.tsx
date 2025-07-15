@@ -426,7 +426,7 @@ useEffect(() => {
                         setReasonText('');
                       }}
                     >
-                      Reject
+                      Reject3
                     </Button>
                   </div>
                 ) : (

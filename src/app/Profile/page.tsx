@@ -173,26 +173,26 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
   }
   
 
-  const [kycInfo, setKycInfo] = useState<{
-       kycStatus: string;
-       notes: string;
-     }>({ kycStatus: "not_submitted", notes: "" });
-     const [loadingKycInfo, setLoadingKycInfo] = useState(true);
+  // const [kycInfo, setKycInfo] = useState<{
+  //      kycStatus: string;
+  //      notes: string;
+  //    }>({ kycStatus: "not_submitted", notes: "" });
+  //    const [loadingKycInfo, setLoadingKycInfo] = useState(true);
     
-      useEffect(() => {
-        if (status !== "authenticated") return;
-        fetch("/api/profile/kyc-status")
-          .then((r) => r.json())
-          .then((data) => {
-            if (data.success) {
-              setKycInfo({
-                kycStatus: data.kycStatus,
-                notes: data.notes,
-              });
-            }
-          })
-          .finally(() => setLoadingKycInfo(false));
-      }, [status]);
+  //     useEffect(() => {
+  //       if (status !== "authenticated") return;
+  //       fetch("/api/profile/kyc-status")
+  //         .then((r) => r.json())
+  //         .then((data) => {
+  //           if (data.success) {
+  //             setKycInfo({
+  //               kycStatus: data.kycStatus,
+  //               notes: data.notes,
+  //             });
+  //           }
+  //         })
+  //         .finally(() => setLoadingKycInfo(false));
+  //     }, [status]);
  
 
   async function handleKycSubmit(e: React.FormEvent) {
@@ -578,8 +578,8 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
         </section>
 
         {/* KYC Verification */}
-        <section className="bg-white rounded-xl shadow p-6 mb-8">
-          {/* unchanged content */}
+        {/* <section className="bg-white rounded-xl shadow p-6 mb-8">
+          {/* unchanged content 
           <h2 className="text-2xl font-semibold mb-4 flex items-center">
     <FiShield className="mr-2"/> Identity Verification
   </h2>
@@ -602,14 +602,14 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
           {kycInfo.notes}
         </blockquote>
       </div>
-      {/* Allow re‑submission */}
+      {/* Allow re‑submission 
       {renderKycForm()}
     </div>
   ) : (
     // not_submitted
     renderKycForm()
   )}
-        </section>
+        </section>  */}
       </main>
     </div>
   );

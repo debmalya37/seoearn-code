@@ -57,21 +57,18 @@ export async function PUT(
     return NextResponse.json({ success: false, message: "Not authenticated" }, { status: 401 });
   }
 
-  // 2) Parse body (now includes optional rejectionReason)
   const {
     status,
     submissionId,
     notes,
-    rating,
     description,
-    rejectionReason    // ← new
+    rejectionReason
   } = await req.json() as {
     status: "approved" | "rejected";
     submissionId: string;
     notes?: string;
-    rating?: number;
     description?: string;
-    rejectionReason?: string;    // ← new
+    rejectionReason?: string;
   };
 
   if (!["approved", "rejected"].includes(status)) {
@@ -80,35 +77,66 @@ export async function PUT(
 
   await dbConnect();
 
-  // 3) Load the task
   const task = await Task.findById(taskId);
   if (!task) {
     return NextResponse.json({ success: false, message: "Task not found" }, { status: 404 });
   }
 
-  // 4) Find the matching submission entry
+  // 1️⃣ Update the submission entry
   const entry = task.requests.find(r => r._id.toString() === submissionId);
   if (!entry) {
     return NextResponse.json({ success: false, message: "Submission not found" }, { status: 404 });
   }
-
-  // 5) Update its status and optional fields
   entry.status = status === "approved" ? "Approved" : "Rejected";
   if (notes)        entry.message         = notes;
-  if (description)  entry.fileUrl        = description;
+  if (description)  entry.fileUrl         = description;
   if (status === "rejected" && rejectionReason) {
-    entry.rejectionReason = rejectionReason;   // ← store the reason
+    entry.rejectionReason = rejectionReason;
   }
 
   await task.save();
 
-  // 6) If approved, credit the submitter + referral chain
+  // 2️⃣ Handle finances & referral on approval
   if (status === "approved") {
     const submitterId = entry.userId.toString();
     const rewardAmt   = task.reward;
+
+    // credit the submitter and their referrers
     await addToWallet(submitterId, rewardAmt, "earning", `Task ${taskId} approved`);
     await rewardReferralLevels(submitterId, rewardAmt);
   }
+
+  // 3️⃣ Update advertiser’s consecutiveRejections & ratings
+  //    Advertiser is the task creator
+  const advertiserId = task.createdBy.toString();
+  const advertiser = await UserModel.findById(advertiserId);
+  if (!advertiser) {
+    // shouldn’t happen, but bail if user gone
+    return NextResponse.json({ success: false, message: "Advertiser not found" }, { status: 404 });
+  }
+
+  if (status === "approved") {
+    // reset streak on any approval
+    advertiser.consecutiveRejections = 0;
+  } else {
+    advertiser.consecutiveRejections = (advertiser.consecutiveRejections || 0) + 1;
+
+    // every 10 straight rejections → drop average by 1
+    if (advertiser.consecutiveRejections % 10 === 0) {
+      // Number of ratings entries:
+      const N = Array.isArray(advertiser.ratings) ? advertiser.ratings.length : 0;
+      if (N > 0) {
+        // Current score in index 0 (or default 0)
+        const prevScore = typeof advertiser.ratings[0] === 'number'
+          ? advertiser.ratings[0]
+          : 0;
+        // Subtract N from that slot to drop avg by 1
+        advertiser.ratings[0] = prevScore - N;
+      }
+    }
+  }
+
+  await advertiser.save();
 
   return NextResponse.json({
     success: true,
@@ -190,13 +218,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             //     }
             
             //     try {
-//         const {rating, description, status} = await request.json();
+//         const {ratings, description, status} = await request.json();
 
 
 //         const updateTask = await Task.findOneAndUpdate(
     //             {id: id},
     //             {
-        //                 rating: rating,
+        //                 ratings: ratings,
         //                 description: description,
         //                 status: status,
         //             },

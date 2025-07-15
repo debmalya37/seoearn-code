@@ -97,30 +97,30 @@ const Dashboard = () => {
   if (isLoading) return <div>Loading…</div>;
   if (error)      return <div className="text-red-600">{error}</div>;
 
-  if (
-    !session ||
-    ![ 
-      'debmalyasen37@gmail.com',
-      'souvik007b@gmail.com',
-      'yashverdhan01@gamil.com',
-      'debmalyasen15@gmail.com',
-      'test@gmail.com'
-    ].includes(session.user!.email!)
-  ) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Access Denied</h1>
-          <p className="mt-4">Please sign in as an admin to view this dashboard.</p>
-          <Link href="/sign-in">
-            <span className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
-              Sign In
-            </span>
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  // if (
+  // //   !session ||
+  //  //  ![ 
+  //     'debmalyasen37@gmail.com',
+  //     'souvik007b@gmail.com',
+  //     'yashverdhan01@gamil.com',
+  //     'debmalyasen15@gmail.com',
+  //     'test@gmail.com'
+  //   ].includes(session.user!.email!)
+  // ) {
+  //   return (
+  //     <div className="flex justify-center items-center h-full">
+  //       <div className="text-center">
+  //         <h1 className="text-2xl font-bold">Access Denied</h1>
+  //         <p className="mt-4">Please sign in as an admin to view this dashboard.</p>
+  //         <Link href="/sign-in">
+  //           <span className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+  //             Sign In
+  //           </span>
+  //         </Link>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="flex h-full">

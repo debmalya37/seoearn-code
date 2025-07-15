@@ -1,4 +1,7 @@
 // src/app/Admin/Users/page.tsx
+
+export const dynamic = 'force-dynamic';
+
 import Sidebar from '@src/components/admin/Sidebar';
 import UserManagement from '@src/components/admin/UserManagement';
 import { fetchUsers } from '@src/actions/useractions';

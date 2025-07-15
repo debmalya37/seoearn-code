@@ -22,6 +22,7 @@ const Feedside = ({
   const [totals, setTotals] = useState<Totals>(initialTotals);
   const [isPending, start] = useTransition();
   const [open, setOpen] = useState(false);
+  const [volume, setVolume]     = useState(0);
 
   // fetch revenue totals from your API
   const refresh = () => {
@@ -35,6 +36,7 @@ const Feedside = ({
       }
     });
   };
+
 
   // load on mount
   useEffect(() => {
@@ -56,6 +58,16 @@ const Feedside = ({
     }
     loadWallet();
   }, [session]);
+
+  // fetch total transaction volume on mount & whenever session changes 
+  useEffect(() => {
+  if (!session?.user?._id) return;
+  axios.get('/api/transactions/total')
+    .then(res => {
+      if (res.data.success) setVolume(res.data.totalValue || 0);
+    })
+    .catch(console.error);
+}, [session]);
 
   return (
     <>
@@ -82,6 +94,12 @@ const Feedside = ({
       <h3 className="text-lg font-bold">${balance.toFixed(4)}</h3>
       <p className="text-sm">MY BALANCE</p>
     </div>
+
+    {/* Total Volume */}
+      <div className="bg-purple-600 text-white p-4 text-center mt-2">
+        <h3 className="text-lg font-bold">${volume.toFixed(2)}</h3>
+        <p className="text-sm">TOTAL VOLUME</p>
+      </div>
 
     {/* Revenue Totals */}
     <div className="p-4 space-y-2">

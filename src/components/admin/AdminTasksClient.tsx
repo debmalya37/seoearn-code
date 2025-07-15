@@ -21,6 +21,7 @@ interface Task {
   maxUsersCanDo: number;
   requests?: Request[];
   createdBy: string;
+  isApproved?: boolean;
 }
 
 interface Props {
@@ -131,49 +132,47 @@ async function fetchRatings(taskList: Task[]) {
                 <td className="p-2 text-indigo-600">
                   <Link href={`/Admin/Utask/${t._id}`}>{t.title}</Link>
                 </td>
-                <td className="p-2">{/* Approve Task */}
-<button
-  onClick={async () => {
-    if (!confirm("Approve this task?")) return;
-    const res = await fetch('/api/admin/tasks/approve', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ taskId: t._id }),
-    });
-    const j = await res.json();
-    if (j.success) {
-      alert('Task approved successfully');
-      goPage(page); // reload page
-    } else {
-      alert('Error: ' + j.message);
-    }
-  }}
-  className="px-2 py-1 text-xs bg-green-600 text-white rounded"
->
-  Approve
-</button>
+                <td className="p-2">
+  {/* Only show buttons if NOT yet approved */}
+  {!t.isApproved && (
+    <>
+      <button
+        onClick={async () => {
+          if (!confirm("Approve this task?")) return;
+          const res = await fetch('/api/admin/tasks/approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ taskId: t._id }),
+          });
+          const j = await res.json();
+          if (j.success) goPage(page);
+          else alert('Error: ' + j.message);
+        }}
+        className="px-2 py-1 text-xs bg-green-600 text-white rounded mr-2"
+      >
+        Approve
+      </button>
 
-{/* Reject Task */}
-<button
-  onClick={async () => {
-    if (!confirm("Reject this task?")) return;
-    const res = await fetch('/api/admin/tasks/reject', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ taskId: t._id }),
-    });
-    const j = await res.json();
-    if (j.success) {
-      alert('Task rejected');
-      goPage(page); // reload page
-    } else {
-      alert('Error: ' + j.message);
-    }
-  }}
-  className="px-2 py-1 text-xs bg-red-700 text-white rounded"
->
-  Reject
-</button></td>
+      <button
+        onClick={async () => {
+          if (!confirm("Reject this task?")) return;
+          const res = await fetch('/api/admin/tasks/reject', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ taskId: t._id }),
+          });
+          const j = await res.json();
+          if (j.success) goPage(page);
+          else alert('Error: ' + j.message);
+        }}
+        className="px-2 py-1 text-xs bg-red-700 text-white rounded"
+      >
+        Reject
+      </button>
+    </>
+  )}
+</td>
+
                 <td className="p-2">{t.description}</td>
                 <td className="p-2">
                   <span className={`px-2 py-0.5 rounded-full text-xs ${

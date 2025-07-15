@@ -109,6 +109,7 @@ emailVerificationOTP: string | null;
   isHidden?: boolean; // for admin use, to hide user from public listings
   bankAccounts: IBankAccount[];
   resetOTP: string | null;
+  consecutiveRejections?: number; // for tracking rejections in tasks
 resetOTPExpires: Date | null;
   resetPasswordToken?: string
 resetPasswordExpires?: Date
@@ -137,6 +138,7 @@ const UserSchema = new Schema<IUser>({
   isHidden: { type: Boolean, default: false }, // for admin use, to hide user from public listings
   is18Plus: { type: Boolean, default: false },
   profilePicture: { type: String },
+  consecutiveRejections: { type: Number, default: 0 },
   paymentPreference: { type: String },
   paymentGateway: { type: String },
   paymentId: { type: String, default: '123456' },

@@ -90,8 +90,8 @@ const LanguageSelect: React.FC = () => {
     <>
       <div id="google_translate_element" style={{ display: "none" }} />
 
-      {/* Desktop: inline buttons */}
-      <div className="hidden md:flex items-center space-x-2">
+         {/* Large desktop only: inline buttons */}
+      <div className="hidden lg:flex items-center space-x-2">
         {languages.map((lang) => (
           <button
             key={lang.code}
@@ -108,7 +108,8 @@ const LanguageSelect: React.FC = () => {
       </div>
 
       {/* Mobile: native dropdown */}
-      <div className="flex md:hidden pr-4">
+      {/* Mobile & Tablet (below lg): native dropdown */}
+      <div className="flex lg:hidden pr-4">
         <select
         title="Select Language"
           value={selectedLang}

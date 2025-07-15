@@ -76,7 +76,7 @@ export default function Nav() {
                   shadow-2xl rounded-tr-3xl rounded-br-3xl h-[92vh]
                   `}
               >
-                  <div className="absolute inset-y-0 left-0 w-64 bg-gray-700 rounded-md top-0" />
+                  <div className="absolute inset-y-0 left-0 w-64 bg-gray-700 rounded-r-md top-0" />
                 {/* Notifications & Language */}
                 <div className="w-full px-4 flex justify-end">
                   {/* <NotificationBell /> */}

@@ -15,16 +15,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
         <AuthProvider>
         <body className="h-screen flex">
-        <Topbar />
+        {/* 1) Topbar always on top */}
+         <header className="fixed top-0 left-0 right-0 h-16 z-50">
+           <Topbar />
+         </header>
 
-          {/* Main area: sidebar + content */}
-          <div className="flex flex-1 overflow-hidden pt-16">
-          <Nav />
+         {/* 2) Below that, sidebar + content */}
+         <div className="flex flex-1 overflow-hidden">
+           {/* 3) Nav sits under the Topbar */}
+           <nav className="pt-16"> 
+             <Nav />
+           </nav>
 
-            <main className="flex-1 overflow-auto">
-              {children}
-            </main>
-          </div>
+           {/* 4) Main scrollable content also shifted down */}
+           <main className="flex-1 overflow-auto pt-16">
+             {children}
+           </main>
+         </div>
 
 
           {/* Toaster for notifications */}

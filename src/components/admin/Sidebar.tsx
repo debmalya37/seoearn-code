@@ -20,9 +20,9 @@ const Sidebar = () => {
                 <Link href="/Admin/withdraw" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
                     Withdrawl Requests
                 </Link>
-                 <Link href="/Admin/kyc" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                 {/* <Link href="/Admin/kyc" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
                     User KYC verifications
-                </Link> 
+                </Link>  */}
 
 
                 {/* <Link href="/Admin/Settings" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
