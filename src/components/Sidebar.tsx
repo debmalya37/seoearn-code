@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaWallet, FaLink, FaCreditCard } from 'react-icons/fa';
+import { FaWallet, FaLink, FaCreditCard, FaTimes, FaBars } from 'react-icons/fa';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 
@@ -10,6 +10,7 @@ const Sidebar = () => {
   const { data: session } = useSession();
   const [balance, setBalance] = useState<number>(0);
   const [safeBalance, setSafeBalance] = useState<number>(0);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     async function loadWallet() {
@@ -30,35 +31,63 @@ const Sidebar = () => {
   }, [session]);
 
   return (
-    <div className="h-[100vh] w-64 bg-gray-200 shadow-md flex flex-col">
-      {/* Balance Section */}
-      <div className="bg-blue-500 text-white p-4 text-center">
-        <h3 className="text-lg font-bold">${balance.toFixed(4)}</h3>
-        <p className="text-sm">MY BALANCE</p>
-      </div>
-      {/* <div className="bg-teal-500 text-white p-4 text-center">
-        <h3 className="text-lg font-bold">${safeBalance.toFixed(4)}</h3>
-        <p className="text-sm">MONEY IN SAFE</p>
-      </div> */}
+    <>
+      {/* Mobile toggle button */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded shadow"
+        onClick={() => setOpen(o => !o)}
+        aria-label={open ? 'Close menu' : 'Open menu'}
+      >
+        {open ? <FaTimes className='text-black' size={20} /> : <FaBars size={20}  className='text-black' />}
+      </button>
 
-      {/* Menu Items */}
-      <div className="flex-1 p-4">
-        <ul className="space-y-4">
-          <Link href="/Wallet" className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
-            <FaWallet className="mr-3" />
-            MY WALLET
-          </Link>
-          <Link href="/referrals" className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
-            <FaLink className="mr-3" />
-            MY REF LINK
-          </Link>
-          {/* <li className="flex items-center text-gray-700 hover:text-blue-500 cursor-pointer">
-            <FaCreditCard className="mr-3" />
-            PAYMENT DETAILS
-          </li> */}
-        </ul>
+      {/* Sidebar drawer */}
+      <div
+        className={`
+          fixed top-0 left-0 h-screen w-64 bg-gray-200 shadow-md flex flex-col
+          transform transition-transform duration-300 z-40 pt-20
+          ${open ? 'translate-x-0' : '-translate-x-full'}
+          md:translate-x-0 md:relative md:z-auto
+        `}
+      >
+        {/* Balance Section */}
+        <div className="bg-blue-500 text-white p-4 text-center">
+          <h3 className="text-lg font-bold">${balance.toFixed(4)}</h3>
+          <p className="text-sm">MY BALANCE</p>
+        </div>
+        {/* Uncomment if you need safeBalance */}
+        {/* <div className="bg-teal-500 text-white p-4 text-center">
+          <h3 className="text-lg font-bold">${safeBalance.toFixed(4)}</h3>
+          <p className="text-sm">MONEY IN SAFE</p>
+        </div> */}
+
+        {/* Menu Items */}
+        <div className="flex-1 p-4">
+          <ul className="space-y-4">
+            <li>
+              <Link href="/Wallet">
+                <span className="flex items-center text-gray-700 hover:text-blue-500">
+                  <FaWallet className="mr-3" />
+                  MY WALLET
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link href="/referrals">
+                <span className="flex items-center text-gray-700 hover:text-blue-500">
+                  <FaLink className="mr-3" />
+                  MY REF LINK
+                </span>
+              </Link>
+            </li>
+            {/* <li className="flex items-center text-gray-700 hover:text-blue-500">
+              <FaCreditCard className="mr-3" />
+              PAYMENT DETAILS
+            </li> */}
+          </ul>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

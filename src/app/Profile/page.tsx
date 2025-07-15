@@ -294,40 +294,37 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
   if (status === "unauthenticated") return <div className="p-8">Please log in.</div>;
 
   return (
-    <div className="flex bg-gray-50 min-h-screen">
+    <div className="flex flex-col md:flex-row bg-gray-50 min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8">
-        <h1 className="text-3xl font-bold mb-6">My Profile</h1>
 
-        {/* Personal Info Card */}
+      <main className="flex-1 p-4 md:p-8">
+        <h1 className="text-3xl font-bold mb-6 text-center">My Profile</h1>
+
+        {/* Personal Info */}
         <section className="bg-white rounded-xl shadow p-6 mb-8">
           <h2 className="text-2xl font-semibold mb-4">Personal Information</h2>
-          <div className="flex items-center space-x-6 mb-6">
-            <div className="relative w-24 h-24">
-              <Image
+          <div className="flex flex-col md:flex-row items-center md:space-x-6 mb-6">
+            {/* <div className="relative w-24 h-24 flex-shrink-0"> */}
+              {/* <Image
                 src={profilePicture as string}
                 alt="Profile"
                 fill
                 className="rounded-full object-cover"
-              />
-              <button
+              /> */}
+              {/* <button
                 type="button"
-                onClick={triggerFileInput}
+                onClick={() => fileInputRef.current?.click()}
                 className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-1 hover:bg-blue-700 shadow"
               >
                 ✎
-              </button>
-              {/* <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handlePictureChange}
-                className="hidden"
-              /> */}
-            </div>
-            <div className="flex-1">
+              </button> */}
+            {/* </div> */}
+
+            {/* Form */}
+            <div className="w-full mt-4 md:mt-0">
               <form onSubmit={handleSubmit(onProfileSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Username */}
                   <label className="flex flex-col">
                     <span className="font-medium flex items-center">
                       <FiUser className="mr-2"/> Username
@@ -338,6 +335,8 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
                       className="mt-1 p-2 border rounded focus:ring"
                     />
                   </label>
+
+                  {/* Name */}
                   <label className="flex flex-col">
                     <span className="font-medium flex items-center">
                       <FiUser className="mr-2"/> Name
@@ -348,6 +347,8 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
                       className="mt-1 p-2 border rounded focus:ring"
                     />
                   </label>
+
+                  {/* Email & OTP */}
                   <label className="flex flex-col">
                     <span className="font-medium flex items-center">
                       <FiMail className="mr-2"/> Email
@@ -355,12 +356,14 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
                     <input
                       {...register("email")}
                       disabled
-                      className="mt-1 p-2 border rounded focus:ring"
+                      className="mt-1 p-2 border rounded focus:ring bg-gray-100"
                     />
                   </label>
+
                   {!isEmailVerified && (
-  <div className="mt-2">
-    <button
+                    <div className="mt-2 md:col-span-2">
+                      {/* OTP UI */}
+                      <button
       onClick={async () => {
         await axios.post("/api/email/send-otp");
         toast({ title: "OTP sent to your email" });
@@ -401,88 +404,95 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
         </button>
       </div>
     )}
-  </div>
-)}
+                    </div>
+                  )}
 
-                  <label className="flex flex-col">
+                  {/* Phone */}
+                  <label className="flex flex-col md:col-span-2">
                     <span className="font-medium flex items-center">
                       <FiPhone className="mr-2"/> Phone
                     </span>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 mt-1">
                       <Select
                         options={countryCodeOptions}
-                        value={countryCodeOptions.find(o=>o.value===countryCode)}
-                        onChange={o=>setCountryCode(o?.value||null)}
-                        className="flex-2 mt-1 px-6"
+                        value={countryCodeOptions.find(o => o.value === countryCode)}
+                        onChange={o => setCountryCode(o?.value || null)}
+                        className="flex-1"
                       />
                       <input
                         value={phoneNumber}
-                        onChange={e=>setPhoneNumber(e.target.value)}
-                        className="flex-2 mt-1 p-2 border rounded focus:ring w-full"
+                        onChange={e => setPhoneNumber(e.target.value)}
+                        className="flex-1 p-2 border rounded focus:ring"
                       />
                     </div>
                   </label>
-                  <label className="flex items-center mt-4">
-  <input
-    type="checkbox"
-    checked={isHidden}
-    onChange={(e) => setIsHidden(e.target.checked)}
-    className="mr-2"
-    // disabled={!isEmailVerified}
-  />
-  <span className="text-sm">Hide my profile from public</span>
-</label>
-<label className="flex items-center mt-4">
-  <input
-    type="checkbox"
-    checked={is18Plus}
-    onChange={(e) => setIs18Plus(e.target.checked)}
-    className="mr-2"
-    // disabled={!isEmailVerified}
-  />
-  <span className="text-sm">I&apos;m 18+</span>
-</label>
 
+                  {/* Checkboxes */}
+                  <div className="flex space-x-4 md:col-span-2">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={isHidden}
+                        onChange={e => setIsHidden(e.target.checked)}
+                        className="mr-2"
+                      />
+                      <span>Hide my profile</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={is18Plus}
+                        onChange={e => setIs18Plus(e.target.checked)}
+                        className="mr-2"
+                      />
+                      <span>I&apos;m 18+</span>
+                    </label>
+                  </div>
+
+                  {/* DOB */}
                   <label className="flex flex-col">
                     <span className="font-medium flex items-center">
                       <FiCalendar className="mr-2"/> DOB
                     </span>
                     <DatePicker
                       selected={dob}
-                      onChange={d=>{ setDob(d); if(d) setAge(calculateAge(d)); }}
+                      onChange={d => { setDob(d); if (d) setAge(calculateAge(d)); }}
                       className="mt-1 p-2 border rounded focus:ring w-full"
                     />
                   </label>
-                  <label className="flex flex-col">
-  <span className="font-medium flex items-center">
-    ⭐ Rating
-  </span>
-  <input
-    value={userRating}
-    disabled
-    className="mt-1 p-2 border rounded bg-gray-100 text-gray-800"
-  />
-</label>
 
+                  {/* Rating */}
+                  <label className="flex flex-col">
+                    <span className="font-medium flex items-center">⭐ Rating</span>
+                    <input
+                      value={userRating}
+                      disabled
+                      className="mt-1 p-2 border rounded bg-gray-100"
+                    />
+                  </label>
+
+                  {/* Gender */}
                   <label className="flex flex-col">
                     <span className="font-medium flex items-center">
                       <FiUser className="mr-2"/> Gender
                     </span>
                     <Select
                       options={genderOptions}
-                      value={genderOptions.find(o=>o.value===gender)}
-                      onChange={o=>setGender(o?.value||null)}
+                      value={genderOptions.find(o => o.value === gender)}
+                      onChange={o => setGender(o?.value || null)}
                       className="mt-1"
                     />
                   </label>
+
+                  {/* Country */}
                   <label className="flex flex-col">
                     <span className="font-medium flex items-center">
                       <FiMapPin className="mr-2"/> Country
                     </span>
-                    <div className="mt-1">
+                    <div className="mt-1 w-full">
                       <CountrySelect
-                        value={country||""}
-                        onChange={c=>setCountry(c||null)}
+                        value={country || ""}
+                        onChange={c => setCountry(c || null)}
                       />
                     </div>
                   </label>
@@ -491,7 +501,7 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition"
+                  className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition w-full"
                 >
                   {loading ? "Saving…" : "Save Changes"}
                 </button>
@@ -500,8 +510,9 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
           </div>
         </section>
 
-        {/* Billing & Referrals Card */}
+        {/* Billing & Referrals */}
         <section className="bg-white rounded-xl shadow p-6 mb-8">
+          {/* unchanged content */}
           <h2 className="text-2xl font-semibold mb-4">Billing & Referrals</h2>
           <p className="text-sm text-gray-500 mb-4">
   Your payment ID and preferred payout method must match your Payer/PayPal account exactly.
@@ -566,10 +577,10 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
 
         </section>
 
-        {/* KYC Verification Card */}
-        {/* KYC Verification Card */}
-<section className="bg-white rounded-xl shadow p-6">
-  <h2 className="text-2xl font-semibold mb-4 flex items-center">
+        {/* KYC Verification */}
+        <section className="bg-white rounded-xl shadow p-6 mb-8">
+          {/* unchanged content */}
+          <h2 className="text-2xl font-semibold mb-4 flex items-center">
     <FiShield className="mr-2"/> Identity Verification
   </h2>
 
@@ -598,9 +609,7 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
     // not_submitted
     renderKycForm()
   )}
-</section>
-
-
+        </section>
       </main>
     </div>
   );

@@ -11,19 +11,22 @@ export default function Hero2() {
   return (
     <header className={styles.hero}>
       {/* Navigation */}
-      <nav className={styles.nav}>
+      <nav
+        className={`
+          ${styles.nav}
+          flex flex-col sm:flex-row        // column on mobile, row on sm+
+          items-center sm:justify-between // center logo & button on mobile
+          gap-4                            // space between items
+        `}
+      >
         <div className={styles.logo}>SEO Earning Space</div>
-        {/* <ul className={styles.links}>
-          {['About','Task Feed','Referral','FAQs','Contact'].map((l) => (
-            <li key={l}>
-              <Link href={`/${l.toLowerCase().replace(/\s+/g,'')}`}>
-                {l}
-              </Link>
-            </li>
-          ))}
-        </ul> */}
-        <Link href="/sign-in">
-          <motion.a className={styles.cta} whileHover={{ scale: 1.05 }}>
+
+        {/* on mobile, push CTA under logo */}
+        <Link href="/sign-in" className="order-last sm:order-none">
+          <motion.a
+            className={styles.cta}
+            whileHover={{ scale: 1.05 }}
+          >
             Get Started
           </motion.a>
         </Link>

@@ -151,7 +151,7 @@ export default function SignInPage() {
               provider.id !== 'credentials' ? (
                 <Button
                   key={provider.name}
-                  onClick={() => signIn(provider.id, { callbackUrl: '/dashboard' })}
+                  onClick={() => signIn(provider.id, { callbackUrl: '/Profile' })}
                   className="w-full mb-3 bg-[#4285F4] hover:bg-[#357ae8] text-white py-3 rounded-xl flex items-center justify-center"
                 >
                   Continue with {provider.name}
