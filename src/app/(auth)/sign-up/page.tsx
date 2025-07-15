@@ -46,21 +46,21 @@ function SignUpPage() {
   const { toast } = useToast();
   const router = useRouter();
 
-  // Initialize React Hook Form with Zod schema
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
+      name: '',
       username: '',
       email: '',
       password: '',
-      phoneNumber: 91,
+      countryCode: '+91',
+      phoneNumber: '',
       gender: '',
       age: 0,
       referralCode: '',
     },
   });
 
-  // 1. Generate/Retrieve Device Identifier
   useEffect(() => {
     const fetchDeviceIdentifier = async () => {
       const stored = getStoredDeviceIdentifier();
@@ -74,14 +74,12 @@ function SignUpPage() {
     fetchDeviceIdentifier();
   }, []);
 
-  // 2. If URL has ?ref=CODE, populate referredBy field
   useEffect(() => {
     if (referralCode) {
       form.setValue('referralCode', referralCode);
     }
   }, [referralCode, form]);
 
-  // 3. Debounced username → uniqueness check
   useEffect(() => {
     if (!username) {
       setUsernameMessage('');
@@ -103,13 +101,14 @@ function SignUpPage() {
     checkUsername();
   }, [username]);
 
-  // 4. Form submission: register, then redirect to Sign-In
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     setIsSubmitting(true);
     try {
+      const fullPhoneNumber = `${data.countryCode}${data.phoneNumber}`;
+
       await axios.post<ApiResponse>('/api/sign-up', {
         ...data,
-        referralCode: data.referralCode, 
+        phoneNumber: fullPhoneNumber,
         deviceIdentifier,
       });
 
@@ -132,15 +131,33 @@ function SignUpPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-lg bg-gray-800 text-white rounded-2xl shadow-2xl p-8">
-        {/* Header */}
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-extrabold text-indigo-300">Create Account</h1>
           <p className="mt-1 text-gray-400">Join now and start enjoying our platform</p>
         </div>
 
-        {/* Form */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+
+            {/* Full Name */}
+            <FormField
+              name="name"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-300">Full Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Your full name"
+                      className="bg-gray-700 text-white border-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Username & Email */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
@@ -202,8 +219,45 @@ function SignUpPage() {
               />
             </div>
 
-            {/* Phone Number & Password */}
+            {/* Country Code & Phone Number */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                name="countryCode"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-300">Country Code</FormLabel>
+                    <FormControl>
+                    <select
+  {...field}
+  className="bg-gray-700 text-white border-none px-3 py-2 rounded-md w-full"
+>
+  <option value="">Select Country Code</option>
+  <option value="+91">🇮🇳 +91 (India)</option>
+  <option value="+880">🇧🇩 +880 (Bangladesh)</option>
+  <option value="+1">🇺🇸 +1 (USA)</option>
+  <option value="+44">🇬🇧 +44 (UK)</option>
+  <option value="+61">🇦🇺 +61 (Australia)</option>
+  <option value="+7">🇷🇺 +7 (Russia)</option>
+  <option value="+49">🇩🇪 +49 (Germany)</option>
+  <option value="+34">🇪🇸 +34 (Spain)</option>
+  <option value="+351">🇵🇹 +351 (Portugal)</option>
+  <option value="+31">🇳🇱 +31 (Netherlands)</option>
+  <option value="+971">🇦🇪 +971 (UAE)</option>
+  <option value="+33">🇫🇷 +33 (France)</option>
+  <option value="+90">🇹🇷 +90 (Turkey)</option>
+  <option value="+98">🇮🇷 +98 (Iran)</option>
+  <option value="+964">🇮🇶 +964 (Iraq)</option>
+  <option value="+86">🇨🇳 +86 (China)</option>
+  <option value="+54">🇦🇷 +54 (Argentina)</option>
+</select>
+
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 name="phoneNumber"
                 control={form.control}
@@ -222,26 +276,27 @@ function SignUpPage() {
                   </FormItem>
                 )}
               />
-
-              <FormField
-                name="password"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-300">Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Password"
-                        className="bg-gray-700 text-white border-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
+
+            {/* Password */}
+            <FormField
+              name="password"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-300">Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      className="bg-gray-700 text-white border-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Gender & Age */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -283,7 +338,7 @@ function SignUpPage() {
               />
             </div>
 
-            {/* Referred By (read-only) */}
+            {/* Referral Code */}
             <FormField
               name="referralCode"
               control={form.control}
@@ -303,7 +358,7 @@ function SignUpPage() {
               )}
             />
 
-            {/* Submit Button */}
+            {/* Submit */}
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -321,7 +376,6 @@ function SignUpPage() {
           </form>
         </Form>
 
-        {/* Footer: Link to Sign In */}
         <p className="mt-6 text-center text-gray-400">
           Already have an account?{' '}
           <Link href="/sign-in" className="text-indigo-400 hover:underline">

@@ -55,7 +55,11 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
     reward: 0,
     budget: 0,
     status: 'Pending',
-    maxUsersCanDo: 1
+    maxUsersCanDo: 1,
+    isApproved: false,   // new field
+  isRejected: false ,
+  is18Plus: false,
+
   });
 
   const [walletBalance, setWalletBalance] = useState<number>(0);
@@ -118,6 +122,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
                duration: Number(taskData.duration),
                reward:   Number(taskData.reward),
                budget:   Number(taskData.budget),
+               is18Plus: taskData.is18Plus,
              });
       onClose();
     } catch (err: any) {
@@ -195,6 +200,21 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
               ))}
             </select>
           </div>
+
+{/* is18Plus Checkbox */}
+<div className="mb-4 flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="is18Plus"
+    checked={taskData.is18Plus}
+    onChange={(e) =>
+      setTaskData((prev) => ({ ...prev, is18Plus: e.target.checked }))
+    }
+  />
+  <label htmlFor="is18Plus" className="text-sm">
+    This task is for 18+ users only
+  </label>
+</div>
 
           {/* Duration */}
           <div className="mb-4">

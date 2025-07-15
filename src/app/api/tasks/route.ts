@@ -22,7 +22,9 @@ interface NewTaskBody {
   budget: number;
   status?: string;
   maxUsersCanDo?: number;
+  is18Plus?: boolean; // ✅ Add this line
 }
+
 
 // GET handler (unchanged filtering / pagination)
 export async function GET(request: Request) {
@@ -96,6 +98,7 @@ export async function POST(request: Request) {
     const reward      = Number(body.reward);
     const grossBudget = Number(body.budget);
     const status      = body.status || 'Pending';
+    const is18Plus    = Boolean(body.is18Plus);
 
     // 4) Validate
     if (
@@ -117,56 +120,36 @@ export async function POST(request: Request) {
       );
     }
 
-    // 6) Deduct gross budget
-    await deductFromWallet(user._id.toString(), grossBudget, 'Advertiser budget allocation');
+    // 6) Compute fee & net
+const feeAmount = parseFloat((grossBudget * PLATFORM_FEE_RATE).toFixed(2));
+const netBudget = parseFloat((grossBudget - feeAmount).toFixed(2));
 
-    // 7) Compute fee & net
-    const feeAmount = parseFloat((grossBudget * PLATFORM_FEE_RATE).toFixed(2));
-    const netBudget = parseFloat((grossBudget - feeAmount).toFixed(2));
+// 7) Create Task with isApproved = false
+const maxUsers = Math.max(Math.floor(netBudget / reward), 1);
+const newTask = await Task.create({
+  title,
+  description,
+  rating,
+  category,
+  duration,
+  reward,
+  budget: netBudget,
+  status,
+  createdBy: user._id,
+  maxUsersCanDo: maxUsers,
+  createdAt: new Date(),
+  is18Plus,   // Assuming default is false, can be changed based on user input
+  isApproved: false,
+  isRejected: false,
+});
 
-    // 8) Create the Task with netBudget
-    const maxUsers = Math.max(Math.floor(netBudget / reward), 1);
-    const newTask = await Task.create({
-      title,
-      description,
-      rating,
-      category,
-      duration,
-      reward,
-      budget:     netBudget,  // store net
-      status,
-      createdBy:  user._id,
-      maxUsersCanDo: maxUsers,
-      createdAt:  new Date()
-    });
+// 8) Link task to user
+user.tasks = user.tasks || [];
+user.tasks.push(newTask._id);
+await user.save();
 
-    // 9) Record platform fee
-    await PlatformFee.create({
-      userId:      user._id,
-      taskId:      newTask._id,
-      grossBudget,
-      feeAmount,
-      netBudget,
-      createdAt:   new Date()
-    });
+return NextResponse.json({ success: true, message: 'Task submitted for admin approval', task: newTask }, { status: 201 });
 
-    // 10) ** New: record into AdsRevenue **
-    await AdsRevenue.create({
-      userId:      user._id,
-      email:       session.user.email,
-      taskId:      newTask._id,
-      grossBudget,
-      feeAmount,
-      netBudget,
-      createdAt:   new Date()
-    });
-
-    // 11) Link task onto user
-    user.tasks = user.tasks || [];
-    user.tasks.push(newTask._id);
-    await user.save();
-
-    return NextResponse.json({ success: true, message: 'Task created', task: newTask }, { status: 201 });
   } catch (error) {
     console.error('Failed to create task:', error);
     return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });

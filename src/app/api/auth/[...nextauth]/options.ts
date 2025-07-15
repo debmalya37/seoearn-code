@@ -28,6 +28,7 @@ export const authOptions: NextAuthOptions = {
           name: profile.name,
           email: profile.email,
           image: profile.picture,
+          ratings: [], // default ratings for new users
         };
       },
     }),
@@ -42,6 +43,7 @@ export const authOptions: NextAuthOptions = {
           name: profile.name,
           email: profile.email,
           image: profile.avatar_url,
+          ratings: [], // default ratings for new users
         };
       },
     }),
@@ -97,7 +99,7 @@ export const authOptions: NextAuthOptions = {
       // For OAuth (Google/Github), create or update the user in our DB.
       await dbConnect();
       if (account?.provider === 'google' || account?.provider === 'github') {
-        const existingUser = await UserModel.findOne({ email: user.email }).exec();
+        let existingUser = await UserModel.findOne({ email: user.email }).exec();
         if (!existingUser) {
           const newUser = new UserModel({
             email: user.email,
@@ -106,10 +108,22 @@ export const authOptions: NextAuthOptions = {
             isVerified: true,
             name: user.name,
             referralCode: user.email?.split('@')[0],
+            ratings: [], // store as an array
           });
           await newUser.save();
+          existingUser = newUser;
         }
+    
+        const ratingsArray = existingUser.ratings || [];
+    const avgRating = ratingsArray.length > 0
+      ? ratingsArray.reduce((a: number, b: number) => a + b, 0) / ratingsArray.length
+      : 0;
+
+    // Attach to user for jwt()
+    (user as any).ratings = ratingsArray;
+    (user as any).averageRating = avgRating;
       }
+    
       return true;
     },
     async jwt({ token, user, account }) {
@@ -119,6 +133,9 @@ export const authOptions: NextAuthOptions = {
         token.isVerified = (user as any).isVerified || false;
         token.isAcceptingMessages = (user as any).isAcceptingMessages || false;
         token.username = (user as any).username || '';
+        // Pass both ratings array and average
+        token.ratings = (user as any).ratings || [];
+        token.averageRating = (user as any).averageRating || 0;
       }
       if (account) {
         token.accessToken = account.access_token as string;
@@ -132,6 +149,9 @@ export const authOptions: NextAuthOptions = {
         session.user.username = token.username as string;
         session.user.isVerified = token.isVerified as boolean;
         session.user.isAcceptingMessages = token.isAcceptingMessages as boolean;
+        session.user.ratings = token.ratings as number[];
+    session.user.averageRating = token.averageRating as number;
+
         session.accessToken = token.accessToken as string;
       }
       return session;

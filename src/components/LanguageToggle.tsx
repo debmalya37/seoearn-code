@@ -104,29 +104,24 @@ const LanguageSelect: React.FC = () => {
     <>
       {/* Hidden element required by Google Translate */}
       <div id="google_translate_element" style={{ display: "none" }}></div>
-
-      {/* Dropdown List for Languages */}
-      <div className="relative inline-block">
-        <label htmlFor="language-select" className="mr-2 font-semibold">
-          Select Language:
-        </label>
-        <select
-          id="language-select"
-          className="appearance-none border border-gray-300 bg-white px-3 py-2 rounded shadow-sm
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-          value={selectedLang}
-          onChange={(e) => {
-            handleLanguageChange(e.target.value);
-          }}
-        >
-          {languages.map((lang) => (
-            <option key={lang.code} value={lang.code}>
-              {lang.label}
-            </option>
-          ))}
-        </select>
+  
+      {/* Inline language selection */}
+      <div className="flex items-center space-x-2">
+        {languages.map((lang) => (
+          <button
+            key={lang.code}
+            onClick={() => handleLanguageChange(lang.code)}
+            className={`px-3 py-1 rounded text-sm transition ${
+              selectedLang === lang.code
+                ? 'bg-white text-[#081530] font-semibold'
+                : 'bg-transparent border border-white text-white hover:bg-white hover:text-[#081530]'
+            }`}
+          >
+            {lang.label}
+          </button>
+        ))}
       </div>
-
+  
       {/* Hide Google Translate top banner and icons */}
       <style jsx global>{`
         .notranslate {
@@ -151,6 +146,7 @@ const LanguageSelect: React.FC = () => {
       `}</style>
     </>
   );
+  
 };
 
 export default LanguageSelect;

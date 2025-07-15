@@ -33,6 +33,44 @@ export default function Profile() {
 const [showOTPInput, setShowOTPInput] = useState(false);
 const [otpInput, setOtpInput] = useState("");
 const [verifyingOTP, setVerifyingOTP] = useState(false);
+// const { data: session, status } = useSession();
+// const userRating = session?.user?.averageRating?.toFixed(1) ?? "N/A";
+
+const [userRating, setUserRating] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchUserRating = async () => {
+      if (!session?.user?._id) return;
+      try {
+        const { data } = await axios.get(`/api/users/${session.user._id}`);
+        if (data.success && Array.isArray(data.user.ratings)) {
+          const ratingsArray = data.user.ratings;
+          const average =
+            ratingsArray.length > 0
+              ? ratingsArray.reduce((a: number, b: number) => a + b, 0) / ratingsArray.length
+              : 0;
+          setUserRating(average);
+        }
+      } catch (err) {
+        console.error('Error fetching user rating:', err);
+      }
+    };
+  
+    fetchUserRating();
+  }, [session?.user?._id]);
+  
+
+useEffect(() => {
+  console.log("Session from useSession():", session);
+}, [session]);
+
+
+// const userRating = userRatings.length
+//   ? (userRatings.reduce((a: number, b: number) => a + b, 0) / userRatings.length).toFixed(1)
+//   : "N/A";
+
+console.log(session?.user);
+
 
   const [paymentId, setPaymentId] = useState<string>("");
   const [paymentPreference, setPaymentPreference] = useState<string>("");
@@ -45,6 +83,7 @@ const [idFront, setIdFront] = useState<File | null>(null);
 const [idBack,  setIdBack ] = useState<File | null>(null);
 const [selfie,  setSelfie ] = useState<File | null>(null);
 const [isHidden, setIsHidden] = useState<boolean>(false);
+const [is18Plus, setIs18Plus] = useState<boolean>(false);
 
 
   const genderOptions = [
@@ -53,8 +92,25 @@ const [isHidden, setIsHidden] = useState<boolean>(false);
     { value: "other", label: "Other" }
   ];
   const countryCodeOptions = [
-    { value: "1", label: "+1" }, { value: "91", label: "+91" }, { value: "44", label: "+44" }
+    { value: "1", label: "🇺🇸 +1 (USA)" },
+    { value: "91", label: "🇮🇳 +91 (India)" },
+    { value: "44", label: "🇬🇧 +44 (UK)" },
+    { value: "61", label: "🇦🇺 +61 (Australia)" },
+    { value: "971", label: "🇦🇪 +971 (UAE)" },
+    { value: "7", label: "🇷🇺 +7 (Russia)" },
+    { value: "49", label: "🇩🇪 +49 (Germany)" },
+    { value: "34", label: "🇪🇸 +34 (Spain)" },
+    { value: "351", label: "🇵🇹 +351 (Portugal)" },
+    { value: "31", label: "🇳🇱 +31 (Netherlands)" },
+    { value: "880", label: "🇧🇩 +880 (Bangladesh)" },
+    { value: "33", label: "🇫🇷 +33 (France)" },
+    { value: "90", label: "🇹🇷 +90 (Turkey)" },
+    { value: "98", label: "🇮🇷 +98 (Iran)" },
+    { value: "964", label: "🇮🇶 +964 (Iraq)" },
+    { value: "86", label: "🇨🇳 +86 (China)" },
+    { value: "54", label: "🇦🇷 +54 (Argentina)" }
   ];
+  
   const paymentPreferenceOptions = [
     { value: "payeer", label: "Payeer" },
     // { value: "credit_card", label: "Credit Card" },
@@ -176,7 +232,7 @@ const [isHidden, setIsHidden] = useState<boolean>(false);
     axios.get("/api/profile")
       .then(res => {
         const u = res.data.user;
-        setValue("name", u.username);
+        setValue("name", u.name);
         setValue("email", u.email);
         setValue("username", u.username);
         setValue("referralCode", u.referralCode);
@@ -185,6 +241,7 @@ const [isHidden, setIsHidden] = useState<boolean>(false);
         setCountryCode(u.countryCode || "");
         setGender(u.gender || "");
         setIsHidden(u.isHidden || false);
+        setIs18Plus(u.is18Plus || false);
 
         setIsEmailVerified(u.isEmailVerified || false);
         setCountry(u.country || "");
@@ -205,7 +262,10 @@ const [isHidden, setIsHidden] = useState<boolean>(false);
     try {
       data.phoneNumber = `${countryCode}${phoneNumber}`;
       data.dob = dob;
+      data.username = data.username;
       data.name = name;
+      data.isHidden = isHidden;
+      data.is18Plus= is18Plus;
       data.age = age;
       data.gender = gender;
       data.country = country;
@@ -270,10 +330,20 @@ const [isHidden, setIsHidden] = useState<boolean>(false);
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <label className="flex flex-col">
                     <span className="font-medium flex items-center">
-                      <FiUser className="mr-2"/> Name
+                      <FiUser className="mr-2"/> Username
                     </span>
                     <input
                       {...register("username")}
+                      disabled={!isEmailVerified}
+                      className="mt-1 p-2 border rounded focus:ring"
+                    />
+                  </label>
+                  <label className="flex flex-col">
+                    <span className="font-medium flex items-center">
+                      <FiUser className="mr-2"/> Name
+                    </span>
+                    <input
+                      {...register("name")}
                       disabled={!isEmailVerified}
                       className="mt-1 p-2 border rounded focus:ring"
                     />
@@ -343,7 +413,7 @@ const [isHidden, setIsHidden] = useState<boolean>(false);
                         options={countryCodeOptions}
                         value={countryCodeOptions.find(o=>o.value===countryCode)}
                         onChange={o=>setCountryCode(o?.value||null)}
-                        className="flex-1"
+                        className="flex-2 mt-1 px-6"
                       />
                       <input
                         value={phoneNumber}
@@ -358,9 +428,19 @@ const [isHidden, setIsHidden] = useState<boolean>(false);
     checked={isHidden}
     onChange={(e) => setIsHidden(e.target.checked)}
     className="mr-2"
-    disabled={!isEmailVerified}
+    // disabled={!isEmailVerified}
   />
   <span className="text-sm">Hide my profile from public</span>
+</label>
+<label className="flex items-center mt-4">
+  <input
+    type="checkbox"
+    checked={is18Plus}
+    onChange={(e) => setIs18Plus(e.target.checked)}
+    className="mr-2"
+    // disabled={!isEmailVerified}
+  />
+  <span className="text-sm">I'm 18+</span>
 </label>
 
                   <label className="flex flex-col">
@@ -373,6 +453,17 @@ const [isHidden, setIsHidden] = useState<boolean>(false);
                       className="mt-1 p-2 border rounded focus:ring w-full"
                     />
                   </label>
+                  <label className="flex flex-col">
+  <span className="font-medium flex items-center">
+    ⭐ Rating
+  </span>
+  <input
+    value={userRating}
+    disabled
+    className="mt-1 p-2 border rounded bg-gray-100 text-gray-800"
+  />
+</label>
+
                   <label className="flex flex-col">
                     <span className="font-medium flex items-center">
                       <FiUser className="mr-2"/> Gender

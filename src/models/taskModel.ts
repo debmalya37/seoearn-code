@@ -17,6 +17,8 @@ export interface ITask extends Document {
   budget: number;
   createdAt: Date;
   is18Plus?: Boolean,
+  isApproved?: Boolean, // Optional field to indicate if the task is approved
+  isRejected?: Boolean, // Optional field to indicate if the task is rejected
   taskDoneBy?: mongoose.Types.ObjectId[]; 
   requests: IRequest[]; 
   submissions?: Array<{
@@ -112,6 +114,8 @@ const TaskSchema: Schema = new Schema({
     type: Boolean,
     default: false
   } ,
+  isApproved: { type: Boolean, default: false },
+  isRejected: { type: Boolean, default: false },
   requests: [RequestSubSchema],
     taskDoneBy: [{
       type: mongoose.Types.ObjectId,

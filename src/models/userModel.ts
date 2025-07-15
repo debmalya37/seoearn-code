@@ -73,7 +73,8 @@ export interface IUser extends Document {
   email: string;
   name: string;
   username: string;
-  phoneNumber?: number;
+  is18Plus?: boolean; // for age verification
+  phoneNumber?: string;
   password?: string;
   isVerified: boolean;
   isEmailVerified: boolean;
@@ -128,12 +129,13 @@ const UserSchema = new Schema<IUser>({
   email: { type: String, required: true, unique: true, match: [/.+\@.+\..+/, 'Please use a valid email address'] },
   name: { type: String },
   username: { type: String, required: true, trim: true, unique: true },
-  phoneNumber: { type: Number },
+  phoneNumber: { type: String },
   password: { type: String },
   gender: { type: String, enum: ['male', 'female', 'other'] },
   age: { type: Number, min: 0 },
   dob: { type: Date },
   isHidden: { type: Boolean, default: false }, // for admin use, to hide user from public listings
+  is18Plus: { type: Boolean, default: false },
   profilePicture: { type: String },
   paymentPreference: { type: String },
   paymentGateway: { type: String },

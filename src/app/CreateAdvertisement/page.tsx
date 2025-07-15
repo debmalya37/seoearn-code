@@ -267,8 +267,8 @@ useEffect(() => {
               onClick={() => setActiveTab(tab)}
               className={`px-3 py-2 ${
                 activeTab === tab
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'border-b-2 border-blue-600 text-blue-50'
+                  : 'text-gray-50 hover:text-gray-800'
               }`}
             >
               {tab === 'all' ? 'All Ads' : 'In Progress'}

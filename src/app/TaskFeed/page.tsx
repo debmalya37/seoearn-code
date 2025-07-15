@@ -49,6 +49,12 @@ const categoryOptions = [
   'Other',
 ];
 
+interface Totals {
+  totalGross: number;
+  totalFees: number;
+  totalNet: number;
+}
+
 export interface TaskData {
   title: string;
   description: string;
@@ -60,6 +66,7 @@ export interface TaskData {
   status?: string;
   createdAt?: string;
   maxUsersCanDo: number;
+  is18Plus?: boolean;
 }
 
 
@@ -71,6 +78,9 @@ const TaskFeedPage: FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
+  const [isUser18Plus, setIsUser18Plus] = useState(false);
+  const [totals, setTotals] = useState<Totals>({ totalGross: 0, totalFees: 0, totalNet: 0 });
+
   const [filters, setFilters] = useState({
     status: 'all',
     category: 'all',
@@ -106,8 +116,9 @@ const TaskFeedPage: FC = () => {
       try {
         const userRes =  await axios.get(`/api/users/${user?._id}`);
         if (userRes.data.success) {
-          // alert('User data fetched successfully' + JSON.stringify(userRes.data.user.isBlocked));
-          setIsBlocked(!!userRes.data.user.isBlocked);
+          const userData = userRes.data.user;
+      setIsBlocked(!!userData.isBlocked);
+      setIsUser18Plus(!!userData.is18Plus); 
         }
 
         if(userRes.data.user.isBlocked) {
@@ -130,6 +141,21 @@ const TaskFeedPage: FC = () => {
   //   }
   // }, [user]);
   
+
+  
+  useEffect(() => {
+    async function fetchRevenue () {
+      const res = await fetch('/api/admin/revenue');
+      const { totals } = await res.json();
+
+      
+
+      setTotals(totals);
+    }
+    fetchRevenue ()
+  }, []);
+
+    
 
   // Fetch tasks from server
   const fetchTasks = useCallback(async () => {
@@ -213,12 +239,16 @@ const TaskFeedPage: FC = () => {
     setCurrentPage(page);
   };
 
-  const filteredTasks = tasks.filter(
-    (task) =>
-      task.title.toLowerCase().includes(searchInput.toLowerCase()) ||
-      task.description.toLowerCase().includes(searchInput.toLowerCase()) ||
-      task.category.toLowerCase().includes(searchInput.toLowerCase())
+  const filteredTasks = tasks
+  .filter((task) => task.isApproved === true || typeof task.isApproved === 'undefined')
+  .filter((task) => !task.is18Plus || isUser18Plus)
+  .filter((task) =>
+    task.title.toLowerCase().includes(searchInput.toLowerCase()) ||
+    task.description.toLowerCase().includes(searchInput.toLowerCase()) ||
+    task.category.toLowerCase().includes(searchInput.toLowerCase())
   );
+
+
 
   if (!session || !session.user) {
     return (
@@ -236,7 +266,7 @@ const TaskFeedPage: FC = () => {
   return (
     <div className="flex h-screen bg-gradient-to-br from-indigo-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors">
       {/* Left Sidebar */}
-      <Feedside />
+      <Feedside initialTotals={totals} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">

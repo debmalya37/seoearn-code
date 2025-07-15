@@ -11,7 +11,11 @@ interface Withdrawal {
   userEmail: string;
   txnId: string;
   amount: number;
-  details: { cntId: string; account: string; curOut: string };
+  details?: {
+    cntId?: string;
+    account?: string;
+    curOut?: string;
+  };
   date: string;
 }
 
@@ -83,6 +87,17 @@ export default function AdminWithdrawPage() {
     }
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'approved':
+        return 'bg-green-100 text-green-700';
+      case 'rejected':
+        return 'bg-red-100 text-red-700';
+      default:
+        return 'bg-yellow-100 text-yellow-700';
+    }
+  };
+
   return (
     <div className="p-6 md:p-10 bg-gray-100 min-h-screen">
       <div className="flex items-center justify-between mb-6">
@@ -97,59 +112,69 @@ export default function AdminWithdrawPage() {
       {loading ? (
         <p className="text-gray-600">Loading withdrawal requests...</p>
       ) : withdrawals.length === 0 ? (
-        <p className="text-gray-600">No pending withdrawal requests.</p>
+        <p className="text-gray-600">No withdrawal requests found.</p>
       ) : (
         <div className="space-y-4">
-          {withdrawals.map((w) => (
-            <div
-              key={w.txnId}
-              className="bg-white rounded-lg shadow-sm p-5 flex flex-col md:flex-row md:items-center md:justify-between hover:shadow-md transition"
-            >
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      {w.userName} <span className="text-sm text-gray-500">({w.userEmail})</span>
-                    </h2>
-                    <p className="text-sm text-gray-500">
-                      {new Date(w.date).toLocaleString()}
-                    </p>
+          {withdrawals.map((w) => {
+            const isProcessed = w.status === 'approved' || w.status === 'rejected';
+            const details = w.details || {};
+            return (
+              <div
+                key={w.txnId}
+                className="bg-white rounded-lg shadow-sm p-5 flex flex-col md:flex-row md:items-center md:justify-between hover:shadow-md transition"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-800">
+                        {w.userName}{' '}
+                        <span className="text-sm text-gray-500">({w.userEmail})</span>
+                      </h2>
+                      <p className="text-sm text-gray-500">
+                        {new Date(w.date).toLocaleString()}
+                      </p>
+                    </div>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(w.status)}`}>
+                      {w.status.toUpperCase()}
+                    </span>
                   </div>
-                  <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-medium">
-                    {w.status}
-                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-sm text-gray-700 mb-3">
+                    <p><strong>Amount:</strong> {w.amount} {details.curOut || 'N/A'}</p>
+                    <p><strong>Txn ID:</strong> {w.txnId}</p>
+                    <p><strong>Account:</strong> {details.account || 'N/A'}</p>
+                    <p><strong>Cnt ID:</strong> {details.cntId || 'N/A'}</p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-sm text-gray-700 mb-3">
-                  <p><strong>Amount:</strong> {w.amount} {w.details.curOut}</p>
-                  <p><strong>Txn ID:</strong> {w.txnId}</p>
-                  <p><strong>Account:</strong> {w.details.account}</p>
-                  <p><strong>Cnt ID:</strong> {w.details.cntId}</p>
-                </div>
-              </div>
+                <div className="flex items-center gap-3 mt-4 md:mt-0 md:ml-6">
+  {w.status === 'processing' && (
+    <>
+      <input
+        type="checkbox"
+        checked={selected.has(w.txnId)}
+        onChange={() => toggleSelection(w.txnId)}
+        className="w-4 h-4 border-gray-300 text-green-600 focus:ring-green-500"
+      />
+      <Button
+        onClick={() => handleAction(w.txnId, 'approve')}
+        className="bg-blue-600 hover:bg-blue-700 text-white"
+      >
+        Approve
+      </Button>
+      <Button
+        variant="destructive"
+        onClick={() => handleAction(w.txnId, 'reject')}
+      >
+        Reject
+      </Button>
+    </>
+  )}
+</div>
 
-              <div className="flex items-center gap-3 mt-4 md:mt-0 md:ml-6">
-                <input
-                  type="checkbox"
-                  checked={selected.has(w.txnId)}
-                  onChange={() => toggleSelection(w.txnId)}
-                  className="w-4 h-4 border-gray-300 text-green-600 focus:ring-green-500"
-                />
-                <Button
-                  onClick={() => handleAction(w.txnId, 'approve')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  Approve
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleAction(w.txnId, 'reject')}
-                >
-                  Reject
-                </Button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

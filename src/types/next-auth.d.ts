@@ -10,6 +10,9 @@ declare module 'next-auth' {
         username?: string;
         messages?: [];
         accessToken?: string;
+        ratings?: number[];
+        averageRating?: number;
+  
     }
     interface Session {
         accessToken?: string;
@@ -19,6 +22,8 @@ declare module 'next-auth' {
             isAcceptingMessages?: boolean;
             username?: string;
             messages?: [];
+            ratings?: number[];             // ✅ changed from number to number[]
+    averageRating?: number;  
             
         } & DefaultSession['user']
     }
@@ -33,5 +38,7 @@ declare module 'next-auth/jwt' {
         username?: string;
         messages?: [];        
         accessToken?: string;
+        ratings?: number[];             // ✅ changed from number to number[]
+    averageRating?: number;  
     }
 }

@@ -222,9 +222,9 @@ export default function Home() {
 
   <div className="relative max-w-6xl mx-auto grid gap-8 md:grid-cols-3 z-10">
     {[
-      { icon: 'mdi:wallet', label: 'Paid Out', end: 634000000 },
-      { icon: 'mdi:calendar-check', label: 'Daily Tasks', end: 1500 },
-      { icon: 'mdi:briefcase', label: 'Advertisers', end: 54000 },
+      { icon: 'mdi:wallet', label: 'Paid Out', end: 13400 },
+      { icon: 'mdi:calendar-check', label: 'Daily Tasks', end: 100 },
+      { icon: 'mdi:briefcase', label: 'Advertisers', end: 500 },
     ].map((s, idx) => (
       <motion.div
         key={s.label}

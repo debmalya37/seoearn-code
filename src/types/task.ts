@@ -15,5 +15,9 @@ export interface TaskData {
     budget: number;
     status?: string; // Assuming `status` might be an optional field
     maxUsersCanDo: number;
+    isApproved: false,   // new field
+  isRejected: false ,
+  is18Plus: boolean;
+
   }
   

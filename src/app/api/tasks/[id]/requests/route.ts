@@ -82,7 +82,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 
   // Map each subdoc's _id → id
-  const requests = (task.requests || []).map(r => ({
+  const session = await getServerSession(authOptions);
+if (!session?.user?.email) {
+  return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+}
+
+const requests = (task.requests || [])
+  .filter(r => (r.userId as any)?.email === session.user.email)
+  .map(r => ({
     id: r._id.toString(),
     userId: {
       username: (r.userId as any).username,
@@ -93,6 +100,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     status: r.status,
     createdAt: r.createdAt.toISOString(),
   }));
+
 
   return NextResponse.json({ success: true, requests }, { status: 200 });
 }

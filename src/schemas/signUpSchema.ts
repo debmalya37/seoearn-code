@@ -7,11 +7,11 @@ export const usernameValidation = z
 
 export const signUpSchema = z.object({
   username: usernameValidation,
-  email: z.string().email({ message: 'invalid email address' }),
-  phoneNumber: z
-    .string()
-    .regex(/^\d{10}$/, "phone number must be 10 digits")
-    .transform((val) => parseInt(val, 10)),
+  name: z
+    .string(),
+    email: z.string().email({ message: 'invalid email address' }),
+    countryCode: z.string().min(1, 'Select a country code'),
+    phoneNumber: z.string().min(5, 'Enter valid number'),
   password: z.string().min(6, { message: "password must be at least 6 chars" }),
   gender: z.string(),
   age: z

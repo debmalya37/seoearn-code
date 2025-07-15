@@ -73,20 +73,20 @@ export default function Nav() {
                   before:rounded-tr-3xl before:rounded-br-3xl
                   before:bg-gradient-to-br before:from-white/10 before:to-transparent
                   before:blur-xl before:z-[-1]
-                  shadow-2xl rounded-tr-3xl rounded-br-3xl h-[94vh]
+                  shadow-2xl rounded-tr-3xl rounded-br-3xl h-[92vh]
                   `}
               >
                   <div className="absolute inset-y-0 left-0 w-64 bg-gray-700 rounded-md top-0" />
                 {/* Notifications & Language */}
                 <div className="w-full px-4 flex justify-end">
-                  <NotificationBell />
+                  {/* <NotificationBell /> */}
                 </div>
-                <LanguageToggle />
+                {/* <LanguageToggle /> */}
 
                 {/* Avatar */}
-                <div className="relative w-20 h-20 rounded-full overflow-hidden ring-2 ring-white/40">
+                <div className="relative w-32 h-20  overflow-hidden">
                 <Link href={'/'}>
-                  <Image src={avatar} alt="User" fill className="object-cover" /></Link>
+                  <Image src={avatar} alt="User" fill className="object-fit" /></Link>
                 </div>
 
                 {/* Username */}
@@ -125,7 +125,7 @@ export default function Nav() {
                   <button
                     onClick={() => signOut()}
                     className={`
-                      w-full mx-4 py-2
+                      w-2/4 mx-4 py-2
                       bg-red-500/80 backdrop-blur-sm
                       text-white font-semibold
                       rounded-full

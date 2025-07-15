@@ -3,27 +3,25 @@ import dbConnect from '@src/lib/dbConnect';
 import UserModel from '@src/models/userModel';
 import bcrypt from 'bcryptjs';
 import { generateReferralCode } from '@src/app/utils/referral';
-import { Types } from 'mongoose';
 
 export async function POST(request: Request) {
   await dbConnect();
 
   try {
     const {
+      name,
       username,
-      phoneNumber,
+      phoneNumber, // now full international number e.g. "+91XXXXXXXXXX"
       email,
       password,
       gender,
       age,
-      paymentPreference,
-      paymentGateway,
       referralCode,       // optional ?ref=
       deviceIdentifier,
     } = await request.json();
 
     // 1. Basic validation
-    if (!username || !phoneNumber || !email || !password || !gender || !age) {
+    if (!name || !username || !phoneNumber || !email || !password || !gender || !age) {
       return new Response(
         JSON.stringify({
           success: false,
@@ -69,8 +67,9 @@ export async function POST(request: Request) {
     // 4. Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 5. Build new user (referredBy will remain null unless we find a referrer)
+    // 5. Build new user
     const newUser = new UserModel({
+      name,
       email,
       username,
       phoneNumber,
@@ -79,9 +78,7 @@ export async function POST(request: Request) {
       isAcceptingMessages: true,
       gender,
       age,
-      paymentPreference,
-      paymentGateway,
-      referredBy: null,      // <-- default
+      referredBy: null,
       messages: [],
       tasks: [],
       deviceIdentifier,
@@ -96,17 +93,16 @@ export async function POST(request: Request) {
     // 6. Generate a referral code
     newUser.referralCode = generateReferralCode(username, newUser._id.toString());
 
-    // 7. If someone passed in a `referralCode`, look up that user:
+    // 7. Handle referrer if referralCode is present
     if (referralCode) {
       const referringUser = await UserModel.findOne({ referralCode });
       if (referringUser) {
-        // **Store the referrer’s _id**, not their email**
         newUser.referredBy = referringUser._id;
 
-        // update referrer’s referrals list + count + notification
         referringUser.referrals = referringUser.referrals || [];
         referringUser.referrals.push(newUser._id);
         referringUser.referralCount = (referringUser.referralCount || 0) + 1;
+
         referringUser.notifications = referringUser.notifications || [];
         referringUser.notifications.push({
           message: `${newUser.username} used your referral code!`,
@@ -114,11 +110,12 @@ export async function POST(request: Request) {
           date: new Date(),
           read: false,
         });
+
         await referringUser.save();
       }
     }
 
-    // 8. Finally save the new user
+    // 8. Save the new user
     await newUser.save();
 
     return new Response(
