@@ -237,8 +237,20 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
         setValue("username", u.username);
         setValue("referralCode", u.referralCode);
         setProfilePicture(u.profilePicture || profilepicDemo);
-        setPhoneNumber(u.phoneNumber || "");
-        setCountryCode(u.countryCode || "");
+        // ─── extract dial‑in code from u.phoneNumber ───
+       const raw = u.phoneNumber || "";
+       // sort codes by length desc so "971" matches before "9"
+       const codes = countryCodeOptions
+         .map(o => o.value)
+         .sort((a, b) => b.length - a.length);
+       const dial = codes.find(code => raw.startsWith(code));
+       if (dial) {
+         setCountryCode(dial);
+         setPhoneNumber(raw.slice(dial.length));
+       } else {
+         setCountryCode(null);
+         setPhoneNumber(raw);
+       }
         setGender(u.gender || "");
         setIsHidden(u.isHidden || false);
         setIs18Plus(u.is18Plus || false);
