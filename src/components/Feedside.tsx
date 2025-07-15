@@ -103,10 +103,10 @@ const Feedside = ({
 
     {/* Revenue Totals */}
     <div className="p-4 space-y-2">
-      <div className="bg-green-500 text-white p-3 rounded">
+      {/* <div className="bg-green-500 text-white p-3 rounded">
         <h4 className="font-semibold">Seo Earning Space Revenue</h4>
         <p className="text-xl">${totals.totalGross.toFixed(2)}</p>
-      </div>
+      </div> */}
 
       <button
         onClick={refresh}
