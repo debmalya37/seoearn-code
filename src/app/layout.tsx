@@ -36,8 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
           {/* Toaster for notifications */}
           <Toaster />
-          {/* <Footer /> */}
         </body>
+          <Footer />
         </AuthProvider>        
     </html>
   )

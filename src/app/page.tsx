@@ -319,7 +319,7 @@ export default function Home() {
 
 {/* Footer */}
      
-<footer className="bg-gray-900 text-gray-400 py-16 px-6 lg:px-24 border-[#000318] border-t-[5px] border-x-0">
+{/* <footer className="bg-gray-900 text-gray-400 py-16 px-6 lg:px-24 border-[#000318] border-t-[5px] border-x-0">
   <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
     <div>
       <h5 className="text-white font-semibold mb-4">About</h5>
@@ -361,7 +361,7 @@ export default function Home() {
     </div>
   </div>
   <p className="text-center text-sm mt-12">&copy; {new Date().getFullYear()} SEO Earning Space. All rights reserved.</p>
-</footer>
+</footer> */}
 
     </div>
   );
