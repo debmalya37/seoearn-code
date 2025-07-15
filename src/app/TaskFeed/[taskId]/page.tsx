@@ -300,7 +300,7 @@ const TaskDetailsPage: FC = () => {
             {/* Submit */}
             {!isRatingSufficient && (
               <p className="text-red-500 font-medium mb-2">
-                You can't submit this task because your rating is below the
+                You can&apos;t submit this task because your rating is below the
                 required {task.rating}/5.
               </p>
             )}

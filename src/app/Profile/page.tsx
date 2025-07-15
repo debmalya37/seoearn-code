@@ -440,7 +440,7 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
     className="mr-2"
     // disabled={!isEmailVerified}
   />
-  <span className="text-sm">I'm 18+</span>
+  <span className="text-sm">I&apos;m 18+</span>
 </label>
 
                   <label className="flex flex-col">
