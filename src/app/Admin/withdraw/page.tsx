@@ -150,12 +150,12 @@ export default function AdminWithdrawPage() {
                 <div className="flex items-center gap-3 mt-4 md:mt-0 md:ml-6">
   {w.status === 'processing' && (
     <>
-      <input
+      {/* <input
         type="checkbox"
         checked={selected.has(w.txnId)}
         onChange={() => toggleSelection(w.txnId)}
         className="w-4 h-4 border-gray-300 text-green-600 focus:ring-green-500"
-      />
+      /> */}
       <Button
         onClick={() => handleAction(w.txnId, 'approve')}
         className="bg-blue-600 hover:bg-blue-700 text-white"
