@@ -84,10 +84,17 @@ export default function Nav() {
                 {/* <LanguageToggle /> */}
 
                 {/* Avatar */}
-                <div className="relative w-32 h-20  overflow-hidden">
-                <Link href={'/'}>
-                  <Image src={avatar} alt="User" fill className="object-fit" /></Link>
-                </div>
+                <div className="relative w-36 h-20 rounded-xl overflow-hidden bg-gradient-to-br from-green-400 via-blue-200 to-blue-500 shadow-lg ring-2 ring-white/20">
+  <Link href="/">
+    <Image
+      src={avatar}
+      alt="User"
+      fill
+      className="object-contain p-2"
+    />
+  </Link>
+</div>
+
 
                 {/* Username */}
                 {session?.user?.username && (
