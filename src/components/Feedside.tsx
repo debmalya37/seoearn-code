@@ -108,13 +108,13 @@ const Feedside = ({
         <p className="text-xl">${totals.totalGross.toFixed(2)}</p>
       </div> */}
 
-      <button
+      {/* <button
         onClick={refresh}
         disabled={isPending}
         className="mt-2 w-full bg-gray-300 hover:bg-gray-400 text-gray-800 py-1 rounded transition"
       >
         {isPending ? 'Refreshing…' : 'Refresh Revenue'}
-      </button>
+      </button> */}
     </div>
   </div>
   </>
