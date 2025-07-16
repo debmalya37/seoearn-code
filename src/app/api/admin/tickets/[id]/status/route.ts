@@ -1,22 +1,34 @@
-// pages/api/admin/tickets/[id]/status.ts
-import { NextApiRequest, NextApiResponse } from 'next';
+// src/app/api/admin/tickets/[id]/status/route.ts
+import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@src/lib/dbConnect';
 import Ticket from '@src/models/ticketModel';
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import authOptions from '@src/app/api/auth/[...nextauth]/options';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getSession({ req });
-  if (!session?.user?.isAdmin) return res.status(401).json({ success:false });
-
-  await dbConnect();
-  const { id } = req.query as { id: string };
-  const { status: newStatus } = req.body as { status: 'open'|'closed' };
-  if (!['open','closed'].includes(newStatus)) {
-    return res.status(400).json({ success:false, message:'Bad status' });
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  // 1) Auth check
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.isAdmin) {
+    return NextResponse.json({ success: false }, { status: 401 });
   }
 
-  const ticket = await Ticket.findByIdAndUpdate(id, { status: newStatus }, { new:true });
-  if (!ticket) return res.status(404).json({ success:false, message:'Not found' });
+  // 2) Validate
+  const { status: newStatus } = await req.json() as { status: 'open'|'closed' };
+  if (!['open', 'closed'].includes(newStatus)) {
+    return NextResponse.json({ success: false, message: 'Invalid status' }, { status: 400 });
+  }
 
-  return res.json({ success:true, ticket });
+  // 3) Update in DB
+  await dbConnect();
+  const ticket = await Ticket.findByIdAndUpdate(
+    params.id,
+    { status: newStatus },
+    { new: true }
+  );
+  if (!ticket) {
+    return NextResponse.json({ success: false, message: 'Not found' }, { status: 404 });
+  }
+
+  // 4) Return
+  return NextResponse.json({ success: true, ticket });
 }
