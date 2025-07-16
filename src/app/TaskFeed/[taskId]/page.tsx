@@ -54,6 +54,8 @@ const TaskDetailsPage: FC = () => {
     rating: number;
   } | null>(null);
   
+ 
+  
 
   useEffect(() => {
     const fetchUserRating = async () => {
@@ -239,14 +241,15 @@ const TaskDetailsPage: FC = () => {
                 </p>
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                  Description
-                </h2>
-                <p className="mt-1 text-gray-800 dark:text-gray-200">
-                {linkify(task.description)}
+  <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+    Description
+  </h2>
+  <p
+    className="mt-1 text-gray-800 dark:text-gray-200 whitespace-pre-line"
+    dangerouslySetInnerHTML={{ __html: linkify(task.description) }}
+  />
+</div>
 
-                </p>
-              </div>
             </div>
           </div>
 

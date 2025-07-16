@@ -364,6 +364,37 @@ function SignUpPage() {
               )}
             />
 
+<FormField
+  name="ndaAccepted"
+  control={form.control}
+  rules={{ required: true }}
+  render={({ field }) => (
+    <FormItem className="flex items-start space-x-2">
+      <FormControl>
+        <input
+          title="I agree to the User Agreement / NDA"
+          type="checkbox"
+          checked={field.value}
+          onChange={(e) => field.onChange(e.target.checked)}
+          className="mt-1 accent-indigo-500"
+        />
+      </FormControl>
+      <div className="text-sm text-gray-300">
+        I agree to the{' '}
+        <Link
+          href="/nda"
+          target="_blank"
+          className="underline text-indigo-400 hover:text-indigo-300"
+        >
+          User Agreement / NDA
+        </Link>
+      </div>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
+
             {/* Submit */}
             <Button
               type="submit"

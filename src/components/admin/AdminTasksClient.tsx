@@ -185,7 +185,7 @@ async function fetchRatings(taskList: Task[]) {
           <thead className="bg-gray-100">
             <tr>
               {[
-                '⇕','Title','Desc','Rating','Status',
+                '⇕','Title','Rating','Status',
                 'Reward','Budget','Max','Advertiser',
                 'Subs','Actions'
               ].map(h => (
@@ -213,7 +213,7 @@ async function fetchRatings(taskList: Task[]) {
                   <td className="p-2 text-indigo-600">
                     <Link href={`/Admin/Utask/${t._id}`}>{t.title}</Link>
                   </td>
-                  <td className="p-2 truncate">{t.description}</td>
+                  {/* <td className="p-2 truncate">{t.description}</td> */}
                   <td className="p-2">{t.rating}</td>
                   <td className="p-2">{t.status}</td>
                   <td className="p-2">${t.reward}</td>

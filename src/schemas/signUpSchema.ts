@@ -19,4 +19,10 @@ export const signUpSchema = z.object({
     .regex(/^\d+$/, "age must be a number")
     .transform((val) => parseInt(val, 10)),
     referralCode: z.string().optional(),
+     // ✅ Add this field:
+  ndaAccepted: z.literal(true, {
+    errorMap: () => ({
+      message: 'You must accept the NDA agreement to proceed.',
+    }),
+  }),
 });
