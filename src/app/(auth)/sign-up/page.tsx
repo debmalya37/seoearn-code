@@ -300,23 +300,29 @@ function SignUpPage() {
 
             {/* Gender & Age */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                name="gender"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-300">Gender</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Gender"
-                        className="bg-gray-700 text-white border-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+  name="gender"
+  control={form.control}
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel className="text-gray-300">Gender</FormLabel>
+      <FormControl>
+        <select
+          {...field}
+          className="bg-gray-700 text-white border-none px-3 py-2 rounded-md w-full"
+        >
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+          <option value="Prefer not to say">Prefer not to say</option>
+        </select>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
 
               <FormField
                 name="age"
