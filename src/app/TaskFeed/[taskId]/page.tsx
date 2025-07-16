@@ -203,13 +203,13 @@ const TaskDetailsPage: FC = () => {
   <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300">
     Created By
   </h2>
-  <Link href={`u/${creatorInfo?.username}`}>
+  
   <p className="mt-1 text-gray-800 dark:text-gray-200">
     {creatorInfo
       ? `${creatorInfo.username} (${creatorInfo.rating}/5)`
       : task.createdBy}
   </p>
-  </Link>
+ 
 </div>
 
             </div>
