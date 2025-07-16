@@ -81,7 +81,7 @@ const Sidebar = () => {
         <div className="flex-1 p-4">
           <ul className="space-y-4">
             <li>
-              <Link href="/Wallet">
+              <Link href="/wallet">
                 <span className="flex items-center text-gray-700 hover:text-blue-500">
                   <FaWallet className="mr-3" />
                   MY WALLET

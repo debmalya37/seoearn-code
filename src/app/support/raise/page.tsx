@@ -21,7 +21,7 @@ export default function RaiseTicketPage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.message||'Error');
-      router.push('/support/my‑tickets');
+      router.push('/support/mytickets');
     } catch (err:any) {
       setError(err.message);
     } finally {
