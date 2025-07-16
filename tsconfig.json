@@ -41,7 +41,7 @@
     "src/schemas/*",
     "src/context/*",
     "src/components/*",
-    "src/utils/*",
+    "src/utils/*", "middleware.ts",
   
 
   ],

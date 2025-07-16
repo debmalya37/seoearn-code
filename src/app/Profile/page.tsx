@@ -42,7 +42,7 @@ const [userRating, setUserRating] = useState<number>(0);
     const fetchUserRating = async () => {
       if (!session?.user?._id) return;
       try {
-        const { data } = await axios.get(`/api/users/${session.user._id}`);
+        const { data } = await axios.get(`/api/users/${session.user?._id}`);
         if (data.success && Array.isArray(data.user.ratings)) {
           const ratingsArray = data.user.ratings;
           const average =

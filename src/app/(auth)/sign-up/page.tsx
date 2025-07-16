@@ -347,7 +347,7 @@ function SignUpPage() {
                   <FormLabel className="text-gray-300">Referred By</FormLabel>
                   <FormControl>
                     <Input
-                      readOnly
+                      
                       placeholder="Referral Code"
                       className="bg-gray-700 text-gray-300 border-none"
                       {...field}

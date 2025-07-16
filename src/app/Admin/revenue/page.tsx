@@ -1,7 +1,11 @@
-// src/app/admin/revenue/page.tsx
+// src/app/admin/revenue/page.tsx"
+
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import Sidebar from '@src/components/admin/Sidebar';
 import AdminRevenueClient from '@src/components/admin/AdminRevenueClient';
+// import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 interface RevenueEntry {
   id: string;
@@ -21,6 +25,10 @@ interface Totals {
 }
 
 async function fetchRevenue() {
+
+
+
+  
   const res = await fetch('https://seoearningspace.com/api/admin/revenue', { cache: 'no-store' });
   const { totals, list } = await res.json() as {
     totals: Totals;
@@ -62,8 +70,11 @@ async function fetchRevenue() {
 }
 
 export default async function Page() {
+
+
   const { totals, list } = await fetchRevenue();
 
+  
   return (
     <div className="flex min-h-screen">
       <Sidebar />

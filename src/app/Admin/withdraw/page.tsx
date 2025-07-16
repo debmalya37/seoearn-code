@@ -1,8 +1,10 @@
-'use client';
 
+export const dynamic = 'force-dynamic';
 import React, { useEffect, useState } from 'react';
 import { Button } from '@src/components/ui/button';
 import { useToast } from '@src/components/ui/use-toast';
+import Link from 'next/link';
+
 
 interface Withdrawal {
   userId: string;
@@ -24,6 +26,36 @@ export default function AdminWithdrawPage() {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+
+
+  // const { data: session } = useSession();
+  
+  //   if (
+  // //     !session ||
+  //  //    ![ 
+  //       'debmalyasen37@gmail.com',
+  //       'souvik007b@gmail.com',
+  //       'sb@gmail.com',
+  //       'seoearningspace@gmail.com',
+  //       'yashverdhan01@gamil.com',
+  //       'debmalyasen15@gmail.com',
+  //       'test@gmail.com'
+  //     ].includes(session.user!.email!)
+  //   ) {
+  //     return (
+  //       <div className="flex justify-center items-center h-full">
+  //         <div className="text-center">
+  //           <h1 className="text-2xl font-bold">Access Denied</h1>
+  //           <p className="mt-4">Please sign in as an admin to view this dashboard.</p>
+  //           <Link href="/sign-in">
+  //             <span className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+  //               Sign In
+  //             </span>
+  //           </Link>
+  //         </div>
+  //       </div>
+  //     );
+  //   }
 
   const fetchWithdrawals = async () => {
     setLoading(true);

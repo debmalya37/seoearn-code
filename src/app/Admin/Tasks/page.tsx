@@ -1,7 +1,11 @@
 // src/app/admin/tasks/page.tsx
+
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import AdminTasksClient from '@src/components/admin/AdminTasksClient'; // the client component
 import Sidebar from '@src/components/admin/Sidebar';
+
+import Link from 'next/link';
 
 interface Task {
   _id: string;
@@ -21,6 +25,8 @@ interface Request {
   userId: string;
   status: string;
 }
+
+
 async function fetchTasks(page: number, limit: number) {
   const res = await fetch(`https://seoearningspace.com/api/tasks?page=${page}&limit=${limit}`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch tasks');
@@ -28,7 +34,11 @@ async function fetchTasks(page: number, limit: number) {
   return { tasks: data.tasks as Task[], totalTasks: data.totalTasks as number };
 }
 
+
 export default async function Page() {
+  
+
+
   // Server‐side: fetch initial page 1
   const { tasks, totalTasks } = await fetchTasks(1, 10);
 

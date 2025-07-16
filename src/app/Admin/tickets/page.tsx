@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 interface Ticket {
   _id: string;
@@ -13,6 +14,12 @@ interface Ticket {
 
 export default function AdminTicketsPage() {
   const { data: session, status } = useSession();
+
+
+
+  
+   
+
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [error, setError] = useState<string | null>(null);
   // track per-ticket reply text
@@ -30,8 +37,34 @@ export default function AdminTicketsPage() {
   }, [status, session]);
 
   if (status === 'loading') return <main className="p-6">Loading…</main>;
+  if (
+    !session ||
+     ![ 
+      'debmalyasen37@gmail.com',
+      'souvik007b@gmail.com',
+      'sb@gmail.com',
+      'seoearningspace@gmail.com',
+      'yashverdhan01@gamil.com',
+      'debmalyasen15@gmail.com',
+      'test@gmail.com'
+    ].includes(session.user!.email!)
+  ) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Access Denied</h1>
+          <p className="mt-4">Please sign in as an admin to view this dashboard.</p>
+          <Link href="/sign-in">
+            <span className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+              Sign In
+            </span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
   if (!session)          return <main className="p-6">Sign in to view tickets.</main>;
-  if (!session.user) return <main className="p-6">Access Denied</main>;
+//   if (!session.user) return <main className="p-6">Access Denied</main>;
 
   const handleReplyChange = (id: string, val: string) => {
     setReplies(r => ({ ...r, [id]: val }));

@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@src/components/ui/select';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 const TaskDetailsPage: FC = () => {
   const { taskId } = useParams();
@@ -48,6 +49,11 @@ const TaskDetailsPage: FC = () => {
   const submissionLimit = task?.maxUsersCanDo ?? 1;
   const isLimitReached = submissionCount >= submissionLimit;
   const slotsRemaining = Math.max(submissionLimit - submissionCount, 0);
+  const [creatorInfo, setCreatorInfo] = useState<{
+    username: string;
+    rating: number;
+  } | null>(null);
+  
 
   useEffect(() => {
     const fetchUserRating = async () => {
@@ -77,6 +83,20 @@ const TaskDetailsPage: FC = () => {
         const response = await axios.get(`/api/tasks/${taskId}`);
         if (response.data.success) {
           setTask(response.data.task);
+          if (response.data.task?.createdBy) {
+            const userRes = await axios.get(`/api/users/${response.data.task.createdBy}`);
+            if (userRes.data.success) {
+              const creator = userRes.data.user;
+              const avgRating = Array.isArray(creator.ratings) && creator.ratings.length > 0
+                ? creator.ratings.reduce((a: number, b: number) => a + b, 0) / creator.ratings.length
+                : 0;
+              setCreatorInfo({
+                username: creator.username || creator.email, // fallback to email if username missing
+                rating: parseFloat(avgRating.toFixed(2)),
+              });
+            }
+          }
+          
           const { data: reqData } = await axios.get(
             `/api/tasks/${taskId}/requests`
           );
@@ -180,13 +200,18 @@ const TaskDetailsPage: FC = () => {
                 </span>
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                  Created By
-                </h2>
-                <p className="mt-1 text-gray-800 dark:text-gray-200">
-                  {task.createdBy}
-                </p>
-              </div>
+  <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+    Created By
+  </h2>
+  <Link href={`u/${creatorInfo?.username}`}>
+  <p className="mt-1 text-gray-800 dark:text-gray-200">
+    {creatorInfo
+      ? `${creatorInfo.username} (${creatorInfo.rating}/5)`
+      : task.createdBy}
+  </p>
+  </Link>
+</div>
+
             </div>
             <div className="space-y-4">
               <div>
@@ -261,13 +286,13 @@ const TaskDetailsPage: FC = () => {
                 htmlFor="fileUrl"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                File URL
+                File URL (if you are suppose to send any image screenshot, send it via uploading it to google drive or any drive link and share the drive link of the fle here):
               </label>
               <Input
                 id="fileUrl"
                 type="url"
                 name="fileUrl"
-                placeholder="https://example.com/your-file"
+                placeholder="https://drive.google.com/your-file"
                 value={formState.fileUrl}
                 onChange={(e) =>
                   setFormState((prev) => ({
@@ -349,7 +374,7 @@ const TaskDetailsPage: FC = () => {
                     )}
                     {s.fileUrl && (
                       <p>
-                        <strong>File: </strong>
+                        <strong>File : </strong>
                         <a
                           href={s.fileUrl}
                           target="_blank"

@@ -44,6 +44,10 @@ const [ratings, setRatings] = useState<Record<string,{ average: number; count: n
   const limit = 10;
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
+ 
+
+  
+
   // 1) Fetch a page of tasks
   async function loadPage(p: number) {
     const res = await fetch(`/api/tasks?page=${p}&limit=${limit}`);
@@ -145,6 +149,33 @@ async function fetchRatings(taskList: Task[]) {
   };
 
   if (!session) return <p>Loading…</p>;
+
+  if (
+    !session ||
+     ![ 
+      'debmalyasen37@gmail.com',
+      'souvik007b@gmail.com',
+      'sb@gmail.com',
+      'seoearningspace@gmail.com',
+      'yashverdhan01@gamil.com',
+      'debmalyasen15@gmail.com',
+      'test@gmail.com'
+    ].includes(session.user!.email!)
+  ) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Access Denied</h1>
+          <p className="mt-4">Please sign in as an admin to view this dashboard.</p>
+          <Link href="/sign-in">
+            <span className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+              Sign In
+            </span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="p-6">

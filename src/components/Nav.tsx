@@ -30,6 +30,7 @@ const menuItems = [
   { href: '/referrals', icon: FaUsers,      label: 'Referrals' },
   { href: '/Profile',   icon: FaUserCog,    label: 'My Profile' },
   { href: '/CreateAdvertisement',       icon: BsMegaphoneFill, label: 'Ads Management' },
+  { href: '/mysubmissions',       icon: BsMegaphoneFill, label: 'My Submissions' },
   { href: '/support/raise', icon: FaTicketAlt, label: 'Raise Ticket' },
 ];
 

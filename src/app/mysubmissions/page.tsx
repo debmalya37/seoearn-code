@@ -53,7 +53,7 @@ export default function MySubmissionsPage() {
 
   return (
     <main className="min-h-screen p-4 md:p-8 bg-gray-50">
-      <h1 className="text-3xl font-extrabold mb-6 text-gray-800">My Submissions</h1>
+      <h1 className="text-3xl font-extrabold mb-6 text-gray-800 text-center">My Submissions</h1>
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {submissions.map(s => (
           <div key={`${s.taskId}-${s.submittedAt}`} className="bg-white rounded-xl shadow p-5 flex flex-col justify-between">

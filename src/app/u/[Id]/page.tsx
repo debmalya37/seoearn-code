@@ -3,11 +3,17 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import defaultProfile from "../../../assets/default_profile.png";
+import { useSession } from 'next-auth/react';
+import axios from 'axios';
 
 const UserProfile = ({ params }: { params: { Id: string } }) => {
   const [user, setUser] = useState<any>(null);
   const [tasks, setTasks] = useState<any[]>([]);
   const router = useRouter();
+  const [walletBalance, setWalletBalance] = useState<number>(0);
+
+
+  const {data: session} = useSession();
   
   const UserId = params.Id;
   
@@ -19,15 +25,50 @@ const UserProfile = ({ params }: { params: { Id: string } }) => {
       if (data.success) {
         setUser(data.user);
         setTasks(data.tasks);
+    
+        // Wallet balance fetch
+        try {
+          const balanceRes = await fetch(`/api/wallet/balance?userId=${data.user._id}`);
+          const balanceData = await balanceRes.json();
+          if (balanceData.success) {
+            setWalletBalance(balanceData.balance);
+          }
+        } catch (error) {
+          console.error('Error fetching wallet balance:', error);
+        }
+    
       } else {
         console.error(data.message);
-        // Handle error (e.g., redirect to a 404 page)
         router.push('/404');
       }
     };
+    
 
     fetchUserProfile();
   }, [UserId, router]);
+
+  const [userRating, setUserRating] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchUserRating = async () => {
+      if (!session?.user?._id) return;
+      try {
+        const { data } = await axios.get(`/api/users/${session.user._id}`);
+        if (data.success && Array.isArray(data.user.ratings)) {
+          const ratingsArray = data.user.ratings;
+          const average =
+            ratingsArray.length > 0
+              ? ratingsArray.reduce((a: number, b: number) => a + b, 0) / ratingsArray.length
+              : 0;
+          setUserRating(average);
+        }
+      } catch (err) {
+        console.error('Error fetching user rating:', err);
+      }
+    };
+  
+    fetchUserRating();
+  }, [session?.user?._id]);
 
   if (!user) return <div>Loading...</div>;
 
@@ -49,9 +90,11 @@ const UserProfile = ({ params }: { params: { Id: string } }) => {
           <p className="text-xl text-purple-600">@{user.username}</p>
           <p className="text-xl text-gray-700 mt-1">{user.email}</p>
           <p className="text-xl text-gray-700 mt-1">Phone: {user.phoneNumber}</p>
-          <p className="text-xl text-orange-600 mt-1">Total Deposited: ${totalAmountDeposited.toFixed(2)}</p>
-          <p className="text-xl text-pink-600 mt-1">Total Income: ${totalIncome.toFixed(2)}</p>
-          <p className="text-xl text-blue-600 mt-1">Rating: {user.rating}</p>
+          <p className="text-xl text-green-600 mt-1">Wallet Balance: ${walletBalance.toFixed(2)}</p>
+
+          {/* <p className="text-xl text-orange-600 mt-1">Total Deposited: ${totalAmountDeposited.toFixed(2)}</p> */}
+          {/* <p className="text-xl text-pink-600 mt-1">Total Income: ${totalIncome.toFixed(2)}</p> */}
+          <p className="text-xl text-blue-600 mt-1">Rating: {userRating}</p>
         </div>
       </header>
 
@@ -63,7 +106,7 @@ const UserProfile = ({ params }: { params: { Id: string } }) => {
               <tr>
                 <th className="px-4 py-2 text-left text-gray-500">Title</th>
                 <th className="px-4 py-2 text-left text-gray-500">Description</th>
-                <th className="px-4 py-2 text-left text-gray-500">Rating</th>
+                {/* <th className="px-4 py-2 text-left text-gray-500">Rating</th> */}
                 <th className="px-4 py-2 text-left text-gray-500">Category</th>
                 <th className="px-4 py-2 text-left text-gray-500">Created At</th>
                 <th className="px-4 py-2 text-left text-gray-500">Status</th>
@@ -81,7 +124,7 @@ const UserProfile = ({ params }: { params: { Id: string } }) => {
                     </a>
                   </td>
                   <td className="px-4 py-2">{task.description}</td>
-                  <td className="px-4 py-2">{task.rating}</td>
+                  {/* <td className="px-4 py-2">{userRating}</td> */}
                   <td className="px-4 py-2">{task.category}</td>
                   <td className="px-4 py-2">{new Date(task.createdAt).toLocaleString()}</td>
                   <td className="px-4 py-2">

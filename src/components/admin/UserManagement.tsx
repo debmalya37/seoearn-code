@@ -4,6 +4,8 @@
 import { useState, useEffect } from 'react';
 import { IUserCard } from '@src/app/Admin/Users/page'; // import the same interface
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 interface Props {
   initialUsers: IUserCard[];
@@ -14,7 +16,7 @@ export default function UserManagement({ initialUsers }: Props) {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
   const router = useRouter();
-
+  const { data: session } = useSession();
   // Filtered list based on search term:
   const filtered = users.filter((u) =>
     u.username.toLowerCase().includes(searchTerm.toLowerCase())
@@ -111,6 +113,36 @@ export default function UserManagement({ initialUsers }: Props) {
       setUserLoading(userId, false);
     }
   };
+
+  
+  
+    if (
+      !session ||
+       ![ 
+        'debmalyasen37@gmail.com',
+        'souvik007b@gmail.com',
+        'sb@gmail.com',
+        'seoearningspace@gmail.com',
+        'yashverdhan01@gamil.com',
+        'debmalyasen15@gmail.com',
+        'test@gmail.com'
+      ].includes(session.user!.email!)
+    ) {
+      return (
+        <div className="flex justify-center items-center h-full">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold">Access Denied</h1>
+            <p className="mt-4">Please sign in as an admin to view this dashboard.</p>
+            <Link href="/sign-in">
+              <span className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                Sign In
+              </span>
+            </Link>
+          </div>
+        </div>
+      );
+    }
+
 
   return (
     <div className="w-full max-w-screen-lg mx-auto space-y-4">
