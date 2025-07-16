@@ -6,6 +6,7 @@ import WalletBalance from '@src/components/WalletBalance';
 import TransactionHistory from '@src/components/TransactionHistory';
 import { useSession } from 'next-auth/react';
 import { WalletIcon, ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+import ExchangeCalculator from '@src/components/ExchangeCalculator';
 
 const CURRENCIES = ['USD'];
 const PRESET_AMOUNTS = [10, 20, 50, 100];
@@ -63,6 +64,8 @@ export default function WalletPage() {
           <h1 className="text-4xl font-extrabold text-green-800 mb-1">My Wallet</h1>
           <p className="text-gray-600">Securely manage your funds with instant deposits and tracked withdrawals.</p>
         </div>
+        {/* Exchange Calculator */}
+        <ExchangeCalculator />
 
         {/* Balance Card */}
         <div className="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">

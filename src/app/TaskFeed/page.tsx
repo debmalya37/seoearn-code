@@ -11,6 +11,8 @@ import axios, { AxiosError } from 'axios';
 import Link from 'next/link';
 import { Button } from '@src/components/ui/button';
 import { ApiResponse } from '@src/types/ApiResponse';
+import { getCountryFromPhone } from '@src/app/utils/getCountryFromPhone'
+
 import {
   Select,
   SelectTrigger,
@@ -90,11 +92,17 @@ const TaskFeedPage: FC = () => {
   const [sortBy, setSortBy] = useState('createdAt');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [userPhoneNo, setUserPhoneNo] = useState<string | null>(null);
   const { toast } = useToast();
   const { data: session } = useSession();
   const router = useRouter();
 
   const user = session?.user || null;
+
+  // const UserCountry = async () => {
+  //   const User =  await axios.get(`/api/users/${user?._id}`);
+  //   return User.data.user.country || '';
+  // }
 
   // Build query string, omitting `status` or `category` if they're "all"
   const buildQueryString = () => {
@@ -119,6 +127,12 @@ const TaskFeedPage: FC = () => {
           const userData = userRes.data.user;
       setIsBlocked(!!userData.isBlocked);
       setIsUser18Plus(!!userData.is18Plus); 
+      setUserPhoneNo(userData.phoneNumber || null);
+      console.log(userPhoneNo, 'User phone number');
+      console.log(userData.phoneNumber, 'User phone');
+      // Log user phone number
+      // Set user country
+      
         }
 
         if(userRes.data.user.isBlocked) {
@@ -127,6 +141,7 @@ const TaskFeedPage: FC = () => {
         if(userRes.data.user.isHidden) {
           router.push('/Profile');
         }
+       
       } catch (err) {
         console.error('Error fetching wallet balance:', err);
       }
@@ -239,14 +254,28 @@ const TaskFeedPage: FC = () => {
     setCurrentPage(page);
   };
 
-  const filteredTasks = tasks
+  // Determine user's country from phone number
+const userCountry = getCountryFromPhone(userPhoneNo || '');
+console.log('User country:', userCountry);
+
+// Filter tasks
+const filteredTasks = tasks
   .filter((task) => task.isApproved === true || typeof task.isApproved === 'undefined')
   .filter((task) => !task.is18Plus || isUser18Plus)
+  .filter((task) => task.status !== 'Completed')
+  .filter((task) => {
+    const allowedCountries = task.allowedCountries;
+    // If task has no restriction or empty list → show to all
+    if (!allowedCountries || allowedCountries.length === 0) return true;
+    // Otherwise, show only if user's country is in the allowed list
+    return userCountry ? allowedCountries.includes(userCountry) : false;
+  })
   .filter((task) =>
     task.title.toLowerCase().includes(searchInput.toLowerCase()) ||
     task.description.toLowerCase().includes(searchInput.toLowerCase()) ||
     task.category.toLowerCase().includes(searchInput.toLowerCase())
   );
+
 
 
 
@@ -375,10 +404,15 @@ const TaskFeedPage: FC = () => {
           ) : filteredTasks.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredTasks.map((task) => (
+                
                 <div
                   key={String(task._id)}
                   className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow flex flex-col"
                 >
+                  <Link
+                href={`/TaskFeed/${task._id}`}
+                className="hover:underline"
+              >
                   {/* Cover / Emoji */}
                   <div className="h-32 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-t-2xl flex items-center justify-center">
                     <span className="text-5xl">📝</span>
@@ -386,14 +420,11 @@ const TaskFeedPage: FC = () => {
 
                   {/* Content */}
                   <div className="p-4 flex-1 flex flex-col">
-                    <Link
-                      href={`/TaskFeed/${task._id}`}
-                      className="hover:underline"
-                    >
+                    
                       <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
                         {task.title}
                       </h2>
-                    </Link>
+                    
                     <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
                       {task.description}
                     </p>
@@ -432,6 +463,7 @@ const TaskFeedPage: FC = () => {
                       </span>
                     </div>
                   </div>
+                </Link>
                 </div>
               ))}
             </div>

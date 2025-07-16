@@ -16,6 +16,7 @@ export interface ITask extends Document {
   reward: number;
   budget: number;
   createdAt: Date;
+  allowedCountries?: string[]; // Array of ISO country codes (e.g., ['IN', 'US', 'BD'])
   is18Plus?: Boolean,
   isApproved?: Boolean, // Optional field to indicate if the task is approved
   isRejected?: Boolean, // Optional field to indicate if the task is rejected
@@ -101,6 +102,11 @@ const TaskSchema: Schema = new Schema({
     type: Number, 
     required: true 
   },
+  allowedCountries: {
+    type: [String], // Array of ISO country codes (e.g., ['IN', 'US', 'BD'])
+    default: [],
+  },
+  
   createdAt: {
     type: Date,
     required: true,

@@ -35,6 +35,7 @@ export async function POST(req: Request) {
     // Update task
     task.budget = netBudget;
     task.isApproved = true;
+    task.status = 'In Progress';
     await task.save();
 
     // Record fees

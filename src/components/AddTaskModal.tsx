@@ -5,7 +5,7 @@ import React, { FC, useState, useEffect, useMemo } from 'react';
 import { TaskData } from '@src/types/task';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@src/components/ui/use-toast';
-
+import countries from 'world-countries';
 interface AddTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -59,11 +59,20 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
     isApproved: false,   // new field
   isRejected: false ,
   is18Plus: false,
+  allowedCountries: [],
+
 
   });
 
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [submitting, setSubmitting] = useState(false);
+ 
+
+const countryOptions = countries.map(c => ({
+  name: c.name.common,
+  code: c.cca2, // ISO 3166-1 alpha-2 code
+}));
+
 
   // 1) Fetch wallet balance on mount
   useEffect(() => {
@@ -183,6 +192,25 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
               required
             />
           </div>
+          <div className="mb-4">
+  <label className="block mb-1">Allowed Countries (optional):</label>
+  <select
+  title='Select allowed countries for this task'
+    multiple
+    className="border p-2 w-full h-32"
+    value={taskData.allowedCountries}
+    onChange={(e) => {
+      const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
+      setTaskData((prev) => ({ ...prev, allowedCountries: selected }));
+    }}
+  >
+    {countryOptions.map((c) => (
+      <option key={c.code} value={c.code}>
+        {c.name}
+      </option>
+    ))}
+  </select>
+</div>
 
           {/* Category */}
           <div className="mb-4">

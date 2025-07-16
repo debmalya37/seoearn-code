@@ -438,6 +438,15 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
                       />
                     </div>
                   </label>
+                  <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={is18Plus}
+                        onChange={e => setIs18Plus(e.target.checked)}
+                        className="mr-2"
+                      />
+                      <span>I&apos;m 18+</span>
+                    </label>
 
                   {/* Checkboxes */}
                   <div className="flex space-x-4 md:col-span-2">
@@ -448,17 +457,13 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
                         onChange={e => setIsHidden(e.target.checked)}
                         className="mr-2"
                       />
-                      <span>Hide my profile</span>
+                      <span>I am on Vacation</span>
+                      
                     </label>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={is18Plus}
-                        onChange={e => setIs18Plus(e.target.checked)}
-                        className="mr-2"
-                      />
-                      <span>I&apos;m 18+</span>
-                    </label>
+                    <p className="text-yellow-800">
+    <strong>Heads up:</strong> You will be on Vacation mode untill you uncheck this option. You cannot access taskfeed or ads management pages on vacation mode.
+  </p>
+                    
                   </div>
 
                   {/* DOB */}

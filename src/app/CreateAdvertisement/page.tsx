@@ -188,6 +188,19 @@ useEffect(() => {
     }
   };
 
+  const handleMarkComplete = async (taskId: string) => {
+    try {
+      const { data } = await axios.put(`/api/tasks/${taskId}/complete`);
+      if (data.success) {
+        toast({ title: 'Task Completed', description: 'The task has been marked as completed.' });
+        fetchTasks(); // Refresh task list
+      }
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  
   // Approve handler
   const handleApprove = async (submissionId: string) => {
     if (!selectedTaskId) return;
@@ -295,13 +308,25 @@ useEffect(() => {
               {displayTasks.map(t => (
                 <tr key={t._id}>
                   <td className="px-6 py-4">
-                    <Link href={`/ads/${t._id}`} className="text-blue-600 hover:underline">
+                    <Link href={`/Ads/${t._id}`} className="text-blue-600 hover:underline">
                       {t.title}
                     </Link>
                   </td>
                   <td className="px-6 py-4">{t.category}</td>
                   <td className="px-6 py-4">${t.reward}</td>
                   <td className="px-6 py-4">${t.budget}</td>
+                  <td className="px-6 py-4">
+  {t.status === 'In Progress' && (
+    <Button
+      size="sm"
+      variant="default"
+      onClick={() => handleMarkComplete(t._id)}
+    >
+      Complete
+    </Button>
+  )}
+</td>
+
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                       t.status === 'Completed'
@@ -426,7 +451,7 @@ useEffect(() => {
                         setReasonText('');
                       }}
                     >
-                      Reject3
+                      Reject
                     </Button>
                   </div>
                 ) : (

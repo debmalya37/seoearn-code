@@ -18,6 +18,8 @@ export interface TaskData {
     isApproved: false,   // new field
   isRejected: false ,
   is18Plus: boolean;
+  allowedCountries: string[],
+
 
   }
   

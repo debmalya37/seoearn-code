@@ -23,6 +23,7 @@ interface NewTaskBody {
   status?: string;
   maxUsersCanDo?: number;
   is18Plus?: boolean; // ✅ Add this line
+  allowedCountries?: string[];
 }
 
 
@@ -123,6 +124,10 @@ export async function POST(request: Request) {
     // 6) Compute fee & net
 const feeAmount = parseFloat((grossBudget * PLATFORM_FEE_RATE).toFixed(2));
 const netBudget = parseFloat((grossBudget - feeAmount).toFixed(2));
+const allowedCountries = Array.isArray(body.allowedCountries)
+  ? body.allowedCountries
+  : [];
+
 
 // 7) Create Task with isApproved = false
 const maxUsers = Math.max(Math.floor(netBudget / reward), 1);
@@ -141,6 +146,7 @@ const newTask = await Task.create({
   is18Plus,   // Assuming default is false, can be changed based on user input
   isApproved: false,
   isRejected: false,
+  allowedCountries,
 });
 
 // 8) Link task to user
