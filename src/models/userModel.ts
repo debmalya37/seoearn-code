@@ -168,7 +168,7 @@ const UserSchema = new Schema<IUser>({
   referralCount: { type: Number, default: 0 },
   country: { type: String },
   transactions: [TransactionSchema],
-  ratings:      { type: [Number], default: [0] }, 
+  ratings:      { type: [Number], default: [5] }, 
   isBlocked: { type: Boolean, default: false },
   bankAccounts: [BankAccountSchema],
   resetOTP:         { type: String, default: null },

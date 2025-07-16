@@ -17,6 +17,7 @@ import {
   FaUserCog,
   FaDollarSign,
   FaTasks,
+  FaTicketAlt,
 } from 'react-icons/fa';
 import { BsMegaphoneFill } from 'react-icons/bs';
 import NotificationBell from './NotificationBell';
@@ -29,6 +30,7 @@ const menuItems = [
   { href: '/referrals', icon: FaUsers,      label: 'Referrals' },
   { href: '/Profile',   icon: FaUserCog,    label: 'My Profile' },
   { href: '/CreateAdvertisement',       icon: BsMegaphoneFill, label: 'Ads Management' },
+  { href: '/support/raise', icon: FaTicketAlt, label: 'Raise Ticket' },
 ];
 
 export default function Nav() {
@@ -76,7 +78,7 @@ export default function Nav() {
                   shadow-2xl rounded-tr-3xl rounded-br-3xl h-[92vh]
                   `}
               >
-                  <div className="absolute inset-y-0 left-0 w-64 bg-gray-700 rounded-r-md top-0" />
+                  <div className="absolute inset-y-0 left-0 w-64 bg-gray-700 top-0" />
                 {/* Notifications & Language */}
                 <div className="w-full px-4 flex justify-end">
                   {/* <NotificationBell /> */}

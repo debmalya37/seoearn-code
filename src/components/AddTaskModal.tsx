@@ -135,7 +135,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-8 rounded-lg w-full max-w-md h-[90vh] overflow-y-auto">
+      <div className="bg-white p-8 rounded-lg w-full max-w-3xl h-[90vh] overflow-y-auto">
         <h2 className="text-lg font-semibold mb-4">Add New Task</h2>
         {/* <span>{session?.user}</span> */}
         <p className="mb-4 text-sm text-gray-600">
@@ -143,7 +143,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
         </p>
         <form onSubmit={handleSubmit}>
           {/* Title */}
-          <div className="mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <label htmlFor="title" className="block mb-1">Title:</label>
             <input
               type="text"
@@ -164,7 +164,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
               name="description"
               value={taskData.description}
               onChange={handleChange}
-              className="border p-2 w-full"
+              className="border p-2 w-full h‑32"
               required
             />
           </div>
@@ -296,7 +296,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, onSubmit, create
             <button
               type="button"
               onClick={onClose}
-              className="ml-3 px-4 py-2 text-gray-700 hover:underline"
+              className="ml-3 px-4 py-2 text-gray-100 hover:underline"
             >
               Cancel
             </button>

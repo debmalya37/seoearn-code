@@ -8,6 +8,8 @@ import { useParams } from 'next/navigation';
 import { Button } from '@src/components/ui/button';
 import { Textarea } from '@src/components/ui/Textarea';
 import { Input } from '@src/components/ui/input';
+import { linkify } from '@src/app/utils/linkify';
+
 import {
   Select,
   SelectTrigger,
@@ -216,7 +218,8 @@ const TaskDetailsPage: FC = () => {
                   Description
                 </h2>
                 <p className="mt-1 text-gray-800 dark:text-gray-200">
-                  {task.description}
+                {linkify(task.description)}
+
                 </p>
               </div>
             </div>

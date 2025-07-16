@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { FaPlus } from 'react-icons/fa';
+import { FaBars, FaPlus, FaTimes } from 'react-icons/fa';
 import { Button } from '@src/components/ui/button';
 import axios from 'axios';
 import { useToast } from '@src/components/ui/use-toast';
@@ -21,6 +21,8 @@ export default function AdsSide({ onOpenNewAd }: AdsSideProps) {
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
   // const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const {data: session} = useSession();
+   // mobile menu open?
+   const [open, setOpen] = useState(false);
 
   const user = session?.user || null;
   console.log("adsside", user);
@@ -73,64 +75,74 @@ export default function AdsSide({ onOpenNewAd }: AdsSideProps) {
     load();
   }, [toast]);
 
-  return (
-    <aside className="w-64 bg-white/20 backdrop-blur-lg border-r border-white/30 flex-shrink-0 hidden lg:flex flex-col">
-      {/* Logo */}
+  // shared sidebar content
+  const SidebarContent = (
+    <>
       <div className="p-6 text-center border-b border-white/20">
         <h2 className="text-2xl font-bold text-blue-600">AdMaster</h2>
       </div>
-
-      {/* Live KPIs */}
-      <div className="p-4 space-y-4 flex-1">
+      <div className="p-4 space-y-4 flex-1 overflow-auto">
         <div className="bg-white/30 p-3 rounded backdrop-blur-sm">
           <h4 className="text-xs text-gray-900 uppercase">Balance</h4>
           <p className="text-xl font-semibold">
-            {loading ? '…' : balance !== null ? `$${balance.toFixed(2)}` : '--'}
+            {loading ? '…' : balance != null ? `$${balance.toFixed(2)}` : '--'}
           </p>
         </div>
         <div className="bg-white/30 p-3 rounded backdrop-blur-sm">
           <h4 className="text-xs text-gray-800 uppercase">Total Budget</h4>
           <p className="text-xl font-semibold">
-            {loading ? '…' : totalBudget !== null ? `$${totalBudget.toFixed(2)}` : '--'}
+            {loading ? '…' : totalBudget != null ? `$${totalBudget.toFixed(2)}` : '--'}
           </p>
         </div>
         <div className="bg-white/30 p-3 rounded backdrop-blur-sm">
           <h4 className="text-xs text-gray-800 uppercase">Active Ads</h4>
           <p className="text-xl font-semibold">
-            {loading ? '…' : activeAds !== null ? activeAds : '--'}
+            {loading ? '…' : activeAds != null ? activeAds : '--'}
           </p>
         </div>
-      </div>
-
-      {/* New Ad Button */}
       <div className="p-4 border-t border-white/20">
         {isBlocked ? (
-          <span
-            title="Your account is blocked. You cannot create new ads."
-            className="block"
-          >
-            <Button
-              disabled
-              className="w-full flex items-center justify-center space-x-2 bg-gray-500 cursor-not-allowed"
-            >
-              <FaPlus />
-              <span>New Ad</span>
-            </Button>
-          </span>
+          <Button disabled className="w-full flex items-center justify-center space-x-2 bg-gray-500 cursor-not-allowed">
+            <FaPlus /> <span>New Ad</span>
+          </Button>
         ) : (
-          <Button
-            onClick={onOpenNewAd}
-            className="w-full flex items-center justify-center space-x-2 bg-green-500 text-white hover:bg-green-600"
-          >
-            <FaPlus />
-            <span>New Ad</span>
+          <Button onClick={onOpenNewAd} className="w-full flex items-center justify-center space-x-2 bg-green-500 text-white hover:bg-green-600">
+            <FaPlus /> <span>New Ad</span>
           </Button>
         )}
       </div>
-      {/* Footer */}
-      {/* <div className="p-4 text-xs text-gray-300 border-t border-white/20">
-        © 2025 AdMaster Inc.
-      </div> */}
-    </aside>
+      </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile hamburger */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded shadow-lg"
+        onClick={() => setOpen(o => !o)}
+        aria-label={open ? 'Close menu' : 'Open menu'}
+      >
+        {open ? <FaTimes size={20} className='text-black' /> : <FaBars size={20} className='text-black' />}
+      </button>
+
+      {/* Mobile drawer */}
+      <aside
+        className={`
+          md:hidden fixed inset-y-0 left-0 w-64 bg-white/20 backdrop-blur-lg border-r border-white/30 z-40
+          transform transition-transform duration-300
+          ${open ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
+        {SidebarContent}
+      </aside>
+      {/* Overlay behind mobile drawer */}
+      {open && <div className="md:hidden fixed inset-0 bg-black/50 z-30" onClick={() => setOpen(false)} />}
+
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex md:flex-col md:shrink-0 md:w-64 bg-white/20 backdrop-blur-lg border-r border-white/30">
+        {SidebarContent}
+      </aside>
+    </>
   );
 }

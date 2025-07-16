@@ -3,6 +3,7 @@
 import React, { useState, useTransition, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { FaChevronCircleRight, FaChevronDown } from 'react-icons/fa';
 
 interface Request {
   _id: string;
@@ -41,6 +42,7 @@ const [newRating, setNewRating] = useState(0);
     // 1. Extend your Tasks state to carry per‑user rating
 const [ratings, setRatings] = useState<Record<string,{ average: number; count: number }>>({});
   const limit = 10;
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   // 1) Fetch a page of tasks
   async function loadPage(p: number) {
@@ -92,6 +94,40 @@ async function fetchRatings(taskList: Task[]) {
 
   useEffect(() => { goPage(1) }, []);
 
+
+
+  
+
+  // Fetch a page of tasks
+  // async function loadPage(p: number) {
+  //   const res = await fetch(`/api/tasks?page=${p}&limit=${limit}`);
+  //   const json = await res.json();
+  //   if (!json.success) throw new Error(json.message);
+  //   return { tasks: json.tasks as Task[], totalTasks: json.totalTasks as number };
+  // }
+  // Batch‐fetch advertiser emails
+  // async function fetchEmails(taskList: Task[]) {
+  //   const ids = Array.from(new Set(taskList.map(t => t.createdBy)));
+  //   const fetched = await Promise.all(
+  //     ids.map(id =>
+  //       fetch(`/api/users/${id}`)
+  //         .then(r => r.json())
+  //         .then(u => ({ id, email: u.user.email }))
+  //     )
+  //   );
+  //   setEmails(Object.fromEntries(fetched.map(x => [x.id, x.email])));
+  // }
+
+  // const goPage = (p: number) => {
+  //   startTransition(async () => {
+  //     const { tasks: tks, totalTasks } = await loadPage(p);
+  //     setTasks(tks);
+  //     setTotalTasks(totalTasks);
+  //     setPage(p);
+  //     fetchEmails(tks);
+  //   });
+  // };
+
   // 4) Ban & contact handlers (unchanged) …
   const banAdvertiser = async (userId: string) => {
     if (!confirm('Ban this advertiser?')) return;
@@ -118,7 +154,7 @@ async function fetchRatings(taskList: Task[]) {
           <thead className="bg-gray-100">
             <tr>
               {[
-                'Title','Task Approval','Desc','Rating','Status',
+                '⇕','Title','Desc','Rating','Status',
                 'Reward','Budget','Max','Advertiser',
                 'Subs','Actions'
               ].map(h => (
@@ -128,68 +164,76 @@ async function fetchRatings(taskList: Task[]) {
           </thead>
           <tbody>
             {tasks.map(t => (
-              <tr key={t._id} className="border-b">
-                <td className="p-2 text-indigo-600">
-                  <Link href={`/Admin/Utask/${t._id}`}>{t.title}</Link>
-                </td>
-                <td className="p-2">
-  {/* Only show buttons if NOT yet approved */}
-  {!t.isApproved && (
-    <>
-      <button
-        onClick={async () => {
-          if (!confirm("Approve this task?")) return;
-          const res = await fetch('/api/admin/tasks/approve', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ taskId: t._id }),
-          });
-          const j = await res.json();
-          if (j.success) goPage(page);
-          else alert('Error: ' + j.message);
-        }}
-        className="px-2 py-1 text-xs bg-green-600 text-white rounded mr-2"
-      >
-        Approve
-      </button>
+              <React.Fragment key={t._id}>
+                {/* ─── Main Row ─── */}
+                <tr className="border-b">
+                  {/* toggle */}
+                  <td className="p-2">
+                    <button
+                      onClick={() =>
+                        setExpanded(e => ({ ...e, [t._id]: !e[t._id] }))
+                      }
+                    >
+                      {expanded[t._id]
+                        ? <FaChevronDown size={12}/>
+                        : <FaChevronCircleRight size={12}/>}
+                    </button>
+                  </td>
+                  <td className="p-2 text-indigo-600">
+                    <Link href={`/Admin/Utask/${t._id}`}>{t.title}</Link>
+                  </td>
+                  <td className="p-2 truncate">{t.description}</td>
+                  <td className="p-2">{t.rating}</td>
+                  <td className="p-2">{t.status}</td>
+                  <td className="p-2">${t.reward}</td>
+                  <td className="p-2">${t.budget}</td>
+                  <td className="p-2">{t.maxUsersCanDo}</td>
+                  <td className="p-2">{emails[t.createdBy] || '…'}</td>
+                  <td className="p-2">
+                    {t.requests?.length ?? 0}
+                  </td>
+                  <td className="p-2">
+                    {!t.isApproved && (
+                      <>
+                        <button
+                          onClick={async () => {
+                            if (!confirm("Approve this task?")) return;
+                            const res = await fetch('/api/admin/tasks/approve',{
+                              method:'POST',
+                              headers:{'Content-Type':'application/json'},
+                              body:JSON.stringify({ taskId:t._id })
+                            });
+                            const j = await res.json();
+                            if (j.success) goPage(page);
+                            else alert('Error: '+j.message);
+                          }}
+                          className="px-2 py-1 text-xs bg-green-600 text-white rounded mr-2"
+                        >Approve</button>
+                        <button
+                          onClick={async () => {
+                            if (!confirm("Reject this task?")) return;
+                            const res = await fetch('/api/admin/tasks/reject',{
+                              method:'POST',
+                              headers:{'Content-Type':'application/json'},
+                              body:JSON.stringify({ taskId:t._id })
+                            });
+                            const j = await res.json();
+                            if (j.success) goPage(page);
+                            else alert('Error: '+j.message);
+                          }}
+                          className="px-2 py-1 text-xs bg-red-700 text-white rounded"
+                        >Reject</button>
+                      </>
+                    )}
+                  </td>
 
-      <button
-        onClick={async () => {
-          if (!confirm("Reject this task?")) return;
-          const res = await fetch('/api/admin/tasks/reject', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ taskId: t._id }),
-          });
-          const j = await res.json();
-          if (j.success) goPage(page);
-          else alert('Error: ' + j.message);
-        }}
-        className="px-2 py-1 text-xs bg-red-700 text-white rounded"
-      >
-        Reject
-      </button>
-    </>
-  )}
-</td>
 
-                <td className="p-2">{t.description}</td>
-                <td className="p-2">
-                  <span className={`px-2 py-0.5 rounded-full text-xs ${
-                    t.status === 'approved'
-                      ? 'bg-green-100 text-green-800'
-                      : t.status === 'rejected'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {t.status}
-                  </span>
-                </td>
-                <td className="p-2">${t.reward}</td>
-                <td className="p-2">${t.budget}</td>
-                <td className="p-2">{t.maxUsersCanDo}</td>
-                <td className="p-2">{emails[t.createdBy] || '…'}</td>
-                <td className="p-2">
+                </tr>
+
+                {/* ─── Expanded Detail Row ─── */}
+                {expanded[t._id] && (
+                  <tr className="bg-gray-50">
+                    <td className="p-2">
                     {ratings[t.createdBy]
                       ? (
                         <div className="flex items-center space-x-1">
@@ -207,20 +251,6 @@ async function fetchRatings(taskList: Task[]) {
                       : '…'
                     }
                   </td>
-                <td className="p-2 space-y-1">
-                  {(t.requests || []).map(r => (
-                    <div key={r._id} className="mb-1">
-                      <span className="inline-block px-2 py-1 text-xs bg-gray-100 rounded">
-                        {r.status} =
-                      
-                      {r.status === 'Rejected' && r.rejectionReason && (
-                        <p className="text-red-600 text-xs mt-1">
-                          Reason: {r.rejectionReason}
-                        </p>
-                      )}</span>
-                    </div>
-                  ))}
-                </td>
                 <td className="p-2 space-x-1">
                 <button
                   onClick={() => {
@@ -297,7 +327,49 @@ async function fetchRatings(taskList: Task[]) {
                     Contact
                   </button>
                 </td>
-              </tr>
+                    <td colSpan={11} className="p-4">
+                      <h3 className="font-semibold mb-2">Submissions</h3>
+
+                      {/* Approved */}
+                      <div className="mb-4">
+                        <h4 className="text-green-700 font-medium">✅ Approved:</h4>
+                        {t.requests?.filter(r => r.status==='Approved').length
+                          ? t.requests!
+                              .filter(r => r.status==='Approved')
+                              .map(r => (
+                                <div key={r._id} className="ml-4 text-sm">
+                                  Submission ID: <code>{r._id}</code>
+                                </div>
+                              ))
+                          : <p className="ml-4 text-sm text-gray-500">None</p>
+                        }
+                        
+                      </div>
+
+                      {/* Rejected */}
+                      <div>
+                        <h4 className="text-red-700 font-medium">❌ Rejected:</h4>
+                        {t.requests?.filter(r => r.status==='Rejected').length
+                          ? t.requests!
+                              .filter(r => r.status==='Rejected')
+                              .map(r => (
+                                <div key={r._id} className="ml-4 text-sm">
+                                  <p>
+                                    <span className="font-semibold">ID:</span> <code>{r._id}</code>
+                                  </p>
+                                  <p>
+                                    <span className="font-semibold">Reason:</span> {r.rejectionReason}
+                                  </p>
+                                </div>
+                              ))
+                          : <p className="ml-4 text-sm text-gray-500">None</p>
+                        }
+                      </div>
+                    </td>
+                    
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>
@@ -309,19 +381,13 @@ async function fetchRatings(taskList: Task[]) {
           onClick={() => goPage(page - 1)}
           disabled={page === 1 || isPending}
           className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <span>
-          Page {page} of {Math.ceil(totalTasks / limit)}
-        </span>
+        >Previous</button>
+        <span>Page {page} of {Math.ceil(totalTasks/limit)}</span>
         <button
           onClick={() => goPage(page + 1)}
-          disabled={page === Math.ceil(totalTasks / limit) || isPending}
+          disabled={page === Math.ceil(totalTasks/limit) || isPending}
           className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Next
-        </button>
+        >Next</button>
       </div>
     </main>
   );

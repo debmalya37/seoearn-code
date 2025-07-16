@@ -98,7 +98,7 @@ const Feedside = ({
     {/* Total Volume */}
       <div className="bg-purple-600 text-white p-4 text-center mt-2">
         <h3 className="text-lg font-bold">${volume.toFixed(2)}</h3>
-        <p className="text-sm">TOTAL VOLUME</p>
+        <p className="text-sm">TOTAL TRANSACTION VALUE</p>
       </div>
 
     {/* Revenue Totals */}

@@ -106,37 +106,31 @@ export async function PUT(
     await rewardReferralLevels(submitterId, rewardAmt);
   }
 
-  // 3️⃣ Update advertiser’s consecutiveRejections & ratings
-  //    Advertiser is the task creator
-  const advertiserId = task.createdBy.toString();
-  const advertiser = await UserModel.findById(advertiserId);
-  if (!advertiser) {
-    // shouldn’t happen, but bail if user gone
-    return NextResponse.json({ success: false, message: "Advertiser not found" }, { status: 404 });
-  }
+  // 3️⃣ Update Tasker’s consecutiveRejections & ratings
+  
+  const submitterId = entry.userId.toString();
+const submitter = await UserModel.findById(submitterId);
+if (!submitter) {
+  return NextResponse.json({ success: false, message: 'Submitter not found' }, { status: 404 });
+}
+if (status === 'approved') {
+  // any time they get an approval, reset their rejection streak
+  submitter.consecutiveRejections = 0;
+} else {
+  // increment their rejection streak
+  submitter.consecutiveRejections = (submitter.consecutiveRejections || 0) + 1;
 
-  if (status === "approved") {
-    // reset streak on any approval
-    advertiser.consecutiveRejections = 0;
-  } else {
-    advertiser.consecutiveRejections = (advertiser.consecutiveRejections || 0) + 1;
-
-    // every 10 straight rejections → drop average by 1
-    if (advertiser.consecutiveRejections % 10 === 0) {
-      // Number of ratings entries:
-      const N = Array.isArray(advertiser.ratings) ? advertiser.ratings.length : 0;
-      if (N > 0) {
-        // Current score in index 0 (or default 0)
-        const prevScore = typeof advertiser.ratings[0] === 'number'
-          ? advertiser.ratings[0]
-          : 0;
-        // Subtract N from that slot to drop avg by 1
-        advertiser.ratings[0] = prevScore - N;
-      }
+  // every 10 straight rejected submissions → drop average by 1
+  if (submitter.consecutiveRejections % 10 === 0) {
+    const N = Array.isArray(submitter.ratings) ? submitter.ratings.length : 0;
+    if (N > 0) {
+      const prevAvgSlot = typeof submitter.ratings[0] === 'number' ? submitter.ratings[0] : 0;
+      // to lower the *average* by exactly 1 point, subtract N from the sum slot:
+      submitter.ratings[0] = prevAvgSlot - N;
     }
   }
-
-  await advertiser.save();
+}
+await submitter.save();
 
   return NextResponse.json({
     success: true,

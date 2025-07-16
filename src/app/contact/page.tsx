@@ -4,15 +4,34 @@ import React, { useState } from 'react';
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string|null>(null);
   const [form, setForm] = useState({ name: '', email: '', message: '' });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire up API
-    setSent(true);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Server error');
+      }
+      setSent(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -21,10 +40,14 @@ export default function ContactPage() {
       <p className="text-gray-600 mb-8">
         Have questions or need support? Fill out the form below and our team will get back to you within 24 hours.
       </p>
+
       {sent ? (
-        <div className="p-6 bg-green-100 text-green-800 rounded-lg">Thank you! Your message has been sent.</div>
+        <div className="p-6 bg-green-100 text-green-800 rounded-lg">
+          Thank you! Your message has been sent.
+        </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
+          {error && <div className="p-3 bg-red-100 text-red-700 rounded">{error}</div>}
           <label className="block">
             <span className="font-medium">Name</span>
             <input
@@ -32,6 +55,7 @@ export default function ContactPage() {
               value={form.name}
               onChange={handleChange}
               required
+              disabled={loading}
               className="mt-1 p-2 w-full border rounded focus:ring focus:border-blue-300"
             />
           </label>
@@ -43,6 +67,7 @@ export default function ContactPage() {
               value={form.email}
               onChange={handleChange}
               required
+              disabled={loading}
               className="mt-1 p-2 w-full border rounded focus:ring focus:border-blue-300"
             />
           </label>
@@ -54,14 +79,18 @@ export default function ContactPage() {
               onChange={handleChange}
               rows={5}
               required
+              disabled={loading}
               className="mt-1 p-2 w-full border rounded focus:ring focus:border-blue-300 resize-none"
             />
           </label>
           <button
             type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            disabled={loading}
+            className={`px-6 py-2 rounded text-white transition ${
+              loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
           >
-            Send Message
+            {loading ? 'Sending…' : 'Send Message'}
           </button>
         </form>
       )}

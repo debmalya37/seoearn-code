@@ -332,12 +332,12 @@ useEffect(() => {
         {/* Submissions Panel */}
         {/* Submissions Panel */}
         {selectedTaskId && (
-          <section className="mt-6 bg-white p-6 rounded shadow">
+          <section className="mt-6 bg-white rounded shadow max-h-[70vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">
                 Submissions for Ad #{selectedTaskId}
               </h2>
-              <Button variant="outline" onClick={() => setSelectedTaskId(null)}>
+              <Button variant="outline" onClick={() => setSelectedTaskId(null)} className="w-full md:w-auto mt-2 md:mt-0" >
                 Close
               </Button>
             </div>
@@ -347,9 +347,9 @@ useEffect(() => {
             {submissions.map(sub => (
               <div
                 key={sub._id}
-                className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 p-4 border rounded"
+                className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 p-4 border rounded space-y-4 md:space-y-0 md:space-x-4"
               >
-                <div>
+                <div className="flex-1 space-y-2">
                   <p>
                     <strong>User:</strong> {sub.email}
                     <p className="text-sm text-yellow-600">
@@ -379,7 +379,7 @@ useEffect(() => {
                       <strong>Rejection reason:</strong> {sub.rejectionReason}
                     </p>
                   )}
-                  { sub.status === 'Approved' && (
+                  { sub.status === 'Approved' || sub.status === 'Rejected' && (
   <div className="mt-2 flex items-center space-x-2">
     {/* stars state per submission: */}
     {[1,2,3,4,5].map(star => (
@@ -414,7 +414,7 @@ useEffect(() => {
                 </div>
 
                 {sub.status === 'Pending' ? (
-                  <div className="mt-3 md:mt-0 space-x-2">
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <Button size="sm" onClick={() => handleApprove(sub._id)}>
                       Approve
                     </Button>
@@ -430,7 +430,7 @@ useEffect(() => {
                     </Button>
                   </div>
                 ) : (
-                  <span className="px-2 py-1 text-xs bg-gray-200 rounded uppercase">
+                  <span className="px-2 py-1 text-xs bg-gray-200 rounded uppercase text-center">
                     {sub.status}
                   </span>
                 )}
@@ -456,7 +456,7 @@ useEffect(() => {
                 onChange={e => setReasonText(e.target.value)}
               />
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setRejectingId(null)}>
+                <Button className='text-black' variant="outline" onClick={() => setRejectingId(null)}>
                   Cancel
                 </Button>
                 <Button

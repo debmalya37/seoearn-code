@@ -148,7 +148,7 @@ export async function GET(req: NextRequest) {
     const secondLevelCount = await countSecondLevel(user._id.toString());
 
     // 4. Build referral link
-    const origin = req.nextUrl.origin;
+    const origin = "https://seoearningspace.com";
     const referralLink = `${origin}/sign-up?ref=${user.referralCode}`;
 
     // 5. Pull referral transactions history

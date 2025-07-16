@@ -1,0 +1,119 @@
+'use client';
+import React, { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+
+interface Ticket {
+  _id: string;
+  title: string;
+  description: string;
+  status: 'open' | 'closed';
+  createdAt: string;
+  userId: { username: string; email: string };
+}
+
+export default function AdminTicketsPage() {
+  const { data: session, status } = useSession();
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  // track per-ticket reply text
+  const [replies, setReplies] = useState<Record<string,string>>({});
+
+  useEffect(() => {
+    if (status !== 'authenticated' || !session?.user) return;
+    fetch('/api/admin/tickets')
+      .then(r => r.json())
+      .then(j => {
+        if (j.success) setTickets(j.tickets);
+        else setError(j.message);
+      })
+      .catch(e => setError(e.message));
+  }, [status, session]);
+
+  if (status === 'loading') return <main className="p-6">Loading…</main>;
+  if (!session)          return <main className="p-6">Sign in to view tickets.</main>;
+  if (!session.user) return <main className="p-6">Access Denied</main>;
+
+  const handleReplyChange = (id: string, val: string) => {
+    setReplies(r => ({ ...r, [id]: val }));
+  };
+
+  const sendReply = async (ticket: Ticket) => {
+    try {
+      const res = await fetch(`/api/admin/tickets/${ticket._id}/reply`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ reply: replies[ticket._id] })
+      });
+      const j = await res.json();
+      if (!j.success) throw new Error(j.message);
+      alert('Reply sent!');
+      setReplies(r => ({ ...r, [ticket._id]: '' }));
+    } catch (e: any) {
+      alert('Error: ' + e.message);
+    }
+  };
+
+  const changeStatus = async (ticket: Ticket, newStatus: 'open'|'closed') => {
+    try {
+      const res = await fetch(`/api/admin/tickets/${ticket._id}/status`, {
+        method: 'PATCH',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ status: newStatus })
+      });
+      const j = await res.json();
+      if (!j.success) throw new Error(j.message);
+      setTickets(tks => tks.map(t => t._id === ticket._id ? { ...t, status: newStatus } : t));
+    } catch (e: any) {
+      alert('Error: ' + e.message);
+    }
+  };
+
+  return (
+    <main className="p-6 space-y-6">
+      <h1 className="text-3xl font-bold text-center">All Support Tickets</h1>
+      {error && <div className="bg-red-100 text-red-800 p-4 rounded">{error}</div>}
+      {tickets.length === 0 ? (
+        <p className="text-gray-600">No tickets found.</p>
+      ) : tickets.map(t => (
+        <div key={t._id} className="border p-4 rounded space-y-4">
+          <header className="flex justify-between items-center">
+            <div>
+              <h2 className="text-xl font-semibold">{t.title}</h2>
+              <p className="text-sm text-gray-600">
+                From {t.userId.username} ({t.userId.email}) —{' '}
+                {new Date(t.createdAt).toLocaleString()}
+              </p>
+            </div>
+            <select
+            title="Change ticket status"
+              value={t.status}
+              onChange={e => changeStatus(t, e.target.value as any)}
+              className="px-2 py-1 border rounded"
+            >
+              <option value="open">Open</option>
+              <option value="closed">Closed</option>
+            </select>
+          </header>
+
+          <p>{t.description}</p>
+
+          <div className="space-y-2">
+            <textarea
+              placeholder="Type your reply..."
+              value={replies[t._id] || ''}
+              onChange={e => handleReplyChange(t._id, e.target.value)}
+              className="w-full border p-2 rounded h-24 resize-y"
+            />
+            <button
+              onClick={() => sendReply(t)}
+              disabled={!replies[t._id]?.trim()}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            >
+              Send Reply
+            </button>
+          </div>
+        </div>
+      ))}
+    </main>
+  );
+}
