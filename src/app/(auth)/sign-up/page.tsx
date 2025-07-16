@@ -370,6 +370,7 @@ function SignUpPage() {
   rules={{ required: true }}
   render={({ field }) => (
     <FormItem className="flex items-start space-x-2">
+        <div className="text-sm text-gray-300">
       <FormControl>
         <input
           title="I agree to the User Agreement / NDA"
@@ -379,8 +380,7 @@ function SignUpPage() {
           className="mt-1 accent-indigo-500"
         />
       </FormControl>
-      <div className="text-sm text-gray-300">
-        I agree to the{' '}
+        {' '}I agree to the{' '}
         <Link
           href="/nda"
           target="_blank"

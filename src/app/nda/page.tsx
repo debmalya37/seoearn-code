@@ -122,7 +122,7 @@ export default function NDAAgreementPage() {
           <h2 className="text-xl font-semibold text-indigo-600">8. Dispute Resolution</h2>
           <p className="mt-2">
             Any dispute arising out of or relating to this Agreement shall be settled under arbitration governed
-            by Indian Arbitration and Conciliation Act, 1996. The venue shall be Kolkata, India.
+            by Indian Arbitration and Conciliation Act, 1996. The venue shall be India.
           </p>
         </section>
   
