@@ -52,11 +52,14 @@ export default function Hero2() {
           Connect advertisers and freelancers on one platform—get tasks done or earn real cash, plus multi‑level referral bonuses.
         </p>
         <div className={styles.buttons}>
-          <Link href="/sign-in">
-            <motion.a className={styles.primaryBtn} whileHover={{ scale: 1.05 }}>
-              Get Started
-            </motion.a>
-          </Link>
+        <Link href="/sign-in" className="order-last sm:order-none">
+          <motion.a
+            className={styles.cta}
+            whileHover={{ scale: 1.05 }}
+          >
+            Get Started
+          </motion.a>
+        </Link>
           <Link href="/TaskFeed">
             <motion.a className={styles.secondaryBtn} whileHover={{ scale: 1.05 }}>
               Browse Tasks
