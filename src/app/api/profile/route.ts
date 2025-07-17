@@ -74,22 +74,20 @@ export async function POST(req: NextRequest) {
     const updatedUser = await UserModel.findOneAndUpdate(
       { email: userEmail },
       {
-        age: age,
-        username:  session.user.name || username,
-        name: name || "",
-        
-        country: country,
-        gender: gender,
-        dob: dob,
-        phoneNumber: phoneNumber,
-        profilePicture: profilePicture,
-        paymentPreference: paymentPreference,
-        paymentId: paymentId,
-        referralCode: referralCode,
+        username,    // ← use the one the client submitted
+        name,
+        dob,
+        gender,
+        country,
+        phoneNumber,
+        profilePicture,
+        paymentPreference,
+        paymentId,
+        referralCode,
         isHidden: !!isHidden,
         is18Plus: !!is18Plus,
       },
-      { new: true }
+      { new: true, runValidators: true }
     );
 
     if (!updatedUser) {

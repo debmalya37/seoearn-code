@@ -1,4 +1,5 @@
 // src/app/api/admin/withdrawals/[txnId]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@src/lib/dbConnect';
 import UserModel from '@src/models/userModel';
@@ -14,55 +15,87 @@ export async function PATCH(
   const { txnId } = params;
   const { action } = await req.json();
 
-  // 1) Validate
   if (!Types.ObjectId.isValid(txnId) || !['approve', 'reject'].includes(action)) {
     return NextResponse.json({ success: false, message: 'Invalid request' }, { status: 400 });
   }
 
-  // 2) Find user & transaction
   const user = await UserModel.findOne({ 'transactions._id': txnId });
   if (!user) {
     return NextResponse.json({ success: false, message: 'Transaction not found' }, { status: 404 });
   }
+
   const txn = user.transactions.id(txnId)!;
   if (txn.status === 'completed') {
     return NextResponse.json({ success: false, message: 'Already processed' }, { status: 400 });
   }
 
-  // 3) Reject flow
+  const wallet = await Wallet.findOne({ userId: user._id });
+  if (!wallet) {
+    return NextResponse.json({ success: false, message: 'Wallet not found' }, { status: 404 });
+  }
+
   if (action === 'reject') {
-    const wallet = await Wallet.findOne({ userId: user._id.toString() });
-    if (wallet) {
-      wallet.balance += txn.amount;
-      await wallet.save();
-    }
+    wallet.balance += txn.usdAmount;
+    await wallet.save();
     txn.status = 'failed';
     await user.save();
     return NextResponse.json({ success: true, message: 'Withdrawal rejected' });
   }
 
-  // 4) Approve → Use Payeer single payout
-  const { account, currency } = txn.details || {};
+  // Approve
+  const { account } = txn.details || {};
+  const currency = txn.nativeCurrency;
+  const nativeAmount = txn.nativeAmount.toString();
+  const isManual = txn.method === 'manual';
+
   if (!account || !currency) {
-    return NextResponse.json(
-      { success: false, message: 'Missing payout details in transaction' },
-      { status: 400 }
-    );
+    return NextResponse.json({ success: false, message: 'Missing payout details' }, { status: 400 });
   }
 
-  try {
-    const providerTxId = await singlePayout(account, txn.amount.toFixed(2), currency, txnId);
+  // APPROVE LOGIC
+try {
+  // Lock funds
+  wallet.balance -= txn.usdAmount;
+  wallet.locked = (wallet.locked || 0) + txn.usdAmount;
+  await wallet.save();
 
+  // Bypass Payeer payout for manual currencies
+  const manualCurrencies = ['LTC', 'MATIC', 'POLYGON']; // Add more if needed
+
+  if (manualCurrencies.includes(currency.toUpperCase())) {
     txn.status = 'completed';
-    txn.providerTxId = providerTxId;
+    txn.providerTxId = 'manual'; // Optional: mark as manually processed
     await user.save();
 
-    return NextResponse.json({ success: true, message: 'Withdrawal approved' });
-  } catch (err: any) {
-    console.error('Payeer payout error:', err);
-    return NextResponse.json(
-      { success: false, message: err.message || 'Payout failed' },
-      { status: 500 }
-    );
+    wallet.locked -= txn.usdAmount;
+    await wallet.save();
+
+    return NextResponse.json({ success: true, message: 'Manual withdrawal approved' });
   }
+
+  // Call payeer singlePayout for automatic currencies
+  const historyId = await singlePayout(account, nativeAmount, currency, txnId);
+
+  txn.status = 'completed';
+  txn.providerTxId = historyId;
+  await user.save();
+
+  wallet.locked -= txn.usdAmount;
+  await wallet.save();
+
+  return NextResponse.json({ success: true, message: 'Withdrawal approved' });
+
+} catch (err: any) {
+  console.error('Payeer payout error:', err.message);
+
+  wallet.balance += txn.usdAmount;
+  wallet.locked -= txn.usdAmount;
+  await wallet.save();
+
+  return NextResponse.json(
+    { success: false, message: err.message || 'Payout failed' },
+    { status: 500 }
+  );
+}
+
 }

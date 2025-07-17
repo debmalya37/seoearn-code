@@ -1,12 +1,3 @@
-// // src/app/api/wallet/transactions.ts
-// import { NextRequest, NextResponse } from 'next/server';
-// import { getServerSession } from 'next-auth';
-// import dbConnect from '@src/lib/dbConnect';
-// import UserModel from '@src/models/userModel';
-// import { authOptions } from '@src/app/api/auth/[...nextauth]/options';
-
-
-
 // src/app/api/wallet/transaction/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@src/lib/dbConnect';
@@ -15,30 +6,39 @@ import UserModel from '@src/models/userModel';
 export async function GET(req: NextRequest) {
   const userId = req.nextUrl.searchParams.get('userId');
   if (!userId) {
-    return NextResponse.json({ success: false, message: 'userId is required' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, message: 'userId is required' },
+      { status: 400 }
+    );
   }
 
   await dbConnect();
   const user = await UserModel.findById(userId).populate('transactions').exec();
   if (!user) {
-    return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
+    return NextResponse.json(
+      { success: false, message: 'User not found' },
+      { status: 404 }
+    );
   }
 
   // Sort by most recent first
-  const sortedTxns = (user.transactions || []).sort((a:any, b:any) => b.date.getTime() - a.date.getTime());
+  const sortedTxns = (user.transactions || []).sort(
+    (a: any, b: any) => b.date.getTime() - a.date.getTime()
+  );
 
   // Map to front-end shape
-  const transactions = sortedTxns.map((t:any) => ({
-    id: t._id.toString(),
-    amount: t.amount,
-    type: t.type,
-    date: t.date.toISOString(),
-    status: t.status,
+  const transactions = sortedTxns.map((t: any) => ({
+    id:             t._id.toString(),
+    type:           t.type,
+    date:           t.date.toISOString(),
+    status:         t.status,
+    nativeAmount:   t.nativeAmount,
+    nativeCurrency: t.nativeCurrency,
+    usdAmount:      t.usdAmount,
   }));
 
   return NextResponse.json({ success: true, transactions });
 }
-
 
 
 

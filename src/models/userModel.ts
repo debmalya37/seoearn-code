@@ -51,22 +51,32 @@ const MessageSchema: Schema<IMessage> = new mongoose.Schema({
 export interface ITransaction extends Document {
   orderId?: string; 
   type: 'deposit' | 'withdrawal';
+  nativeAmount: number; // amount in the user’s chosen currency
+  nativeCurrency: string; // ISO currency code, e.g. "RUB", "EUR", "USD"
+  usdAmount: number; // USD equivalent of nativeAmount at time of transaction
   amount: number;
   date: Date;
   status: 'pending' | 'processing' | 'completed' | 'failed';
   providerTxId?: string;          // Payeer’s transaction or payout ID
   details?: Record<string, any>;  // extra metadata (e.g. payout destination)
 }
+// src/models/transactionModel.ts
 
 const TransactionSchema: Schema<ITransaction> = new mongoose.Schema({
-  orderId:     { type: String, unique: true },
-  type: { type: String, enum: ['deposit', 'withdrawal'], required: true },
-  amount: { type: Number, required: true },
-  date: { type: Date, default: Date.now },
-  status: { type: String, enum: ['pending', 'processing', 'completed', 'failed'], default: 'pending' },
-  providerTxId: { type: String, default: null },
-  details: { type: Schema.Types.Mixed, default: {} },
+  orderId:        { type: String, unique: true },
+  type:           { type: String, enum: ['deposit', 'withdrawal'], required: true },
+  // the amount in the user’s chosen currency
+  nativeAmount:   { type: Number, required: true },
+  // ISO currency code, e.g. "RUB", "EUR", "USD"
+  nativeCurrency: { type: String, required: true },
+  // the USD equivalent of nativeAmount at time of transaction
+  usdAmount:      { type: Number, required: true },
+  date:           { type: Date, default: Date.now },
+  status:         { type: String, enum: ['pending','processing','completed','failed'], default: 'pending' },
+  providerTxId:   { type: String, default: null },
+  details:        { type: Schema.Types.Mixed, default: {} },
 });
+
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -132,7 +142,7 @@ const UserSchema = new Schema<IUser>({
   username: { type: String, required: true, trim: true, unique: true },
   phoneNumber: { type: String },
   password: { type: String },
-  gender: { type: String, enum: ['male', 'female', 'other'] },
+  gender: { type: String, enum: ['Male', 'Female', 'Other', 'Prefer not to say'] },
   age: { type: Number, min: 0 },
   dob: { type: Date },
   isHidden: { type: Boolean, default: false }, // for admin use, to hide user from public listings

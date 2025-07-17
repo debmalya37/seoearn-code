@@ -2,13 +2,15 @@
 'use client';
 
 interface Props {
-  transactions: {
+  transactions: Array<{
     id: string;
-    amount: number;
     type: 'deposit' | 'withdrawal';
     date: string;
     status: string;
-  }[];
+    nativeAmount: number;
+    nativeCurrency: string;
+    usdAmount: number;
+  }>;
 }
 
 export default function TransactionHistory({ transactions }: Props) {
@@ -20,7 +22,7 @@ export default function TransactionHistory({ transactions }: Props) {
         <p className="text-gray-400">No transactions yet.</p>
       ) : (
         <>
-          {/* Table view for sm+ */}
+          {/* Desktop table */}
           <div className="hidden sm:block overflow-x-auto">
             <table className="min-w-full text-left whitespace-nowrap">
               <thead>
@@ -33,10 +35,15 @@ export default function TransactionHistory({ transactions }: Props) {
               </thead>
               <tbody>
                 {transactions.map((tx) => (
-                  <tr key={tx.id} className="border-t border-gray-700">
-                    <td className="px-4 py-2 text-sm">{new Date(tx.date).toLocaleString()}</td>
+                  <tr key={tx.id} className="border-t border-gray-300">
+                    <td className="px-4 py-2 text-sm">
+                      {new Date(tx.date).toLocaleString()}
+                    </td>
                     <td className="px-4 py-2 text-sm capitalize">{tx.type}</td>
-                    <td className="px-4 py-2 text-sm">${tx.amount.toFixed(2)}</td>
+                    <td className="px-4 py-2 text-sm">
+                      {tx.nativeAmount.toFixed(2)} {tx.nativeCurrency}
+                      {' '}(&approx; ${tx.usdAmount.toFixed(2)})
+                    </td>
                     <td className="px-4 py-2 text-sm">{tx.status}</td>
                   </tr>
                 ))}
@@ -44,7 +51,7 @@ export default function TransactionHistory({ transactions }: Props) {
             </table>
           </div>
 
-          {/* Card view for mobile */}
+          {/* Mobile cards */}
           <div className="space-y-4 sm:hidden">
             {transactions.map((tx) => (
               <div
@@ -52,15 +59,17 @@ export default function TransactionHistory({ transactions }: Props) {
                 className="bg-white p-4 rounded-lg shadow flex flex-col space-y-2"
               >
                 <div className="text-sm text-gray-600">
-                  <span className="font-medium">Date:</span>{" "}
+                  <span className="font-medium">Date:</span>{' '}
                   {new Date(tx.date).toLocaleString()}
                 </div>
                 <div className="text-sm text-gray-600">
-                  <span className="font-medium">Type:</span>{" "}
+                  <span className="font-medium">Type:</span>{' '}
                   <span className="capitalize">{tx.type}</span>
                 </div>
                 <div className="text-sm text-gray-600">
-                  <span className="font-medium">Amount:</span> ${tx.amount.toFixed(2)}
+                  <span className="font-medium">Amount:</span>{' '}
+                  {tx.nativeAmount.toFixed(2)} {tx.nativeCurrency}{' '}
+                  <em>(≈${tx.usdAmount.toFixed(2)})</em>
                 </div>
                 <div className="text-sm text-gray-600">
                   <span className="font-medium">Status:</span> {tx.status}

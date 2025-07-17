@@ -21,15 +21,25 @@ export async function POST(request: Request) {
     } = await request.json();
 
     // 1. Basic validation
-    if (!name || !username || !phoneNumber || !email || !password || !gender || !age) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          message: 'All fields are required',
-        }),
-        { status: 400 }
-      );
-    }
+    // Instead of !age use a more precise check:
+if (
+  !name ||
+  !username ||
+  !phoneNumber ||
+  !email ||
+  !password ||
+  !gender ||
+  age == null  // only fail if age is null or undefined
+) {
+  return new Response(
+    JSON.stringify({
+      success: false,
+      message: 'All fields are required',
+    }),
+    { status: 400 }
+  );
+}
+
 
     // 2. One account per device
     const existingByDevice = await UserModel.findOne({ deviceIdentifier });
@@ -128,7 +138,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error registering user:', error);
     return new Response(
-      JSON.stringify({ success: false, message: 'Error registering user' }),
+      JSON.stringify({ success: false, message: (error as any).message }),
       { status: 500 }
     );
   }

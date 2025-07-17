@@ -1,22 +1,28 @@
-// src/app/api/wallet/withdraw/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@src/lib/dbConnect'
 import UserModel from '@src/models/userModel'
 import Wallet from '@src/models/wallet'
+import { fetchRate } from '@src/lib/exchange'
 
 export async function POST(req: NextRequest) {
-  const { userId, amount, account, currency } = await req.json()
+  const {
+    userId,
+    usdAmount,
+    nativeCurrency,
+    account
+  } = await req.json()
 
-  // 1) Basic validation
   if (
     !userId ||
-    typeof amount !== 'number' ||
-    amount <= 0 ||
-    !account ||
-    !currency
+    typeof usdAmount !== 'number' ||
+    usdAmount <= 0 ||
+    typeof nativeCurrency !== 'string' ||
+    !nativeCurrency ||
+    typeof account !== 'string' ||
+    !account
   ) {
     return NextResponse.json(
-      { success: false, message: 'Invalid request payload' },
+      { success: false, message: 'Invalid payload' },
       { status: 400 }
     )
   }
@@ -30,37 +36,52 @@ export async function POST(req: NextRequest) {
       { status: 404 }
     )
   }
-  if (!wallet || wallet.balance < amount) {
+  if (!wallet) {
     return NextResponse.json(
-      { success: false, message: 'Insufficient funds' },
+      { success: false, message: 'Wallet not found' },
       { status: 400 }
     )
   }
 
-  // 2) Lock funds
-  wallet.balance -= amount
-  wallet.locked = (wallet.locked || 0) + amount
+  const rate = nativeCurrency === 'USD'
+    ? 1
+    : await fetchRate('USD', nativeCurrency)
+  const nativeAmount = +(usdAmount * rate).toFixed(8)
+
+  if (wallet.balance < usdAmount) {
+    return NextResponse.json(
+      { success: false, message: 'Insufficient USD balance' },
+      { status: 400 }
+    )
+  }
+
+  // Lock the amount and deduct from balance
+  wallet.balance -= usdAmount
+  wallet.locked  = (wallet.locked || 0) + usdAmount
   await wallet.save()
 
-  // 3) Record a pending withdrawal with exactly these fields:
-  const withdrawalTx = {
-    type: 'withdrawal' as const,
-    amount,
-    status: 'pending' as const,
-    date: new Date(),
-    providerTxId: null as string | null,
-    details: {
-      account,    // payeer account
-      currency    // currency code, e.g. "USD"
-    },
-  }
-  user.transactions.push(withdrawalTx)
+  const isManual = ['LTC', 'MATIC'].includes(nativeCurrency.toUpperCase());
+
+user.transactions.push({
+  type:           'withdrawal',
+  nativeAmount,
+  nativeCurrency,
+  usdAmount,
+  date:           new Date(),
+  status:         'processing',
+  providerTxId:   null,
+  method:         isManual ? 'manual' : 'payeer',
+  details:        { account }
+});
+
+  
   await user.save()
 
-  const txn = user.transactions.at(-1)!
+  const txnId = user.transactions.at(-1)!._id.toString()
+
   return NextResponse.json({
     success: true,
-    message: 'Withdrawal requested – awaiting admin approval',
-    txnId: txn._id.toString(),
+    message: 'Withdrawal request sent for admin approval',
+    txnId
   })
 }

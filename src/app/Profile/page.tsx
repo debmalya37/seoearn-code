@@ -87,9 +87,10 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
 
 
   const genderOptions = [
-    { value: "male", label: "Male" },
-    { value: "female", label: "Female" },
-    { value: "other", label: "Other" }
+    { value: "Male", label: "Male" },
+    { value: "Female", label: "Female" },
+    { value: "Other", label: "Other" },
+    { value: "Prefer not to say", label: "Prefer not to say" }
   ];
   const countryCodeOptions = [
     { value: "1", label: "🇺🇸 +1 (USA)" },
@@ -275,7 +276,7 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
       data.phoneNumber = `${countryCode}${phoneNumber}`;
       data.dob = dob;
       data.username = data.username;
-      data.name = name;
+      data.name = data.name;
       data.isHidden = isHidden;
       data.is18Plus= is18Plus;
       data.age = age;
@@ -541,7 +542,7 @@ const [is18Plus, setIs18Plus] = useState<boolean>(false);
               </span>
               <input
     value={paymentId}
-    disabled={!isEmailVerified}
+    // disabled={!isEmailVerified}
     onChange={e => setPaymentId(e.target.value)}
     className="mt-1 w-full p-2 border rounded focus:ring focus:border-indigo-500"
     placeholder="e.g. P1234567 or paypal@example.com"
