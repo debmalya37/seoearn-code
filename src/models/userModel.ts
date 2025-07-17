@@ -55,6 +55,7 @@ export interface ITransaction extends Document {
   nativeCurrency: string; // ISO currency code, e.g. "RUB", "EUR", "USD"
   usdAmount: number; // USD equivalent of nativeAmount at time of transaction
   amount: number;
+  method: 'manual' | 'payeer'; // payment method, e.g. 'manual', 'payeer'
   date: Date;
   status: 'pending' | 'processing' | 'completed' | 'failed';
   providerTxId?: string;          // Payeer’s transaction or payout ID
@@ -69,6 +70,8 @@ const TransactionSchema: Schema<ITransaction> = new mongoose.Schema({
   nativeAmount:   { type: Number, required: true },
   // ISO currency code, e.g. "RUB", "EUR", "USD"
   nativeCurrency: { type: String, required: true },
+  method: { type: String, enum: ['manual', 'payeer'], default: 'payeer' },
+
   // the USD equivalent of nativeAmount at time of transaction
   usdAmount:      { type: Number, required: true },
   date:           { type: Date, default: Date.now },

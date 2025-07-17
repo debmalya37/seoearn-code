@@ -60,22 +60,28 @@ export async function POST(req: NextRequest) {
   wallet.locked  = (wallet.locked || 0) + usdAmount
   await wallet.save()
 
-  const isManual = ['LTC', 'MATIC'].includes(nativeCurrency.toUpperCase());
-
-user.transactions.push({
-  type:           'withdrawal',
+  // Save transaction as 'pending' only — no payout now
+  // await dbConnect();
+const isManual = ['LTC','MATIC'].includes(nativeCurrency);
+const newTxn = {
+  type: 'withdrawal',
   nativeAmount,
   nativeCurrency,
   usdAmount,
-  date:           new Date(),
-  status:         'processing',
-  providerTxId:   null,
-  method:         isManual ? 'manual' : 'payeer',
-  details:        { account }
-});
+  date: new Date(),
+  status: 'processing',
+  providerTxId: null,
+  method: isManual ? 'manual' : 'payeer',
+  details: { account }
+};
 
-  
-  await user.save()
+await UserModel.updateOne(
+  { _id: userId },
+  { 
+    $push: { transactions: newTxn }
+  }
+);
+
 
   const txnId = user.transactions.at(-1)!._id.toString()
 

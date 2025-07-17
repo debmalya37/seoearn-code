@@ -20,6 +20,8 @@ const TransactionSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  method: { type: String, enum: ['manual', 'payeer'], default: 'payeer' },
+
   status: {
     type: String,
     enum: ['successful', 'failed'],

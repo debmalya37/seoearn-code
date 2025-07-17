@@ -41,9 +41,9 @@ export default function TransactionHistory({ transactions }: Props) {
                     </td>
                     <td className="px-4 py-2 text-sm capitalize">{tx.type}</td>
                     <td className="px-4 py-2 text-sm">
-                      {tx.nativeAmount.toFixed(2)} {tx.nativeCurrency}
-                      {' '}(&approx; ${tx.usdAmount.toFixed(2)})
-                    </td>
+  {tx.nativeAmount?.toFixed?.(2) ?? '0.00'} {tx.nativeCurrency ?? ''}
+  {' '}(&approx; ${tx.usdAmount?.toFixed?.(2) ?? '0.00'})
+</td>
                     <td className="px-4 py-2 text-sm">{tx.status}</td>
                   </tr>
                 ))}
@@ -67,10 +67,11 @@ export default function TransactionHistory({ transactions }: Props) {
                   <span className="capitalize">{tx.type}</span>
                 </div>
                 <div className="text-sm text-gray-600">
-                  <span className="font-medium">Amount:</span>{' '}
-                  {tx.nativeAmount.toFixed(2)} {tx.nativeCurrency}{' '}
-                  <em>(≈${tx.usdAmount.toFixed(2)})</em>
-                </div>
+  <span className="font-medium">Amount:</span>{' '}
+  {tx.nativeAmount?.toFixed?.(2) ?? '0.00'} {tx.nativeCurrency ?? ''}
+  {' '}<em>(≈${tx.usdAmount?.toFixed?.(2) ?? '0.00'})</em>
+</div>
+
                 <div className="text-sm text-gray-600">
                   <span className="font-medium">Status:</span> {tx.status}
                 </div>

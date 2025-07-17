@@ -14,8 +14,6 @@ interface Props {
 
 const SUPPORTED_CURRENCIES = ['USD', 'RUB', 'EUR', 'BTC', 'ETH', 'LTC', 'MATIC'];
 
-
-
 export default function WalletActionButton({
   action,
   userId,
@@ -178,7 +176,6 @@ export default function WalletActionButton({
     )}
   </>
 )}
-
 
 
       {/* Submit */}
