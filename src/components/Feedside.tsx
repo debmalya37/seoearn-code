@@ -92,7 +92,7 @@ const Feedside = ({
     {/* Wallet Balance */}
     <div className="bg-blue-500 text-white p-4 text-center">
       <h3 className="text-lg font-bold">${balance.toFixed(4)}</h3>
-      <p className="text-sm">MY BALANCE</p>
+      <p className="text-sm">MY MONEY IN SAFE</p>
     </div>
 
     {/* Total Volume */}

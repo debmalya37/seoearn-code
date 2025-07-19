@@ -83,7 +83,7 @@ export default function AdsSide({ onOpenNewAd }: AdsSideProps) {
       </div>
       <div className="p-4 space-y-4 flex-1 overflow-auto">
         <div className="bg-white/30 p-3 rounded backdrop-blur-sm">
-          <h4 className="text-xs text-gray-900 uppercase">Balance</h4>
+          <h4 className="text-xs text-gray-900 uppercase">MY BALANCe</h4>
           <p className="text-xl font-semibold">
             {loading ? '…' : balance != null ? `$${balance.toFixed(2)}` : '--'}
           </p>
